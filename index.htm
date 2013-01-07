@@ -12,7 +12,24 @@
 
   a = new Interface.Panel();
   
-  b = new Interface.Slider({ x:200, y:25, width:100, height:300 });
+  b = new Interface.Slider({ 
+    x:200,
+    y:25,
+    width:100,
+    height:300,
+    onvaluechange :function() {
+      this.fill = 'rgba('+Math.round(this.value * 127)+',0,0,1)';
+    },
+    onmouseup : function() { 
+      this.fill = 'rgba(127,127,127,1)';
+      this.draw();
+    },
+    onmousedown: function() {
+      var r = Math.round( Math.random() * 255 );
+      this.background = 'rgba('+r+',0,'+r+',1)';
+      this.draw();
+    }
+  });
   
   c = new Interface.Slider({ bounds:[0,0,20,200] });
   

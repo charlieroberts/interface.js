@@ -11,39 +11,7 @@ var Interface = {
     }
     return destination;
   },
-  
-  widgetInit : function(widget, options) {
-    if(options.bounds) {
-      widget.x = options.bounds[0];
-      widget.y = options.bounds[1];
-      widget.width  = options.bounds[2];
-      widget.height = options.bounds[3];
-    }else{
-      widget.x = options.x;
-      widget.y = options.y;
-      widget.width  = options.width;
-      widget.height = options.height;
-    }
-      
-    if(options.colors) {
-      widget.background = options.colors[0];
-      widget.fill       = options.colors[1];
-      widget.stroke     = options.colors[2];                
-    }else{
-      widget.background = options.background || "#444";
-      widget.fill       = options.fill || "#777";
-      widget.stroke     = options.stroke || "#999";
-    }
-      
-    widget.ontouchstart = options.ontouchstart || null;
-    widget.ontouchmove  = options.ontouchmove  || null;
-    widget.ontouchend   = options.ontouchend   || null;
-      
-    widget.onmousestart = options.onmousestart || null;
-    widget.onmousemove  = options.onmousemove  || null;
-    widget.onmouseend   = options.onmouseend   || null;            
-  },
-  
+
   useTouch : 'ontouchstart' in document.documentElement,
 };
 
@@ -133,6 +101,16 @@ var widgetDefaults = {
   background    : "#444",
   fill          : "#777",
   stroke        : "#999",
+  lastValue     : null,
+  events : {
+    ontouchdown   : null,
+    ontouchmove   : null,
+    ontouchup     : null,
+    onmousedown   : null,
+    onmousemove   : null,
+    onmouseup     : null,
+    onvaluechange : null,
+  }
    
 }
 
@@ -172,8 +150,10 @@ Interface.Widget = {
     
     if(this.hitTest(e) || this.hasFocus) {
       if(e.type === 'mousedown') this.hasFocus = true;
-  
-      this.changeValue( e.x - this.x, e.y - this.y );
+      
+      this[e.type](e);  // normal event
+      
+      if(this['on'+e.type]) this['on'+e.type](e); // user defined event
     }
   },
   
@@ -212,9 +192,18 @@ Interface.Slider = function() {
           this.value = this.max;
         }
         
-        this.draw();
-      }
+        if(this.value !== this.lastValue) {
+          if(this.onvaluechange) this.onvaluechange();
+          this.draw();
+          this.lastValue = this.value;
+        }
+      }     
     },
+    
+    mousedown : function(e) { this.changeValue( e.x - this.x, e.y - this.y ); },
+    mousemove : function(e) { this.changeValue( e.x - this.x, e.y - this.y ); },
+    mouseup   : function(e) { this.changeValue( e.x - this.x, e.y - this.y ); },    
+    
   })
   .init( arguments[0] );
 };
