@@ -11,6 +11,7 @@
 <script>
 
   a = new Interface.Panel();
+  a.ctx.lineWidth = 5.5;
   
   b = new Interface.Slider({ 
     x:200,
@@ -39,8 +40,9 @@
   
   d = new Interface.Crossfader({ bounds:[20,300,300,100], min:-10, max:10 });
   
+  e = new Interface.Button({ bounds:[400, 400, 50,50] });
   
-  a.add(b, c, d);
+  a.add(b, c, d, e);
   
 </script>
 

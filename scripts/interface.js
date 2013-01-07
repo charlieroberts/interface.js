@@ -144,9 +144,7 @@ Interface.Widget = {
     return false;
   },
   
-  mouseEvent : function(e) {
-    if(e.type === 'mouseup') this.hasFocus = false;
-    
+  mouseEvent : function(e) {    
     if(this.hitTest(e) || this.hasFocus || !this.requiresFocus) {
       if(e.type === 'mousedown') this.hasFocus = true;
       
@@ -154,6 +152,7 @@ Interface.Widget = {
       
       if(this['on'+e.type]) this['on'+e.type](e); // user defined event
     }
+    if(e.type === 'mouseup') this.hasFocus = false;
   },
   
   touchEvent : function(event) {
@@ -262,9 +261,59 @@ Interface.Crossfader = function() {
       this.changeValue( e.x - this.x, e.y - this.y ); 
     },
     mousemove : function(e) { this.changeValue( e.x - this.x, e.y - this.y ); },
-    mouseup   : function(e) { this.changeValue( e.x - this.x, e.y - this.y ); },    
-    
+    mouseup   : function(e) { this.changeValue( e.x - this.x, e.y - this.y ); },
   })
   .init( arguments[0] );
 };
 Interface.Crossfader.prototype = Interface.Widget;
+
+Interface.Button = function() {
+  Interface.extend(this, {
+    _value: 0,
+    mode : 'toggle',
+    
+    draw : function() {
+      if(this._value) {
+        this.ctx.fillStyle = this.fill;
+      }else{
+        this.ctx.fillStyle = this.background;  
+      }
+      this.ctx.fillRect( this.x, this.y, this.width, this.height );
+      
+      this.ctx.strokeStyle = this.stroke;
+      this.ctx.strokeRect( this.x, this.y, this.width, this.height );      
+    },
+    
+    changeValue : function( xOffset, yOffset ) {
+      if(this.hasFocus || !this.requiresFocus) {
+        this._value = !this._value;
+        
+        this.value = this._value ? this.max : this.min;
+                
+        if(this.value !== this.lastValue) {
+          if(this.onvaluechange) this.onvaluechange();
+          this.draw();
+          this.lastValue = this.value;
+        }
+      }     
+    },
+    
+    mousedown : function(e) {
+      if(this.mode !== 'contact') {
+        this.changeValue( e.x - this.x, e.y - this.y ); 
+      }else{
+        this._value = 1;
+        this.draw();
+        var self = this;
+        setTimeout( function() { self._value = 0; self.draw(); }, 200);
+      }
+    },
+    mousemove : function(e) { /*this.changeValue( e.x - this.x, e.y - this.y );*/ },
+    mouseup   : function(e) {
+      if(this.mode === 'momentary')
+        this.changeValue( e.x - this.x, e.y - this.y ); 
+    },    
+  })
+  .init( arguments[0] );
+};
+Interface.Button.prototype = Interface.Widget;
