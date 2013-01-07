@@ -111,7 +111,6 @@ var widgetDefaults = {
     onmouseup     : null,
     onvaluechange : null,
   }
-   
 }
 
 Interface.Widget = {
@@ -148,7 +147,7 @@ Interface.Widget = {
   mouseEvent : function(e) {
     if(e.type === 'mouseup') this.hasFocus = false;
     
-    if(this.hitTest(e) || this.hasFocus) {
+    if(this.hitTest(e) || this.hasFocus || !this.requiresFocus) {
       if(e.type === 'mousedown') this.hasFocus = true;
       
       this[e.type](e);  // normal event
@@ -171,12 +170,19 @@ Interface.Widget = {
 
 Interface.Slider = function() {
   Interface.extend(this, {
+    isVertical : true,
+    
     draw : function() {
       this.ctx.fillStyle = this.background;
       this.ctx.fillRect( this.x, this.y, this.width, this.height );
       
       this.ctx.fillStyle = this.fill;
-      this.ctx.fillRect( this.x, this.y + this.height - this.value * this.height, this.width, this.value * this.height);
+      
+      if(this.isVertical) {
+        this.ctx.fillRect( this.x, this.y + this.height - this._value * this.height, this.width, this.value * this.height);
+      }else{
+        this.ctx.fillRect( this.x, this.y, this.width * this._value, this.height);
+      }
       
       this.ctx.strokeStyle = this.stroke;
       this.ctx.strokeRect( this.x, this.y, this.width, this.height );      
@@ -184,13 +190,18 @@ Interface.Slider = function() {
     
     changeValue : function( xOffset, yOffset ) {
       if(this.hasFocus || !this.requiresFocus) {
-        this.value = 1 - (yOffset / this.height);
         
-        if(this.value < this.min) {
-          this.value = this.min;
-        }else if(this.value > this.max) {
-          this.value = this.max;
+        this._value = this.isVertical ? 1 - (yOffset / this.height) : xOffset / this.width;
+        
+        if(this._value < 0) {
+          this._value = 0;
+          this.hasFocus = false;
+        }else if(this._value > 1) {
+          this._value = 1;
+          this.hasFocus = false;
         }
+        
+        this.value = this.min + (this.max - this.min) * this._value;
         
         if(this.value !== this.lastValue) {
           if(this.onvaluechange) this.onvaluechange();
@@ -209,3 +220,51 @@ Interface.Slider = function() {
 };
 Interface.Slider.prototype = Interface.Widget;
 
+Interface.Crossfader = function() {
+  Interface.extend(this, {
+    crossfaderWidth: 30,
+
+    draw : function() {
+      this.ctx.fillStyle = this.background;
+      this.ctx.fillRect( this.x, this.y, this.width, this.height );
+      
+      this.ctx.fillStyle = this.fill;
+      this.ctx.fillRect( this.x + (this.width - this.crossfaderWidth) * this._value, this.y, this.crossfaderWidth, this.height);
+      
+      this.ctx.strokeStyle = this.stroke;
+      this.ctx.strokeRect( this.x, this.y, this.width, this.height );      
+    },
+    
+    changeValue : function( xOffset, yOffset ) {
+      if(this.hasFocus || !this.requiresFocus) {
+        this._value = xOffset / this.width;
+        
+        if(this._value < 0) {
+          this._value = 0;
+          this.hasFocus = false;
+        }else if(this._value > 1) {
+          this._value = 1;
+          this.hasFocus = false;
+        }
+        
+        this.value = this.min + (this.max - this.min) * this._value;
+                
+        if(this.value !== this.lastValue) {
+          if(this.onvaluechange) this.onvaluechange();
+          this.draw();
+          this.lastValue = this.value;
+        }
+      }     
+    },
+    
+    mousedown : function(e) { 
+      this.offset = e.x - this.x < this.crossfaderWidth / 2 ? e.x - this.x < this.crossfaderWidth / 2 : 0;
+      this.changeValue( e.x - this.x, e.y - this.y ); 
+    },
+    mousemove : function(e) { this.changeValue( e.x - this.x, e.y - this.y ); },
+    mouseup   : function(e) { this.changeValue( e.x - this.x, e.y - this.y ); },    
+    
+  })
+  .init( arguments[0] );
+};
+Interface.Crossfader.prototype = Interface.Widget;
