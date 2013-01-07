@@ -13,7 +13,7 @@
   a = new Interface.Panel();
   a.ctx.lineWidth = 5.5;
   
-  b = new Interface.Slider({ 
+  /*b = new Interface.Slider({ 
     x:200,
     y:25,
     width:300,
@@ -40,9 +40,11 @@
   
   d = new Interface.Crossfader({ bounds:[20,300,300,100], min:-10, max:10 });
   
-  e = new Interface.Button({ bounds:[400, 400, 50,50] });
+  e = new Interface.Button({ bounds:[400, 400, 50,50] });*/
   
-  a.add(b, c, d, e);
+  f = new Interface.Knob({ bounds:[0,0, 150,150], radius:75, usesRotation:true });
+  
+  a.add(f);
   
 </script>
 
