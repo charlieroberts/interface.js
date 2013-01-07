@@ -43,16 +43,34 @@
   e = new Interface.Button({ bounds:[400, 400, 50,50] });*/
   
   f = new Interface.Knob({ 
-    bounds:[0,0,75],
+    bounds:[0,0],
     radius:75,
     usesRotation:true,
     centerZero: true,
-    onvaluechange :function() {
-      this.fill = 'rgba('+Math.round(this.value * 127)+',0,0,1)';
-    },
   });
   
-  a.add(f);
+  g = new Interface.Knob({ 
+    bounds:[150,0],
+    radius:75,
+    usesRotation:false,
+    centerZero: true,
+  });
+  
+  h = new Interface.Knob({ 
+    bounds:[300,0],
+    radius:75,
+    usesRotation:false,
+    centerZero: false,
+  });
+  
+  i = new Interface.Knob({ 
+    bounds:[450,0],
+    radius:75,
+    usesRotation:true,
+    centerZero: false,
+  });
+  
+  a.add(f,g,h,i);
   
 </script>
 

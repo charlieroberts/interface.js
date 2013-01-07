@@ -357,20 +357,21 @@ Interface.Knob = function() {
       this.ctx.fill();
     
       this.ctx.stroke();
+      
       this.ctx.fillStyle = this.fill;	// now draw foreground...
 	
       if(this.centerZero) {
           var angle3 = Math.PI * 1.5;
           var angle4;
           if(this._value >= .5) {
-            angle4 = Math.PI * (1.5 + (this._value - .5) * 1.8);
+            angle4 = Math.PI * (1.5 + (this._value - .5) * 1.8); // from 1.5 to 2.4
           }else{
-            angle4 = Math.PI * (1.5 - ((1 - this._value * 2) * .9));
+            angle4 = Math.PI * (1.5 - ((1 - this._value * 2) * .9)); // from 1.5 to .6 
           }
-          if(this._value > Math.PI * 1.8) this._value -= Math.PI * 1.8;          
+          if(this._value > Math.PI * 1.8) this._value -= Math.PI * 1.8; // wrap around      
         
           this.ctx.beginPath();
-          this.ctx.arc(this.x + this.radius , this.x + this.radius, this.radius -  this.knobBuffer, angle3, angle4, (this._value < .5));
+          this.ctx.arc(this.x + this.radius , this.y + this.radius, this.radius -  this.knobBuffer, angle3, angle4, (this._value < .5));
           this.ctx.arc(this.x + this.radius , this.y + this.radius, (this.radius - this.knobBuffer) * 0.3,  angle4, angle3, (this._value > .5));
           this.ctx.closePath();
           
@@ -381,8 +382,6 @@ Interface.Knob = function() {
           // }
           this.ctx.fill();
       } else {
-        //Math.abs(.4 - (1 - this._value) * 1.6 * Math.PI)
-        // .6 + this_value * 1.8 * Math.PI;
           if(!this.isInverted)  { 
             var angle2 = Math.PI * .6 + this._value * 1.8  * Math.PI;
             if(angle2 > 2 * Math.PI) angle2 -= 2 * Math.PI;
@@ -391,7 +390,7 @@ Interface.Knob = function() {
           }
         
           this.ctx.beginPath();
-  		//context.arc(centerX, centerY, radius, startingAngle, endingAngle, antiClockwise);
+          
           if(!this.isInverted) {
               this.ctx.arc(this.x + this.radius, this.y + this.radius, this.radius - this.knobBuffer, angle0, angle2, false);
               this.ctx.arc(this.x + this.radius, this.y + this.radius, (this.radius - this.knobBuffer) * .3, angle2, angle0, true);
@@ -415,8 +414,8 @@ Interface.Knob = function() {
             //console.log(this._value);
           }
         }else{
-            var xdiff = (this.x + (this.radius)) - xOffset;
-            var ydiff = (this.y + (this.radius)) - yOffset;
+            var xdiff = ((this.radius)) - xOffset;
+            var ydiff = ((this.radius)) - yOffset;
             var angle = Math.PI + Math.atan2(ydiff, xdiff);
             this._value =  ((angle + (Math.PI * 1.5)) % (Math.PI * 2)) / (Math.PI * 2);
         }
