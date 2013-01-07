@@ -359,21 +359,28 @@ Interface.Knob = function() {
       this.ctx.stroke();
       this.ctx.fillStyle = this.fill;	// now draw foreground...
 	
-      /*if(this.centerZero) {
+      if(this.centerZero) {
           var angle3 = Math.PI * 1.5;
-          var angle4 = Math.PI * (1.5 + (-1 + (this.rotationValue * 2)));
+          var angle4;
+          if(this._value >= .5) {
+            angle4 = Math.PI * (1.5 + (this._value - .5) * 1.8);
+          }else{
+            angle4 = Math.PI * (1.5 - ((1 - this._value * 2) * .9));
+          }
+          if(this._value > Math.PI * 1.8) this._value -= Math.PI * 1.8;          
         
           this.ctx.beginPath();
-          this.ctx.arc(this.radius , this.radius, this.radius -  this.knobBuffer, angle3, angle4, (this.rotationValue < .5));
-          this.ctx.arc(this.radius , this.radius, (this.radius - this.knobBuffer) * 0.3,  angle4, angle3, (this.rotationValue > .5));
+          this.ctx.arc(this.x + this.radius , this.x + this.radius, this.radius -  this.knobBuffer, angle3, angle4, (this._value < .5));
+          this.ctx.arc(this.x + this.radius , this.y + this.radius, (this.radius - this.knobBuffer) * 0.3,  angle4, angle3, (this._value > .5));
           this.ctx.closePath();
-          if(this.rotationValue > .495 && this.rotationValue < .505) { // draw circle if centered?
-              this.ctx.beginPath();
-              this.ctx.arc(this.radius , this.radius, (this.radius -  this.knobBuffer) * .3, 0, Math.PI*2, true); 
-              this.ctx.closePath();
-          }
+          
+          // if(this._value > .495 && this._value < .505) { // draw circle if centered?
+          //     this.ctx.beginPath();
+          //     this.ctx.arc(this.x + this.radius , this.y + this.radius, (this.radius -  this.knobBuffer) * .3, 0, Math.PI*2, true); 
+          //     this.ctx.closePath();
+          // }
           this.ctx.fill();
-      } else {*/
+      } else {
         //Math.abs(.4 - (1 - this._value) * 1.6 * Math.PI)
         // .6 + this_value * 1.8 * Math.PI;
           if(!this.isInverted)  { 
@@ -394,14 +401,14 @@ Interface.Knob = function() {
           }
           this.ctx.closePath();
           this.ctx.fill();
-      //}*/
+      }
     },
     
     changeValue : function( xOffset, yOffset ) {
       if(this.hasFocus || !this.requiresFocus) {
     	// TODO: accommodate !usesRotation and centeredRotation.
         this.lastValue = this.value;
-        var pointTwo = .2 * 2 * Math.PI;
+
         if(!this.usesRotation) {
           if (this.lastPosition != -1) { 
             this._value -= (yOffset - this.lastPosition) / (this.radius * 2);
@@ -416,21 +423,19 @@ Interface.Knob = function() {
         //console.log(this.rotationValue);
         if (this._value > 1) this._value = 1;
         if (this._value < 0) this._value = 0;
-    
-    	/*if(this.lastRotationValue == .95 && this.rotationValue <= .5 && !this.newTouch) {
-    		this.rotationValue = .95;
-    		return;
-    	}else if(this.lastRotationValue == .05 && this.rotationValue >= .5 && !this.newTouch) {
-    		this.rotationValue = .05;
-    		return;
-    	}*/
-    	this.lastRotationValue = this._value;
-      this.lastPosition = yOffset;
+
+      	this.lastRotationValue = this._value;
+        this.lastPosition = yOffset;
       
-      var range  = this.max - this.min;
-      this.value = this.min + this._value * range;
+        var range  = this.max - this.min;
+        this.value = this.min + this._value * range;
       
-      this.draw();
+        if(this.value !== this.lastValue) {
+          if(this.onvaluechange) this.onvaluechange();
+          this.draw();
+          this.lastValue = this.value;
+        }
+        
     
       //       if(this.lastValue != this.value) {
       //           this.setValue(this.value);
@@ -453,16 +458,8 @@ Interface.Knob = function() {
     },
     
     mousedown : function(e) {
-      if(this.mode !== 'contact') {
-        this.lastPosition = e.y - this.y;
-        
-        this.changeValue( e.x - this.x, e.y - this.y ); 
-      }else{
-        this._value = 1;
-        this.draw();
-        var self = this;
-        setTimeout( function() { self._value = 0; self.draw(); }, 200);
-      }
+      this.lastPosition = e.y - this.y;
+      this.changeValue( e.x - this.x, e.y - this.y ); 
     },
     mousemove : function(e) { this.changeValue( e.x - this.x, e.y - this.y ); },
     mouseup   : function(e) {

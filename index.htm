@@ -42,7 +42,15 @@
   
   e = new Interface.Button({ bounds:[400, 400, 50,50] });*/
   
-  f = new Interface.Knob({ bounds:[0,0, 150,150], radius:75, usesRotation:true });
+  f = new Interface.Knob({ 
+    bounds:[0,0,75],
+    radius:75,
+    usesRotation:true,
+    centerZero: true,
+    onvaluechange :function() {
+      this.fill = 'rgba('+Math.round(this.value * 127)+',0,0,1)';
+    },
+  });
   
   a.add(f);
   
