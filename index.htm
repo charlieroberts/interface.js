@@ -1,0 +1,23 @@
+<html>
+<head>
+  <title>interface test</title>
+  <script src="scripts/zepto.js"></script>
+  <script src="scripts/interface.js"></script>
+</head>
+
+<body>
+</body>
+
+<script>
+
+  a = new Interface.Panel();
+  
+  b = new Interface.Slider({ x:200, y:25, width:100, height:300 });
+  
+  c = new Interface.Slider({ bounds:[0,0,20,200] });
+  
+  a.add(b, c);
+  
+</script>
+
+</html>
