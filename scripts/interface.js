@@ -319,7 +319,7 @@ Interface.Button = function() {
         this._value = 1;
         this.draw();
         var self = this;
-        setTimeout( function() { self._value = 0; self.draw(); }, 200);
+        setTimeout( function() { self._value = 0; self.draw(); }, 75);
       }
     },
     mousemove : function(e) { /*this.changeValue( e.x - this.x, e.y - this.y );*/ },
@@ -434,15 +434,6 @@ Interface.Knob = function() {
           this.draw();
           this.lastValue = this.value;
         }
-        
-    
-      //       if(this.lastValue != this.value) {
-      //           this.setValue(this.value);
-      //           this.lastValue = this.value;
-      // if(this.displayValue)
-      //   this.label.setValue(this.value.toFixed(3));
-      //       }
-    	//Math.round(number).toFixed(2);
       }
     },
     
@@ -469,3 +460,125 @@ Interface.Knob = function() {
   .init( arguments[0] );
 };
 Interface.Knob.prototype = Interface.Widget;
+
+Interface.XY = function() {
+  Interface.extend(this, {
+    _value: 0,
+    childWidth: 25,
+    childHeight: 25,
+    children: [],
+    values: [],
+    numChildren: 1,
+    
+    draw : function() {
+      this.ctx.fillStyle = this.background;
+      this.ctx.fillRect( this.x, this.y, this.width, this.height );
+      
+      this.ctx.strokeStyle = this.stroke;
+      this.ctx.strokeRect( this.x, this.y, this.width, this.height );
+      
+      this.ctx.fillStyle = this.fill;
+      for(var i = 0; i < this.children.length; i++) {
+        var child = this.children[i];
+        //console.log(child);
+        this.ctx.fillRect( this.x + child.x, this.y + child.y, this.childWidth, this.childHeight);
+      }
+    },
+    
+    changeValue : function( touch, xOffset, yOffset ) {
+      if(this.hasFocus || !this.requiresFocus) {
+        touch.x = xOffset - this.half;
+        if(touch.x < 0 ) touch.x = 0;
+        
+        if(touch.x > this.width - this.childWidth) touch.x = this.width - this.childWidth;
+        
+        touch.y = yOffset - this.half;
+        if(touch.y < 0) touch.y = 0;
+        if(touch.y > this.height - this.childHeight) touch.y = this.height - this.childHeight;        
+        this.values[touch.id].x = xOffset / this.width;
+        this.values[touch.id].y = yOffset / this.height;
+                
+        //if(this.values[touch] !== this.lastValue) {
+        if(this.onvaluechange) this.onvaluechange();
+        this.draw();
+        this.lastValue = this.value;
+        //}
+      }     
+    },
+    
+    trackTouch : function(xPos, yPos, id) {
+      var closestDiff = 10000;
+      var touchFound = null;
+      var touchNum = null;
+      for(var i = 0; i < this.children.length; i++) {
+        var touch = this.children[i];
+        var xdiff = Math.abs(touch.x - (xPos - this.x));
+        var ydiff = Math.abs(touch.y - (yPos - this.y));
+
+        //if(!touch.isActive) {
+          if(xdiff + ydiff < closestDiff) {
+            closestDiff = xdiff + ydiff;
+            touchFound = touch;
+            touchNum = i;
+          }
+          //}
+      }
+      //console.log(touchFound);
+      //touchFound.id = id;
+  	  //touchFound.pressure = Control.pressures[pressureID];
+	
+  	//console.log("WOO HOO : " + touchFound.pressure);
+      touchFound.isActive = true;
+      if(touchFound != null)
+          this.changeValue(touchFound, xPos, yPos);
+    
+      this.lastTouched = touchFound;
+    },
+    
+    
+    makeChildren : function() {
+      for(var i = 0; i < this.numChildren; i++) {
+        this.children.push({ id:i, x:i * 25, y:i * 25, isActive:false });
+        this.values.push({ x:null, y:null });
+      }
+    },
+    
+    hitTest : function(e) {
+      if(e.x >= this.x && e.x < this.x + this.width) {
+      	if(e.y >= this.y && e.y < this.y + this.height) {  
+      		return true;
+      	} 
+      }
+    
+      return false;
+    },
+    
+    mousedown : function(e) {
+      if(this.hitTest(e)) {
+        this.trackTouch(e.x - this.x, e.y - this.y);
+      }
+      /*if(this.mode !== 'contact') {
+        this.changeValue( e.x - this.x, e.y - this.y ); 
+      }else{
+        this._value = 1;
+        this.draw();
+        var self = this;
+        setTimeout( function() { self._value = 0; self.draw(); }, 75);
+      }*/
+    },
+    mousemove : function(e) { 
+      if(this.hitTest(e)) {
+        this.trackTouch(e.x - this.x, e.y - this.y);
+      }
+    },
+    mouseup   : function(e) {
+      for(var i = 0; i < this.children.length; i++) {
+        this.children[i].isActive = false;
+      }
+    },
+  })
+  .init( arguments[0] );
+  this.half = this.childWidth / 2;
+  this.makeChildren();
+};
+Interface.XY.prototype = Interface.Widget;

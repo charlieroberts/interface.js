@@ -9,69 +9,51 @@
 </body>
 
 <script>
-
   a = new Interface.Panel();
-  a.ctx.lineWidth = 5.5;
+  a.ctx.lineWidth = 1.5;
   
-  /*b = new Interface.Slider({ 
-    x:200,
-    y:25,
-    width:300,
-    height:100,
-    min:-10,
-    max:10,
-    isVertical:false,
+  c = new Interface.Slider({ bounds:[10,250,50,200], value:.5 });
+  d = new Interface.Slider({ bounds:[75,375,200,50], isVertical:false });
     
-    onvaluechange :function() {
-      this.fill = 'rgba('+Math.round(this.value * 127)+',0,0,1)';
-    },
-    onmouseup : function() { 
-      this.fill = 'rgba(127,127,127,1)';
-      this.draw();
-    },
-    onmousedown: function() {
-      var r = Math.round( Math.random() * 255 );
-      this.background = 'rgba('+r+',0,'+r+',1)';
-      this.draw();
-    }
-  });
+  e = new Interface.Crossfader({ bounds:[75,300,200,50], min:-10, max:10 });
+
+  f = new Interface.Button({ bounds:[10, 175, 50,50] });
+  g = new Interface.Button({ bounds:[70, 175, 50,50],  mode:'momentary' });
+  h = new Interface.Button({ bounds:[130, 175, 50,50], mode:'contact' });
   
-  c = new Interface.Slider({ bounds:[0,0,20,200] });
-  
-  d = new Interface.Crossfader({ bounds:[20,300,300,100], min:-10, max:10 });
-  
-  e = new Interface.Button({ bounds:[400, 400, 50,50] });*/
-  
-  f = new Interface.Knob({ 
+  i = new Interface.Knob({ 
     bounds:[0,0],
     radius:75,
     usesRotation:true,
     centerZero: true,
   });
   
-  g = new Interface.Knob({ 
+  j = new Interface.Knob({ 
     bounds:[150,0],
     radius:75,
     usesRotation:false,
     centerZero: true,
   });
   
-  h = new Interface.Knob({ 
+  k = new Interface.Knob({ 
     bounds:[300,0],
     radius:75,
     usesRotation:false,
     centerZero: false,
   });
   
-  i = new Interface.Knob({ 
+  l = new Interface.Knob({ 
     bounds:[450,0],
     radius:75,
     usesRotation:true,
     centerZero: false,
   });
   
-  a.add(f,g,h,i);
+  m = new Interface.XY({
+    bounds:[300, 175, 300,300],
+  })
   
+  a.add(c,d,e,f,g,h,i,j,k,l,m);
 </script>
 
 </html>
