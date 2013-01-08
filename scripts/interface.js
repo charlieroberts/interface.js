@@ -468,7 +468,8 @@ Interface.XY = function() {
     childHeight: 25,
     children: [],
     values: [],
-    numChildren: 1,
+    numChildren: 5,
+    stroke:"#fff",
     
     draw : function() {
       this.ctx.fillStyle = this.background;
@@ -476,12 +477,16 @@ Interface.XY = function() {
       
       this.ctx.strokeStyle = this.stroke;
       this.ctx.strokeRect( this.x, this.y, this.width, this.height );
-      
-      this.ctx.fillStyle = this.fill;
+
+      this.ctx.fillStyle = this.fill;      
       for(var i = 0; i < this.children.length; i++) {
         var child = this.children[i];
-        //console.log(child);
+        
+
         this.ctx.fillRect( this.x + child.x, this.y + child.y, this.childWidth, this.childHeight);
+        
+        //this.fillStyle = "#000";
+        this.ctx.strokeText(child.id, this.x + child.x + this.half - 3, this.y + child.y + 5 + this.half);
       }
     },
     
@@ -512,22 +517,24 @@ Interface.XY = function() {
       var touchNum = null;
       for(var i = 0; i < this.children.length; i++) {
         var touch = this.children[i];
-        var xdiff = Math.abs(touch.x - (xPos - this.x));
-        var ydiff = Math.abs(touch.y - (yPos - this.y));
+        var xdiff = Math.abs(touch.x - xPos);
+        var ydiff = Math.abs(touch.y - yPos);
 
         //if(!touch.isActive) {
           if(xdiff + ydiff < closestDiff) {
             closestDiff = xdiff + ydiff;
+            console.log("closesetdiff", closestDiff);
+            
             touchFound = touch;
             touchNum = i;
           }
-          //}
+        //}
       }
       //console.log(touchFound);
       //touchFound.id = id;
   	  //touchFound.pressure = Control.pressures[pressureID];
 	
-  	//console.log("WOO HOO : " + touchFound.pressure);
+  	  //console.log(touchFound);
       touchFound.isActive = true;
       if(touchFound != null)
           this.changeValue(touchFound, xPos, yPos);
