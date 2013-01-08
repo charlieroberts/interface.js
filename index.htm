@@ -10,7 +10,7 @@
 
 <script>
   a = new Interface.Panel();
-  a.ctx.lineWidth = 1.5;
+  //a.ctx.lineWidth = 1.5;
   
   c = new Interface.Slider({ bounds:[10,250,50,200], value:.5 });
   d = new Interface.Slider({ bounds:[75,375,200,50], isVertical:false });
@@ -50,7 +50,10 @@
   });
   
   m = new Interface.XY({
-    stroke:"#fff",
+    stroke:"#aaa",
+    childWidth: 15,
+    numChildren: 10,
+    fill: "rgba(200,200,200,.5)",
     bounds:[300, 175, 300,300],
     onvaluechange : function() {
       

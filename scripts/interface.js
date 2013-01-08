@@ -11,7 +11,7 @@ var Interface = {
     }
     return destination;
   },
-
+  
   useTouch : 'ontouchstart' in document.documentElement,
 };
 
@@ -20,6 +20,7 @@ Interface.Panel = function(_container) {
   
   Interface.extend(this, {
     children: [],
+    shouldDraw : [],
     
     container: _container || $('body')[0],
     
@@ -69,9 +70,10 @@ Interface.Panel = function(_container) {
     },
     
     draw : function() {
-      for(var i = 0; i < this.children.length; i++) {
-        this.children[i].draw();
+      for(var i = 0; i < this.shouldDraw.length; i++) {
+        this.shouldDraw[i].draw();
       }
+      this.shouldDraw.length = 0;
     },
     
     add: function() {
@@ -89,6 +91,7 @@ Interface.Panel = function(_container) {
     },
   });
   
+  this.timer = setInterval( function() { self.draw(); }, 17);
   this.init();
 };
 
@@ -133,6 +136,12 @@ Interface.Widget = {
     }
   },
   
+  refresh : function() {
+    if(this.panel.shouldDraw.indexOf(this) === -1) {
+      this.panel.shouldDraw.push(this);
+    }
+  },
+  
   setValue : function(value, doNotDraw) {
     var r = this.max - this.min,
         v = value;
@@ -144,7 +153,7 @@ Interface.Widget = {
       this._value = v / r;
     }
     
-    if(!doNotDraw) this.draw();
+    if(!doNotDraw) this.refresh();
   },
   
   hitTest : function(e) {
@@ -207,17 +216,17 @@ Interface.Slider = function() {
         
         if(this._value < 0) {
           this._value = 0;
-          this.hasFocus = false;
+          //this.hasFocus = false;
         }else if(this._value > 1) {
           this._value = 1;
-          this.hasFocus = false;
+          //this.hasFocus = false;
         }
         
         this.value = this.min + (this.max - this.min) * this._value;
         
         if(this.value !== this.lastValue) {
           if(this.onvaluechange) this.onvaluechange();
-          this.draw();
+          this.refresh();
           this.lastValue = this.value;
         }
       }     
@@ -254,17 +263,17 @@ Interface.Crossfader = function() {
         
         if(this._value < 0) {
           this._value = 0;
-          this.hasFocus = false;
+          //this.hasFocus = false;
         }else if(this._value > 1) {
           this._value = 1;
-          this.hasFocus = false;
+          //this.hasFocus = false;
         }
         
         this.value = this.min + (this.max - this.min) * this._value;
                 
         if(this.value !== this.lastValue) {
           if(this.onvaluechange) this.onvaluechange();
-          this.draw();
+          this.refresh();
           this.lastValue = this.value;
         }
       }     
@@ -405,21 +414,25 @@ Interface.Knob = function() {
     
     changeValue : function( xOffset, yOffset ) {
       if(this.hasFocus || !this.requiresFocus) {
-    	// TODO: accommodate !usesRotation and centeredRotation.
         this.lastValue = this.value;
 
         if(!this.usesRotation) {
           if (this.lastPosition != -1) { 
             this._value -= (yOffset - this.lastPosition) / (this.radius * 2);
-            //console.log(this._value);
           }
         }else{
             var xdiff = ((this.radius)) - xOffset;
             var ydiff = ((this.radius)) - yOffset;
             var angle = Math.PI + Math.atan2(ydiff, xdiff);
             this._value =  ((angle + (Math.PI * 1.5)) % (Math.PI * 2)) / (Math.PI * 2);
+            
+            if(this.lastRotationValue > .8 && this._value < .2) {
+              this._value = 1;
+            }else if(this.lastRotationValue < .2 && this._value > .8) {
+              this._value = 0;
+            }
         }
-        //console.log(this.rotationValue);
+
         if (this._value > 1) this._value = 1;
         if (this._value < 0) this._value = 0;
 
@@ -431,7 +444,7 @@ Interface.Knob = function() {
       
         if(this.value !== this.lastValue) {
           if(this.onvaluechange) this.onvaluechange();
-          this.draw();
+          this.refresh();
           this.lastValue = this.value;
         }
       }
@@ -468,44 +481,68 @@ Interface.XY = function() {
     childHeight: 25,
     children: [],
     values: [],
-    numChildren: 5,
-    stroke:"#fff",
+    numChildren: 1,
+    stroke:"#999",
     
-    draw : function() {
+    draw : function() {  
       this.ctx.fillStyle = this.background;
       this.ctx.fillRect( this.x, this.y, this.width, this.height );
       
       this.ctx.strokeStyle = this.stroke;
       this.ctx.strokeRect( this.x, this.y, this.width, this.height );
-
-      this.ctx.fillStyle = this.fill;      
+      
+      this.ctx.save();
+      
+      this.ctx.beginPath();
+      
+      this.ctx.moveTo(this.x, this.y);
+      this.ctx.lineTo(this.x + this.width, this.y);
+      this.ctx.lineTo(this.x + this.width, this.y + this.height);
+      this.ctx.lineTo(this.x, this.y + this.height);
+      this.ctx.lineTo(this.x, this.y);
+      this.ctx.fill();
+      
+      this.ctx.clip();
+      
+      this.ctx.fillStyle = this.fill;
+      
       for(var i = 0; i < this.children.length; i++) {
         var child = this.children[i];
         
+        this.ctx.beginPath();
 
-        this.ctx.fillRect( this.x + child.x, this.y + child.y, this.childWidth, this.childHeight);
+        this.ctx.arc(this.x + child.x, this.y + child.y, this.childWidth, 0, Math.PI*2, true); 
+
+        this.ctx.closePath();
+
+        this.ctx.fill();
+        this.ctx.stroke();
+        //this.ctx.fillRect( this.x + child.x, this.y + child.y, this.childWidth, this.childHeight);
         
-        //this.fillStyle = "#000";
-        this.ctx.strokeText(child.id, this.x + child.x + this.half - 3, this.y + child.y + 5 + this.half);
+        this.ctx.strokeText(child.id, this.x + child.x - 3, this.y + child.y + 3);
       }
+      
+      this.ctx.closePath();
+      this.ctx.restore();
     },
     
     changeValue : function( touch, xOffset, yOffset ) {
       if(this.hasFocus || !this.requiresFocus) {
-        touch.x = xOffset - this.half;
+        touch.x = xOffset;
         if(touch.x < 0 ) touch.x = 0;
+        if(touch.x > this.width) touch.x = this.width;
         
-        if(touch.x > this.width - this.childWidth) touch.x = this.width - this.childWidth;
+        //if(touch.x > this.width - this.childWidth) touch.x = this.width - this.childWidth;
         
-        touch.y = yOffset - this.half;
+        touch.y = yOffset;// - this.half;
         if(touch.y < 0) touch.y = 0;
-        if(touch.y > this.height - this.childHeight) touch.y = this.height - this.childHeight;        
+        if(touch.y > this.height) touch.y = this.height;        
         this.values[touch.id].x = xOffset / this.width;
         this.values[touch.id].y = yOffset / this.height;
                 
         //if(this.values[touch] !== this.lastValue) {
         if(this.onvaluechange) this.onvaluechange();
-        this.draw();
+        this.refresh();
         this.lastValue = this.value;
         //}
       }     
