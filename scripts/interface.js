@@ -523,7 +523,6 @@ Interface.XY = function() {
         //if(!touch.isActive) {
           if(xdiff + ydiff < closestDiff) {
             closestDiff = xdiff + ydiff;
-            console.log("closesetdiff", closestDiff);
             
             touchFound = touch;
             touchNum = i;
@@ -535,10 +534,16 @@ Interface.XY = function() {
   	  //touchFound.pressure = Control.pressures[pressureID];
 	
   	  //console.log(touchFound);
+      
       touchFound.isActive = true;
-      if(touchFound != null)
-          this.changeValue(touchFound, xPos, yPos);
-    
+      if(touchFound != null) {
+        this.changeValue(touchFound, xPos, yPos);
+      }
+      
+      if(!Interface.useTouch) {
+        this.activeTouch = touchFound;
+      }
+      
       this.lastTouched = touchFound;
     },
     
@@ -575,7 +580,8 @@ Interface.XY = function() {
     },
     mousemove : function(e) { 
       if(this.hitTest(e)) {
-        this.trackTouch(e.x - this.x, e.y - this.y);
+        this.changeValue(this.activeTouch, e.x - this.x, e.y - this.y);
+        //this.trackTouch(e.x - this.x, e.y - this.y);
       }
     },
     mouseup   : function(e) {
