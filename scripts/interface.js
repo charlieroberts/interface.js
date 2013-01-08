@@ -475,6 +475,12 @@ Interface.Knob = function() {
 Interface.Knob.prototype = Interface.Widget;
 
 Interface.XY = function() {
+  var self = this,
+      posDiff = {x:0, y:0},
+      velDiff = {x:0, y:0},
+      normal  = {x:0, y:0},
+      cDot = 0;
+  
   Interface.extend(this, {
     _value: 0,
     childWidth: 25,
@@ -483,8 +489,97 @@ Interface.XY = function() {
     values: [],
     numChildren: 1,
     stroke:"#999",
+    usePhysics: true,
+    detectCollisions: true,
     
-    draw : function() {  
+    animate : function() {
+      for(var i = 0; i < this.children.length; i++) {
+        var moveX = moveY = false,
+            child = this.children[i];
+        
+        if(child.x + child.vx < this.width && child.x + child.vx > 0) {
+          child.x += child.vx;
+        }else{
+          child.vx *= -1;
+        }
+      
+        if(child.y + child.vy < this.height && child.y + child.vy > 0) {
+          child.y += child.vy;
+        }else{
+          child.vy *= -1;
+        }
+        
+        child.vx *= .9;
+        child.vy *= .9;
+        
+        this.values[child.id].x = child.x / this.width;
+        this.values[child.id].y = child.y / this.height;
+        
+        if(this.detectCollisions) {
+          if(!child.collideFlag) {
+            this.collisionTest(child);
+          }else{
+            child.collideFlag = false;
+          }
+        }
+          
+        child.vx = child.vx > 80 ? 80 : child.vx;
+        child.vy = child.vy > 80 ? 80 : child.vy;        
+      }
+    },
+    
+    collisionTest : function(c1) {
+      for(var i = 0; i < this.children.length; i++) {
+        var c2 = this.children[i];
+        if(c1.id !== c2.id) {
+          var distance = Math.abs(c1.x - c2.x) + Math.abs(c1.y - c2.y);
+          if(distance < this.childWidth * 2) {
+            this.collide(c1, c2)
+          }
+        }
+      }
+    },
+    
+    /*
+    local posDiff = {c1.pos[1] - c2.pos[1], c1.pos[2] - c2.pos[2]}
+    local velDiff = {c1.vel[1] - c2.vel[1], c1.vel[2] - c2.vel[2]}  
+    local cDot = posDiff[1]^2 + posDiff[2]^2
+  
+    local normal = {posDiff[1] / math.sqrt(cDot), posDiff[2] / math.sqrt(cDot)}
+    local d = (normal[1] * velDiff[1]) + (normal[2] * velDiff[2])
+    c2.vel[1] = c1.vel[1] + d * normal[1]
+    c2.vel[2] = c1.vel[2] + d * normal[2]
+    c1.vel[1] = c2.vel[1] - d * normal[1]
+    c1.vel[2] = c2.vel[2] - d * normal[2]
+    */
+    
+    collide : function(c1,c2) {
+      // posDiff, velDiff and normal are upvalues for gc performance
+      posDiff.x = c1.x - c2.x;
+      posDiff.y = c1.y - c2.y;
+      velDiff.x = c1.vx - c2.vx;
+      velDiff.y = c1.vy - c2.vy;
+
+      cDot = Math.pow(posDiff.x, 2) + Math.pow(posDiff.y, 2);
+      
+      normal.x = posDiff.x / Math.sqrt(cDot);
+      normal.y = posDiff.y / Math.sqrt(cDot);
+      
+      var d = (normal.x * velDiff.x) + (normal.y * velDiff.y);
+      c2.vx = c1.vx + d * normal.x;
+      c2.vy = c1.vy + d * normal.y;
+      c1.vx = c2.vx - d * normal.x;
+      c1.vy = c2.vy - d * normal.x;
+      
+      c1.collideFlag = true;
+      c2.collideFlag = true;         
+    },
+
+    draw : function() {
+      if(this.usePhysics) {
+        this.animate();
+      }
+      
       this.ctx.fillStyle = this.background;
       this.ctx.fillRect( this.x, this.y, this.width, this.height );
       
@@ -542,7 +637,11 @@ Interface.XY = function() {
                 
         //if(this.values[touch] !== this.lastValue) {
         if(this.onvaluechange) this.onvaluechange();
-        this.refresh();
+        
+        if(!this.usePhysics) {
+          this.refresh();
+        }
+        
         this.lastValue = this.value;
         //}
       }     
@@ -584,10 +683,9 @@ Interface.XY = function() {
       this.lastTouched = touchFound;
     },
     
-    
     makeChildren : function() {
       for(var i = 0; i < this.numChildren; i++) {
-        this.children.push({ id:i, x:i * 25, y:i * 25, isActive:false });
+        this.children.push({ id:i, x:Math.random() * this.width, y:Math.random() * this.height, vx:0, vy:0, collideFlag:false, isActive:false });
         this.values.push({ x:null, y:null });
       }
     },
@@ -630,5 +728,7 @@ Interface.XY = function() {
   .init( arguments[0] );
   this.half = this.childWidth / 2;
   this.makeChildren();
+  
+  this.timer = setInterval( function() { self.refresh(); }, 30);
 };
 Interface.XY.prototype = Interface.Widget;
