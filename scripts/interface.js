@@ -491,6 +491,8 @@ Interface.XY = function() {
     stroke:"#999",
     usePhysics: true,
     detectCollisions: true,
+    friction:.9,
+    activeTouch: null,
     
     animate : function() {
       for(var i = 0; i < this.children.length; i++) {
@@ -509,22 +511,22 @@ Interface.XY = function() {
           child.vy *= -1;
         }
         
-        child.vx *= .9;
-        child.vy *= .9;
+        child.vx *= this.friction;
+        child.vy *= this.friction;
         
         this.values[child.id].x = child.x / this.width;
         this.values[child.id].y = child.y / this.height;
         
         if(this.detectCollisions) {
-          if(!child.collideFlag) {
+          //if(!child.collideFlag) {
             this.collisionTest(child);
-          }else{
-            child.collideFlag = false;
-          }
+            //}else{
+            //child.collideFlag = false;
+            //}
         }
           
-        child.vx = child.vx > 80 ? 80 : child.vx;
-        child.vy = child.vy > 80 ? 80 : child.vy;        
+        child.vx = child.vx > 20 ? 20 : child.vx;
+        child.vy = child.vy > 20 ? 20 : child.vy;        
       }
     },
     
@@ -534,6 +536,7 @@ Interface.XY = function() {
         if(c1.id !== c2.id) {
           var distance = Math.abs(c1.x - c2.x) + Math.abs(c1.y - c2.y);
           if(distance < this.childWidth * 2) {
+            //console.log("COLLIDE", c1.id, c2.id);
             this.collide(c1, c2)
           }
         }
@@ -560,16 +563,21 @@ Interface.XY = function() {
       velDiff.x = c1.vx - c2.vx;
       velDiff.y = c1.vy - c2.vy;
 
-      cDot = Math.pow(posDiff.x, 2) + Math.pow(posDiff.y, 2);
+      cDot = Math.sqrt( Math.pow(posDiff.x, 2) + Math.pow(posDiff.y, 2) );
       
-      normal.x = posDiff.x / Math.sqrt(cDot);
-      normal.y = posDiff.y / Math.sqrt(cDot);
+      normal.x = posDiff.x / cDot;
+      normal.y = posDiff.y / cDot;
       
       var d = (normal.x * velDiff.x) + (normal.y * velDiff.y);
-      c2.vx = c1.vx + d * normal.x;
-      c2.vy = c1.vy + d * normal.y;
-      c1.vx = c2.vx - d * normal.x;
-      c1.vy = c2.vy - d * normal.x;
+      c2.vx = c1.vx + d * normal.x * 2;
+      c2.vy = c1.vy + d * normal.y * 2;
+      c1.vx = c2.vx - d * normal.x * 2;
+      c1.vy = c2.vy - d * normal.y * 2;
+      
+      // c1.x += c1.vx / 2;
+      // c1.y += c1.vy / 2;
+      // c2.x += c2.vx / 2;
+      // c2.y += c2.vy / 2;      
       
       c1.collideFlag = true;
       c2.collideFlag = true;         
@@ -642,7 +650,7 @@ Interface.XY = function() {
           this.refresh();
         }
         
-        this.lastValue = this.value;
+        //this.lastValue = this.value;
         //}
       }     
     },
@@ -672,13 +680,16 @@ Interface.XY = function() {
   	  //console.log(touchFound);
       
       touchFound.isActive = true;
+      touchFound.vx = 0;
+      touchFound.vy = 0;
+      
       if(touchFound != null) {
         this.changeValue(touchFound, xPos, yPos);
       }
       
-      if(!Interface.useTouch) {
-        this.activeTouch = touchFound;
-      }
+      //if(!Interface.useTouch) {
+      this.activeTouch = touchFound;
+      this.activeTouch.lastTouch = null;
       
       this.lastTouched = touchFound;
     },
@@ -704,31 +715,46 @@ Interface.XY = function() {
       if(this.hitTest(e)) {
         this.trackTouch(e.x - this.x, e.y - this.y);
       }
-      /*if(this.mode !== 'contact') {
-        this.changeValue( e.x - this.x, e.y - this.y ); 
-      }else{
-        this._value = 1;
-        this.draw();
-        var self = this;
-        setTimeout( function() { self._value = 0; self.draw(); }, 75);
-      }*/
     },
     mousemove : function(e) { 
-      if(this.hitTest(e)) {
+      if(this.hitTest(e) && this.activeTouch !== null) {
+        if(this.activeTouch.lastTouch === null) {
+          console.log("MAKING LAST TOUCH");
+          this.activeTouch.lastTouch = {x:e.x - this.x, y:e.y - this.y};
+        }else{
+          //console.log(this.activeTouch.lastTouch);
+          var now = {x:e.x - this.x, y:e.y - this.y};
+          this.activeTouch.velocity = {x:now.x - this.activeTouch.lastTouch.x, y:now.y - this.activeTouch.lastTouch.y };
+          this.activeTouch.lastTouch = now;
+        }
+
         this.changeValue(this.activeTouch, e.x - this.x, e.y - this.y);
         //this.trackTouch(e.x - this.x, e.y - this.y);
       }
     },
     mouseup   : function(e) {
+      this.activeTouch.vx = this.activeTouch.velocity.x;
+      this.activeTouch.vy = this.activeTouch.velocity.y;
+      this.activeTouch.lastTouch = null;
+      this.activeTouch = null;
       for(var i = 0; i < this.children.length; i++) {
         this.children[i].isActive = false;
       }
     },
+    startAnimation : function() { 
+      console.log("CALLED;")
+      this.timer = setInterval( function() { self.refresh(); }, 30);
+    },
+    stopAnimation : function() {
+      clearInterval(this.timer);
+    },
   })
   .init( arguments[0] );
+  
   this.half = this.childWidth / 2;
   this.makeChildren();
   
-  this.timer = setInterval( function() { self.refresh(); }, 30);
+  if(this.usePhysics) this.startAnimation();
+  
 };
 Interface.XY.prototype = Interface.Widget;
