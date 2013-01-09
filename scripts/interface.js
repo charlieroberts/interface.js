@@ -867,6 +867,14 @@ Interface.MultiSlider = function() {
           width: sliderWidth,
           height:this.height,
           requiresFocus: false,
+          parent:this,
+          onvaluechange: (function() {
+            var sliderNum = i;
+                  
+            return function() {
+              this.parent.onvaluechange(sliderNum, this.value);
+            };
+          })(),
         });
         
         this.children.push( slider );
@@ -874,6 +882,7 @@ Interface.MultiSlider = function() {
         this.panel.add( slider );
       }
     },
+  onvaluechange : function(id, value) { /*console.log("MS", id, value);*/ },
   })
   .init( arguments[0] );
 };
@@ -885,10 +894,11 @@ Interface.MultiButton = function() {
     children: [],
     rows:     4,
     columns:  4,
+    requiresFocus:true,
     
     draw : function() {},
     
-    mousedown : function(e) { console.log("URK")},
+    mousedown : function(e) {},
     mousemove : function(e) {},
     mouseup   : function(e) {},
     
@@ -903,7 +913,16 @@ Interface.MultiButton = function() {
             y : this.y + i * childHeight,
             width: childWidth,
             height:childHeight,
-            requiresFocus: false,
+            parent:this,
+            requiresFocus: this.requiresFocus,
+            onvaluechange: (function() {
+              var row = i,
+                  col = j;
+                  
+              return function() {
+                this.parent.onvaluechange(row, col, this.value);
+              };
+            })(),
           });
         
           this.children.push( button );
@@ -912,6 +931,7 @@ Interface.MultiButton = function() {
         }
       }
     },
+    onvaluechange : function(row, column, value) {},
   })
   .init( arguments[0] );
 };
