@@ -304,6 +304,7 @@ Interface.Button = function() {
   Interface.extend(this, {
     _value: 0,
     mode : 'toggle',
+    isMouseOver : false,
     
     draw : function() {
       if(this._value) {
@@ -331,17 +332,34 @@ Interface.Button = function() {
       }     
     },
     
-    mousedown : function(e) {
-      if(this.mode !== 'contact') {
-        this.changeValue( e.x - this.x, e.y - this.y ); 
-      }else{
-        this._value = 1;
-        this.draw();
-        var self = this;
-        setTimeout( function() { self._value = 0; self.draw(); }, 75);
+    mousedown : function(e, hit) {
+      if(hit && Interface.mouseDown) {
+        this.isMouseOver = true;
+        if(this.mode !== 'contact') {
+          this.changeValue( e.x - this.x, e.y - this.y ); 
+        }else{
+          this._value = 1;
+          this.draw();
+          var self = this;
+          setTimeout( function() { self._value = 0; self.draw(); }, 75);
+        }
       }
     },
-    mousemove : function(e) { /*this.changeValue( e.x - this.x, e.y - this.y );*/ },
+    mousemove : function(e, hit) { 
+      if(!this.requiresFocus && hit && Interface.mouseDown && !this.isMouseOver) {
+        this.isMouseOver = true;
+        if(this.mode !== 'contact') {
+          this.changeValue( e.x - this.x, e.y - this.y ); 
+        }else{
+          this._value = 1;
+          this.draw();
+          var self = this;
+          setTimeout( function() { self._value = 0; self.draw(); }, 75);
+        }
+      }else if(!hit) {
+        this.isMouseOver = false;
+      }
+    },
     mouseup   : function(e) {
       if(this.mode === 'momentary')
         this.changeValue( e.x - this.x, e.y - this.y ); 
@@ -860,5 +878,43 @@ Interface.MultiSlider = function() {
   .init( arguments[0] );
 };
 Interface.MultiSlider.prototype = Interface.Widget;
+
+Interface.MultiButton = function() {
+  Interface.extend(this, {
+    mode:     'toggle',
+    children: [],
+    rows:     4,
+    columns:  4,
+    
+    draw : function() {},
+    
+    mousedown : function(e) { console.log("URK")},
+    mousemove : function(e) {},
+    mouseup   : function(e) {},
+    
+    _init     : function() {
+      var childWidth  = this.width  / this.columns;
+      var childHeight = this.height / this.rows;      
+      
+      for(var i = 0; i < this.rows; i++) {
+        for(var j = 0; j < this.columns; j++) {
+          var button = new Interface.Button({
+            x : this.x + j * childWidth,
+            y : this.y + i * childHeight,
+            width: childWidth,
+            height:childHeight,
+            requiresFocus: false,
+          });
+        
+          this.children.push( button );
+        
+          this.panel.add( button );
+        }
+      }
+    },
+  })
+  .init( arguments[0] );
+};
+Interface.MultiButton.prototype = Interface.Widget;
 
 
