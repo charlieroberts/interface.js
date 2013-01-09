@@ -109,6 +109,10 @@ Interface.Panel = function(_container) {
         if(widget._init) widget._init();
       }
     },
+    
+    setBackgroundColor : function(color) {
+      $(this.container).css({ backgroundColor:color });
+    },
   });
   
   this.timer = setInterval( function() { self.draw(); }, Math.round(1000 / this.fps) );

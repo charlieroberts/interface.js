@@ -60,7 +60,7 @@
     bounds:[10,500,150,150], 
     options:['red', 'green', 'blue'], 
     onvaluechange: function(val, old) { 
-      $('body').css({ backgroundColor: val });
+      a.setBackgroundColor(val);
     }, 
     value:'green', 
   });
@@ -148,11 +148,36 @@
     min:0,
     max:255,    
     onvaluechange: function() {
-      a.fill = "rgb("+Math.floor(y.value)+","+Math.floor(z.value)+","+Math.floor(this.value)+")";
+      a.stroke = "rgb("+Math.floor(y.value)+","+Math.floor(z.value)+","+Math.floor(this.value)+")";
     },
   });
   
-  a.add(c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,aa);
+  bb = new Interface.Slider({ 
+    bounds:[505, 1120,50,200],
+    min:0,
+    max:255,    
+    onvaluechange: function() {
+      a.setBackgroundColor("rgb("+Math.floor(this.value)+","+Math.floor(cc.value)+","+Math.floor(dd.value)+")");
+    },
+  });
+  cc = new Interface.Slider({ 
+    bounds:[555, 1120,50,200],
+    min:0,
+    max:255,
+    onvaluechange: function() {
+      a.setBackgroundColor("rgb("+Math.floor(bb.value)+","+Math.floor(this.value)+","+Math.floor(dd.value)+")");
+    },
+  });
+  dd = new Interface.Slider({
+    bounds:[605, 1120,50,200],
+    min:0,
+    max:255,    
+    onvaluechange: function() {
+      a.setBackgroundColor("rgb("+Math.floor(bb.value)+","+Math.floor(cc.value)+","+Math.floor(this.value)+")");
+    },
+  });
+  
+  a.add(c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,aa, bb, cc, dd);
 </script>
 
 </html>
