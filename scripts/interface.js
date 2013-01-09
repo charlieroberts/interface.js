@@ -81,12 +81,14 @@ Interface.Panel = function(_container) {
         var widget = arguments[i];
         
         widget.panel =      this;
-        widget.container =  this.canvas;
+        widget.canvas =     this.canvas;
+        widget.container =  this.container;
         widget.ctx =        this.ctx;
         
         this.children.push( widget );
         
         widget.draw();
+        if(widget._init) widget._init();
       }
     },
   });
@@ -474,6 +476,10 @@ Interface.Knob = function() {
 };
 Interface.Knob.prototype = Interface.Widget;
 
+function sign(n) {
+  if(n < 0) return -1;
+  return 1;
+}
 Interface.XY = function() {
   var self = this,
       posDiff = {x:0, y:0},
@@ -493,6 +499,7 @@ Interface.XY = function() {
     detectCollisions: true,
     friction:.9,
     activeTouch: null,
+    maxVelocity : 10,
     
     animate : function() {
       for(var i = 0; i < this.children.length; i++) {
@@ -520,13 +527,13 @@ Interface.XY = function() {
         if(this.detectCollisions) {
           //if(!child.collideFlag) {
             this.collisionTest(child);
-            //}else{
-            //child.collideFlag = false;
-            //}
+          //}else{
+          //  child.collideFlag = false;
+          //}
         }
           
-        child.vx = child.vx > 20 ? 20 : child.vx;
-        child.vy = child.vy > 20 ? 20 : child.vy;        
+        child.vx = Math.abs(child.vx) > this.maxVelocity ? this.maxVelocity * sign(child.vx) : child.vx;
+        child.vy = Math.abs(child.vy) > this.maxVelocity ? this.maxVelocity * sign(child.vy): child.vy;        
       }
     },
     
@@ -542,20 +549,7 @@ Interface.XY = function() {
         }
       }
     },
-    
-    /*
-    local posDiff = {c1.pos[1] - c2.pos[1], c1.pos[2] - c2.pos[2]}
-    local velDiff = {c1.vel[1] - c2.vel[1], c1.vel[2] - c2.vel[2]}  
-    local cDot = posDiff[1]^2 + posDiff[2]^2
   
-    local normal = {posDiff[1] / math.sqrt(cDot), posDiff[2] / math.sqrt(cDot)}
-    local d = (normal[1] * velDiff[1]) + (normal[2] * velDiff[2])
-    c2.vel[1] = c1.vel[1] + d * normal[1]
-    c2.vel[2] = c1.vel[2] + d * normal[2]
-    c1.vel[1] = c2.vel[1] - d * normal[1]
-    c1.vel[2] = c2.vel[2] - d * normal[2]
-    */
-    
     collide : function(c1,c2) {
       // posDiff, velDiff and normal are upvalues for gc performance
       posDiff.x = c1.x - c2.x;
@@ -564,7 +558,7 @@ Interface.XY = function() {
       velDiff.y = c1.vy - c2.vy;
 
       cDot = Math.sqrt( Math.pow(posDiff.x, 2) + Math.pow(posDiff.y, 2) );
-      
+            
       normal.x = posDiff.x / cDot;
       normal.y = posDiff.y / cDot;
       
@@ -574,10 +568,12 @@ Interface.XY = function() {
       c1.vx = c2.vx - d * normal.x * 2;
       c1.vy = c2.vy - d * normal.y * 2;
       
-      // c1.x += c1.vx / 2;
-      // c1.y += c1.vy / 2;
-      // c2.x += c2.vx / 2;
-      // c2.y += c2.vy / 2;      
+      //console.log("MAX VELOCITY", this.maxVelocity);
+      
+      c1.vx = Math.abs(c1.vx) > this.maxVelocity ? this.maxVelocity * sign(c1.vx) : c1.vx;
+      c1.vy = Math.abs(c1.vy) > this.maxVelocity ? this.maxVelocity * sign(c1.vy) : c1.vy;
+      c2.vx = Math.abs(c2.vx) > this.maxVelocity ? this.maxVelocity * sign(c2.vx) : c2.vx;
+      c2.vy = Math.abs(c2.vy) > this.maxVelocity ? this.maxVelocity * sign(c2.vy) : c2.vy;                  
       
       c1.collideFlag = true;
       c2.collideFlag = true;         
@@ -719,17 +715,14 @@ Interface.XY = function() {
     mousemove : function(e) { 
       if(this.hitTest(e) && this.activeTouch !== null) {
         if(this.activeTouch.lastTouch === null) {
-          console.log("MAKING LAST TOUCH");
           this.activeTouch.lastTouch = {x:e.x - this.x, y:e.y - this.y};
         }else{
-          //console.log(this.activeTouch.lastTouch);
           var now = {x:e.x - this.x, y:e.y - this.y};
           this.activeTouch.velocity = {x:now.x - this.activeTouch.lastTouch.x, y:now.y - this.activeTouch.lastTouch.y };
           this.activeTouch.lastTouch = now;
         }
 
         this.changeValue(this.activeTouch, e.x - this.x, e.y - this.y);
-        //this.trackTouch(e.x - this.x, e.y - this.y);
       }
     },
     mouseup   : function(e) {
@@ -742,7 +735,6 @@ Interface.XY = function() {
       }
     },
     startAnimation : function() { 
-      console.log("CALLED;")
       this.timer = setInterval( function() { self.refresh(); }, 30);
     },
     stopAnimation : function() {
@@ -758,3 +750,52 @@ Interface.XY = function() {
   
 };
 Interface.XY.prototype = Interface.Widget;
+
+Interface.Menu = function() {
+  Interface.extend(this, {
+    _value: 0,
+    options: [],
+    
+    draw : function() {},
+    
+    mousedown : function(e) {},
+    mousemove : function(e) {},
+    mouseup   : function(e) {},
+    
+    _init : function() {
+      this.element = $("<select>");
+      
+      for(var i = 0; i < this.options.length; i++) {
+       var option = $("<option>" + this.options[i] + "</option>");
+       this.element.append(option);
+      }
+      
+      this.element.css({
+        position:'absolute',
+        left: this.x,
+        top:  this.y,
+      });
+      
+      var self = this;
+      this.element.change( 
+        function(obj) {
+          var oldValue = self.value;
+          self.value = self.element.val();
+          self.onvaluechange(self.value, oldValue);
+        }
+      );
+      
+      if(this.options.indexOf( this.value ) !== -1) {
+        this.element.val( this.value );
+      }else{
+        this.element.val( this.options[0] );
+      }
+      
+      $(this.container).append(this.element);
+    },   
+  })
+  .init( arguments[0] );
+
+  
+};
+Interface.Menu.prototype = Interface.Widget;
