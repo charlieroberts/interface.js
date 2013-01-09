@@ -63,9 +63,15 @@
     onvaluechange: function(val, old) { 
       console.log("VALUE CHANGE", val, old); 
     }, 
-    value:'green', });
+    value:'green', 
+  });
+    
+  o = new Interface.Label({
+    bounds:[10, 535, 50, 50],
+    value: 'COLOR',
+  });
   
-  a.add(c,d,e,f,g,h,i,j,k,l,m,n);
+  a.add(c,d,e,f,g,h,i,j,k,l,m,n,o);
 </script>
 
 </html>

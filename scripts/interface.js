@@ -799,3 +799,23 @@ Interface.Menu = function() {
   
 };
 Interface.Menu.prototype = Interface.Widget;
+
+Interface.Label = function() {
+  Interface.extend(this, {
+    size:14,
+    font:'helvetica',
+    weight:'normal',
+    
+    draw : function() {
+      this.ctx.font = this.weight + ' ' + this.size + ' ' + this.font;
+      this.ctx.fillStyle = this.fill;
+      this.ctx.fillText(this.value, this.x, this.y);
+    },
+    
+    mousedown : function(e) {},
+    mousemove : function(e) {},
+    mouseup   : function(e) {},
+  })
+  .init( arguments[0] );
+};
+Interface.Label.prototype = Interface.Widget;
