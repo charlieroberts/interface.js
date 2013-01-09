@@ -12,6 +12,7 @@ var Interface = {
     return destination;
   },
   
+  mouseDown : false,
   useTouch : 'ontouchstart' in document.documentElement,
 };
 
@@ -32,7 +33,13 @@ Interface.Panel = function(_container) {
       }
     },
     
-    mouseEvent : function(e) {      
+    mouseEvent : function(e) {
+      if(e.type === 'mousedown') {
+        Interface.mouseDown = true;
+      }else if(e.type === 'mouseup') {
+        Interface.mouseDown = false;
+      }
+      
       e.x = e.pageX - this.x;
       e.y = e.pageY - this.y;
       
@@ -168,13 +175,14 @@ Interface.Widget = {
     return false;
   },
   
-  mouseEvent : function(e) {    
-    if(this.hitTest(e) || this.hasFocus || !this.requiresFocus) {
+  mouseEvent : function(e) { 
+    var isHit = this.hitTest(e);
+    if(isHit || this.hasFocus || !this.requiresFocus) {
       if(e.type === 'mousedown') this.hasFocus = true;
       
-      this[e.type](e);  // normal event
+      this[e.type](e, isHit);  // normal event
       
-      if(this['on'+e.type]) this['on'+e.type](e); // user defined event
+      if(this['on'+e.type]) this['on'+e.type](e, isHit); // user defined event
     }
     if(e.type === 'mouseup') this.hasFocus = false;
   },
@@ -234,9 +242,9 @@ Interface.Slider = function() {
       }     
     },
     
-    mousedown : function(e) { this.changeValue( e.x - this.x, e.y - this.y ); },
-    mousemove : function(e) { this.changeValue( e.x - this.x, e.y - this.y ); },
-    mouseup   : function(e) { this.changeValue( e.x - this.x, e.y - this.y ); },    
+    mousedown : function(e, hit) { if(hit && Interface.mouseDown) this.changeValue( e.x - this.x, e.y - this.y ); },
+    mousemove : function(e, hit) { if(hit && Interface.mouseDown) this.changeValue( e.x - this.x, e.y - this.y ); },
+    mouseup   : function(e, hit) { if(hit && Interface.mouseDown) this.changeValue( e.x - this.x, e.y - this.y ); },    
     
   })
   .init( arguments[0] );
@@ -819,3 +827,38 @@ Interface.Label = function() {
   .init( arguments[0] );
 };
 Interface.Label.prototype = Interface.Widget;
+
+Interface.MultiSlider = function() {
+  Interface.extend(this, {
+    isVertical : true,
+    children: [],
+    
+    draw : function() {},
+    
+    mousedown : function(e) {},
+    mousemove : function(e) {},
+    mouseup   : function(e) {},
+    
+    _init     : function() {
+      var sliderWidth = this.width / this.count;
+      
+      for(var i = 0; i < this.count; i++) {
+        var slider = new Interface.Slider({
+          x : i * sliderWidth,
+          y : this.y,
+          width: sliderWidth,
+          height:this.height,
+          requiresFocus: false,
+        });
+        
+        this.children.push( slider );
+        
+        this.panel.add( slider );
+      }
+    },
+  })
+  .init( arguments[0] );
+};
+Interface.MultiSlider.prototype = Interface.Widget;
+
+
