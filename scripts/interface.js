@@ -22,6 +22,7 @@ Interface.Panel = function(_container) {
   Interface.extend(this, {
     children: [],
     shouldDraw : [],
+    fps : 60,
     
     container: _container || $('body')[0],
     
@@ -59,7 +60,11 @@ Interface.Panel = function(_container) {
         'height': this.height,
       });
       
-      if(typeof _container === 'undefined') $(this.container).css('margin', '0px');
+      if(typeof _container === 'undefined') $(this.container).css({
+        'margin': '0px',
+      });
+      
+      $(this.container).css({ 'user-select': 'none', '-webkit-user-select': 'none'});
       
       $(this.container).append(this.canvas);
       
@@ -83,6 +88,12 @@ Interface.Panel = function(_container) {
       this.shouldDraw.length = 0;
     },
     
+    refresh: function() {
+      for(var i = 0; i < this.children.length; i++) {
+        this.children[i].draw();
+      }
+    },
+    
     add: function() {
       for(var i = 0; i < arguments.length; i++) {
         var widget = arguments[i];
@@ -100,8 +111,39 @@ Interface.Panel = function(_container) {
     },
   });
   
-  this.timer = setInterval( function() { self.draw(); }, 17);
+  this.timer = setInterval( function() { self.draw(); }, Math.round(1000 / this.fps) );
   this.init();
+  
+    
+  var background ='#444',
+      fill = '#888',
+      stroke = '#ccc',
+      self = this;
+      
+  Object.defineProperties(this, {
+    'background': {
+      get: function() { return background; },
+      set: function(val) { 
+        background = val;
+        self.refresh();
+      },
+    },
+    'stroke': {
+      get: function() { return stroke; },
+      set: function(val) { 
+        stroke = val;
+        self.refresh();
+      },
+    },
+    'fill': {
+      get: function() { return fill; },
+      set: function(val) { 
+        fill = val;
+        self.refresh();
+      },
+    }
+  });
+  
 };
 
 var widgetDefaults = {
@@ -110,9 +152,9 @@ var widgetDefaults = {
   min           : 0,
   max           : 1,
   value         : 0,
-  background    : "#444",
-  fill          : "#777",
-  stroke        : "#999",
+  // background    : "#444",
+  //fill          : "#777",
+  //stroke        : "#999",
   lastValue     : null,
   events : {
     ontouchdown   : null,
@@ -122,7 +164,7 @@ var widgetDefaults = {
     onmousemove   : null,
     onmouseup     : null,
     onvaluechange : null,
-  }
+  },
 }
 
 Interface.Widget = {
@@ -197,6 +239,20 @@ Interface.Widget = {
       if(breakCheck) break;
     }
   },
+  draw : function() {},
+  mousedown : function(e) {},
+  mousemove : function(e) {},
+  mouseup   : function(e) {},
+  
+  _background : function() {
+    return this.background || this.panel.background;
+  },
+  _stroke : function() {
+    return this.stroke || this.panel.stroke;
+  },
+  _fill : function() {
+    return this.fill || this.panel.fill;
+  },
 };
 
 Interface.Slider = function() {
@@ -204,18 +260,18 @@ Interface.Slider = function() {
     isVertical : true,
     
     draw : function() {
-      this.ctx.fillStyle = this.background;
+      this.ctx.fillStyle = this._background();
       this.ctx.fillRect( this.x, this.y, this.width, this.height );
       
-      this.ctx.fillStyle = this.fill;
+      this.ctx.fillStyle = this._fill();
       
       if(this.isVertical) {
-        this.ctx.fillRect( this.x, this.y + this.height - this._value * this.height, this.width, this.value * this.height);
+        this.ctx.fillRect( this.x, this.y + this.height - this._value * this.height, this.width, this._value * this.height);
       }else{
         this.ctx.fillRect( this.x, this.y, this.width * this._value, this.height);
       }
       
-      this.ctx.strokeStyle = this.stroke;
+      this.ctx.strokeStyle = this._stroke();
       this.ctx.strokeRect( this.x, this.y, this.width, this.height );      
     },
     
@@ -226,10 +282,10 @@ Interface.Slider = function() {
         
         if(this._value < 0) {
           this._value = 0;
-          //this.hasFocus = false;
+          // this.hasFocus = false;
         }else if(this._value > 1) {
           this._value = 1;
-          //this.hasFocus = false;
+          // this.hasFocus = false;
         }
         
         this.value = this.min + (this.max - this.min) * this._value;
@@ -257,13 +313,13 @@ Interface.Crossfader = function() {
     _value : .5,
     
     draw : function() {
-      this.ctx.fillStyle = this.background;
+      this.ctx.fillStyle = this._background();
       this.ctx.fillRect( this.x, this.y, this.width, this.height );
       
-      this.ctx.fillStyle = this.fill;
+      this.ctx.fillStyle = this._fill();
       this.ctx.fillRect( this.x + (this.width - this.crossfaderWidth) * this._value, this.y, this.crossfaderWidth, this.height);
       
-      this.ctx.strokeStyle = this.stroke;
+      this.ctx.strokeStyle = this._stroke();
       this.ctx.strokeRect( this.x, this.y, this.width, this.height );      
     },
     
@@ -308,13 +364,13 @@ Interface.Button = function() {
     
     draw : function() {
       if(this._value) {
-        this.ctx.fillStyle = this.fill;
+        this.ctx.fillStyle = this._fill();
       }else{
-        this.ctx.fillStyle = this.background;  
+        this.ctx.fillStyle = this._background();  
       }
       this.ctx.fillRect( this.x, this.y, this.width, this.height );
       
-      this.ctx.strokeStyle = this.stroke;
+      this.ctx.strokeStyle = this._stroke();
       this.ctx.strokeRect( this.x, this.y, this.width, this.height );      
     },
     
@@ -379,10 +435,10 @@ Interface.Knob = function() {
     
     draw : function() {
       //this.canvasCtx.clearRect(0, 0, this.width,this.height);
-      this.ctx.strokeStyle = this.stroke;
-      this.ctx.lineWidth = 1.5;
+      this.ctx.strokeStyle = this._stroke();
+      //this.ctx.lineWidth = 1.5;
 	
-    	this.ctx.fillStyle = this.background; // draw background of widget first
+    	this.ctx.fillStyle = this._background(); // draw background of widget first
     
       var angle0 = Math.PI * .6;
       var angle1 = Math.PI * .4;
@@ -392,10 +448,8 @@ Interface.Knob = function() {
       this.ctx.arc(this.x + this.radius, this.y + this.radius, (this.radius - this.knobBuffer) * .3 , angle1, angle0, true);		
       this.ctx.closePath();
       this.ctx.fill();
-    
-      this.ctx.stroke();
-      
-      this.ctx.fillStyle = this.fill;	// now draw foreground...
+          
+      this.ctx.fillStyle = this._fill();	// now draw foreground...
 	
       if(this.centerZero) {
           var angle3 = Math.PI * 1.5;
@@ -438,6 +492,13 @@ Interface.Knob = function() {
           this.ctx.closePath();
           this.ctx.fill();
       }
+      
+      this.ctx.beginPath();
+      this.ctx.arc(this.x + this.radius, this.y + this.radius, this.radius - this.knobBuffer, angle0, angle1, false);
+      this.ctx.arc(this.x + this.radius, this.y + this.radius, (this.radius - this.knobBuffer) * .3 , angle1, angle0, true);		
+      this.ctx.closePath();
+      
+      this.ctx.stroke();
     },
     
     changeValue : function( xOffset, yOffset ) {
@@ -520,7 +581,6 @@ Interface.XY = function() {
     children: [],
     values: [],
     numChildren: 1,
-    stroke:"#999",
     usePhysics: true,
     detectCollisions: true,
     friction:.9,
@@ -610,11 +670,11 @@ Interface.XY = function() {
         this.animate();
       }
       
-      this.ctx.fillStyle = this.background;
-      this.ctx.fillRect( this.x, this.y, this.width, this.height );
+      this.ctx.fillStyle = this._background();
+      //this.ctx.fillRect( this.x, this.y, this.width, this.height );
       
-      this.ctx.strokeStyle = this.stroke;
-      this.ctx.strokeRect( this.x, this.y, this.width, this.height );
+      this.ctx.strokeStyle = this._stroke();
+      //this.ctx.strokeRect( this.x, this.y, this.width, this.height );
       
       this.ctx.save();
       
@@ -626,10 +686,11 @@ Interface.XY = function() {
       this.ctx.lineTo(this.x, this.y + this.height);
       this.ctx.lineTo(this.x, this.y);
       this.ctx.fill();
+      this.ctx.stroke();
       
       this.ctx.clip();
       
-      this.ctx.fillStyle = this.fill;
+      this.ctx.fillStyle = this._fill();
       
       for(var i = 0; i < this.children.length; i++) {
         var child = this.children[i];
@@ -782,12 +843,6 @@ Interface.Menu = function() {
     _value: 0,
     options: [],
     
-    draw : function() {},
-    
-    mousedown : function(e) {},
-    mousemove : function(e) {},
-    mouseup   : function(e) {},
-    
     _init : function() {
       this.element = $("<select>");
       
@@ -801,6 +856,8 @@ Interface.Menu = function() {
         left: this.x,
         top:  this.y,
       });
+      
+      if(this.css) this.element.css( this.css );
       
       var self = this;
       this.element.change( 
@@ -834,40 +891,63 @@ Interface.Label = function() {
     
     draw : function() {
       this.ctx.font = this.weight + ' ' + this.size + ' ' + this.font;
-      this.ctx.fillStyle = this.fill;
+      this.ctx.fillStyle = this._fill();
       this.ctx.fillText(this.value, this.x, this.y);
     },
-    
-    mousedown : function(e) {},
-    mousemove : function(e) {},
-    mouseup   : function(e) {},
   })
   .init( arguments[0] );
 };
 Interface.Label.prototype = Interface.Widget;
+
+Interface.TextField = function() {
+  Interface.extend(this, {
+    _init : function() {
+      this.element = $("<input>");
+      
+      if(this.value !== 0) {
+        this.element.val( this.value );
+      }
+      this.element.css({
+        position:'absolute',
+        left: this.x,
+        top:  this.y,
+      });
+      
+      if(this.css) this.element.css( this.css );
+      
+      var self = this;
+      this.element.change( 
+        function(obj) {
+          var oldValue = self.value;
+          self.value = self.element.val();
+          self.onvaluechange(self.value, oldValue);
+        }
+      );
+      
+      $(this.container).append(this.element);
+    },   
+  })
+  .init( arguments[0] );
+};
+Interface.TextField.prototype = Interface.Widget;
 
 Interface.MultiSlider = function() {
   Interface.extend(this, {
     isVertical : true,
     children: [],
     
-    draw : function() {},
-    
-    mousedown : function(e) {},
-    mousemove : function(e) {},
-    mouseup   : function(e) {},
-    
     _init     : function() {
       var sliderWidth = this.width / this.count;
       
       for(var i = 0; i < this.count; i++) {
         var slider = new Interface.Slider({
-          x : i * sliderWidth,
+          x : this.x + i * sliderWidth,
           y : this.y,
           width: sliderWidth,
           height:this.height,
           requiresFocus: false,
           parent:this,
+          colors:[this.background, this.fill, this.stroke],
           onvaluechange: (function() {
             var sliderNum = i;
                   
@@ -896,12 +976,6 @@ Interface.MultiButton = function() {
     columns:  4,
     requiresFocus:true,
     
-    draw : function() {},
-    
-    mousedown : function(e) {},
-    mousemove : function(e) {},
-    mouseup   : function(e) {},
-    
     _init     : function() {
       var childWidth  = this.width  / this.columns;
       var childHeight = this.height / this.rows;      
@@ -916,8 +990,7 @@ Interface.MultiButton = function() {
             parent:this,
             requiresFocus: this.requiresFocus,
             onvaluechange: (function() {
-              var row = i,
-                  col = j;
+              var row = i, col = j;
                   
               return function() {
                 this.parent.onvaluechange(row, col, this.value);
@@ -936,5 +1009,3 @@ Interface.MultiButton = function() {
   .init( arguments[0] );
 };
 Interface.MultiButton.prototype = Interface.Widget;
-
-
