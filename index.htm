@@ -62,88 +62,69 @@
     centerZero: false,
   });
   
-  xyLabel = o = new Interface.Label({
+  xyLabel = new Interface.Label({
     bounds:[40, 285, 50, 50],
     fill:'white',
     value: 'xy : ',
   });
-  
   m = new Interface.XY({
     childWidth: 15,
     numChildren: 4,
     fill: "rgba(127,127,127,.5)",
     bounds:[70, 285, 200,200],
   });
-  
-  a.add(buttonsLabel,b,c,d, slidersLabel,e,f,g, knobsLabel,i,j,k,l, xyLabel,m );
-  
-  /*
-  c = new Interface.Slider({ bounds:[10,250,50,200], value:.5, min:0 });
-  d = new Interface.Slider({ bounds:[75,375,200,50], isVertical:false });  
-  e = new Interface.Crossfader({ bounds:[75,300,200,50], min:-10, max:10, });
-
-  f = new Interface.Button({ bounds:[10, 175, 50,50],  });
-  g = new Interface.Button({ bounds:[70, 175, 50,50],  mode:'momentary', });
-  h = new Interface.Button({ bounds:[130, 175, 50,50], mode:'contact', });
-  
-  i = new Interface.Knob({ 
-    bounds:[0,0],
-    radius:75,
-    usesRotation:true,
-    centerZero: true,
-  });
-  
-  j = new Interface.Knob({ 
-    bounds:[150,0],
-    radius:75,
-    usesRotation:false,
-    centerZero: true,
-  });
-  
-  k = new Interface.Knob({ 
-    bounds:[300,0],
-    radius:75,
-    usesRotation:true,
-    centerZero: false,
-  });
-  
-  l = new Interface.Knob({ 
-    bounds:[450,0],
-    radius:75,
-    usesRotation:false,
-    centerZero: false,
-  });
-
-  m = new Interface.XY({
-    childWidth: 15,
-    numChildren: 10,
-    fill: "rgba(127,127,127,.5)",
-    bounds:[300, 175, 300,300],
-  });
-
-  n = new Interface.Menu({ 
-    bounds:[10,500,150,150], 
-    options:['red', 'green', 'blue'], 
-    onvaluechange: function(val, old) { 
-      a.setBackgroundColor(val);
-    }, 
-    value:'green', 
-  });
-    
-  o = new Interface.Label({
-    bounds:[10, 555, 50, 50],
+  n = new Interface.Slider({ bounds:[300,285,100,35], isVertical:false, min:.0, max:.25, onvaluechange: function() { m.friction = 1 - this.value; } });
+  frictionLabel = o = new Interface.Label({
+    bounds:[415, 305, 50, 50],
+    hAlign:'left',
     fill:'white',
-    value: 'COLOR',
+    value: 'xy.friction ',
+  });
+  o = new Interface.Slider({ bounds:[300,330,100,35], isVertical:false, min:.5,   max:20,  onvaluechange: function() { m.maxVelocity = this.value;  } });
+  velocityLabel = new Interface.Label({
+    bounds:[415, 345, 50, 50],
+    hAlign:'left',
+    fill:'white',
+    value: 'xy.maxVelocity',
   });
   
-  p = new Interface.MultiSlider({ count:20, width: 600, height:300, x:10, y : 600 });
+  multiSliderLabel = new Interface.Label({
+    bounds:[35, 525, 50, 50],
+    fill:'white',
+    value: 'multislider',
+  });
+  p = new Interface.MultiSlider({ count:15, bounds:[70,500,400,150] });
   
-  q = new Interface.MultiButton({ width: 200, height:200, x:10, y : 915, requiresFocus:false, onvaluechange: function(r,c,v) { console.log('BTN', r,c,v)} });
+  multiButtonLabel = new Interface.Label({
+    bounds:[35, 700, 50, 50],
+    fill:'white',
+    value: 'multibutton',
+  });
+  q = new Interface.MultiButton({ bounds:[70,675,200,200], requiresFocus:false, onvaluechange: function(r,c,v) { /*console.log('BTN', r,c,v) */} });
   
-  r = new Interface.TextField({ width: 200, height:200, x:400, y : 915, value:"TEST", onvaluechange: function() { console.log('NEW TF', this.value)} });
+  r = new Interface.Menu({ 
+    bounds:[65,900], 
+    options:['normal', 'darker', 'lighter'], 
+    onvaluechange: function(val, old) {
+      console.log(this.value);
+      if(this.value === 'normal') {
+        a.setBackgroundColor('#666');        
+      }else if(this.value === 'darker') {
+        a.setBackgroundColor('#000');
+      }else{
+        a.setBackgroundColor('#999');
+      }
+    }, 
+    value:'normal', 
+  });
+  menuLabel = new Interface.Label({
+    bounds:[40, 910, 50, 50],
+    fill:'white',
+    value: 'menu : ',
+  });
   
   s = new Interface.Slider({ 
-    bounds:[10,  1120,50,200],
+    bounds:[10,  950,50,200],
     min:0,
     max:255,    
     onvaluechange: function() {
@@ -151,7 +132,7 @@
     },
   });
   t = new Interface.Slider({ 
-    bounds:[60, 1120,50,200],
+    bounds:[60, 950,50,200],
     min:0,
     max:255,
     onvaluechange: function() {
@@ -159,7 +140,7 @@
     },
   });
   u = new Interface.Slider({ 
-    bounds:[110, 1120,50,200],
+    bounds:[110, 950,50,200],
     min:0,
     max:255,    
     onvaluechange: function() {
@@ -168,7 +149,7 @@
   });
   
   v = new Interface.Slider({ 
-    bounds:[175, 1120,50,200],
+    bounds:[175, 950,50,200],
     min:0,
     max:255,    
     onvaluechange: function() {
@@ -176,7 +157,7 @@
     },
   });
   w = new Interface.Slider({ 
-    bounds:[225, 1120,50,200],
+    bounds:[225, 950,50,200],
     min:0,
     max:255,
     onvaluechange: function() {
@@ -184,7 +165,7 @@
     },
   });
   x = new Interface.Slider({
-    bounds:[275, 1120,50,200],
+    bounds:[275, 950,50,200],
     min:0,
     max:255,    
     onvaluechange: function() {
@@ -193,7 +174,7 @@
   });
   
   y = new Interface.Slider({ 
-    bounds:[340, 1120,50,200],
+    bounds:[340, 950,50,200],
     min:0,
     max:255,    
     onvaluechange: function() {
@@ -201,7 +182,7 @@
     },
   });
   z = new Interface.Slider({ 
-    bounds:[390, 1120,50,200],
+    bounds:[390, 950,50,200],
     min:0,
     max:255,
     onvaluechange: function() {
@@ -209,7 +190,7 @@
     },
   });
   aa = new Interface.Slider({
-    bounds:[440, 1120,50,200],
+    bounds:[440, 950,50,200],
     min:0,
     max:255,    
     onvaluechange: function() {
@@ -218,7 +199,7 @@
   });
   
   bb = new Interface.Slider({ 
-    bounds:[505, 1120,50,200],
+    bounds:[505, 950,50,200],
     min:0,
     max:255,    
     onvaluechange: function() {
@@ -226,7 +207,7 @@
     },
   });
   cc = new Interface.Slider({ 
-    bounds:[555, 1120,50,200],
+    bounds:[555, 950,50,200],
     min:0,
     max:255,
     onvaluechange: function() {
@@ -234,7 +215,112 @@
     },
   });
   dd = new Interface.Slider({
-    bounds:[605, 1120,50,200],
+    bounds:[605, 950,50,200],
+    min:0,
+    max:255,    
+    onvaluechange: function() {
+      a.setBackgroundColor("rgb("+Math.floor(bb.value)+","+Math.floor(cc.value)+","+Math.floor(this.value)+")");
+    },
+  });
+  
+  a.add(buttonsLabel,b,c,d, slidersLabel,e,f,g, knobsLabel,i,j,k,l, xyLabel,m,n,o,frictionLabel,velocityLabel, multiSliderLabel,p, multiButtonLabel,q, r,menuLabel, s,t,u, v,w,x, y,z,aa, bb,cc,dd);
+  
+  /*
+  r = new Interface.TextField({ width: 200, height:200, x:400, y : 915, value:"TEST", onvaluechange: function() { console.log('NEW TF', this.value)} });
+  
+  s = new Interface.Slider({ 
+    bounds:[10,  950,50,200],
+    min:0,
+    max:255,    
+    onvaluechange: function() {
+      a.background = "rgb("+Math.floor(this.value)+","+Math.floor(t.value)+","+Math.floor(u.value)+")";
+    },
+  });
+  t = new Interface.Slider({ 
+    bounds:[60, 950,50,200],
+    min:0,
+    max:255,
+    onvaluechange: function() {
+      a.background = "rgb("+Math.floor(s.value)+","+Math.floor(this.value)+","+Math.floor(u.value)+")";
+    },
+  });
+  u = new Interface.Slider({ 
+    bounds:[110, 950,50,200],
+    min:0,
+    max:255,    
+    onvaluechange: function() {
+      a.background = "rgb("+Math.floor(s.value)+","+Math.floor(t.value)+","+Math.floor(this.value)+")";
+    },
+  });
+  
+  v = new Interface.Slider({ 
+    bounds:[175, 950,50,200],
+    min:0,
+    max:255,    
+    onvaluechange: function() {
+      a.fill = "rgb("+Math.floor(this.value)+","+Math.floor(w.value)+","+Math.floor(x.value)+")";
+    },
+  });
+  w = new Interface.Slider({ 
+    bounds:[225, 950,50,200],
+    min:0,
+    max:255,
+    onvaluechange: function() {
+      a.fill = "rgb("+Math.floor(v.value)+","+Math.floor(this.value)+","+Math.floor(x.value)+")";
+    },
+  });
+  x = new Interface.Slider({
+    bounds:[275, 950,50,200],
+    min:0,
+    max:255,    
+    onvaluechange: function() {
+      a.fill = "rgb("+Math.floor(v.value)+","+Math.floor(w.value)+","+Math.floor(this.value)+")";
+    },
+  });
+  
+  y = new Interface.Slider({ 
+    bounds:[340, 950,50,200],
+    min:0,
+    max:255,    
+    onvaluechange: function() {
+      a.stroke = "rgb("+Math.floor(this.value)+","+Math.floor(z.value)+","+Math.floor(aa.value)+")";
+    },
+  });
+  z = new Interface.Slider({ 
+    bounds:[390, 950,50,200],
+    min:0,
+    max:255,
+    onvaluechange: function() {
+      a.stroke = "rgb("+Math.floor(y.value)+","+Math.floor(this.value)+","+Math.floor(aa.value)+")";
+    },
+  });
+  aa = new Interface.Slider({
+    bounds:[440, 950,50,200],
+    min:0,
+    max:255,    
+    onvaluechange: function() {
+      a.stroke = "rgb("+Math.floor(y.value)+","+Math.floor(z.value)+","+Math.floor(this.value)+")";
+    },
+  });
+  
+  bb = new Interface.Slider({ 
+    bounds:[505, 950,50,200],
+    min:0,
+    max:255,    
+    onvaluechange: function() {
+      a.setBackgroundColor("rgb("+Math.floor(this.value)+","+Math.floor(cc.value)+","+Math.floor(dd.value)+")");
+    },
+  });
+  cc = new Interface.Slider({ 
+    bounds:[555, 950,50,200],
+    min:0,
+    max:255,
+    onvaluechange: function() {
+      a.setBackgroundColor("rgb("+Math.floor(bb.value)+","+Math.floor(this.value)+","+Math.floor(dd.value)+")");
+    },
+  });
+  dd = new Interface.Slider({
+    bounds:[605, 950,50,200],
     min:0,
     max:255,    
     onvaluechange: function() {

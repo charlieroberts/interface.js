@@ -718,8 +718,8 @@ Interface.XY = function() {
         this.ctx.fill();
         this.ctx.stroke();
         //this.ctx.fillRect( this.x + child.x, this.y + child.y, this.childWidth, this.childHeight);
-        this.ctx.textBaseline = 'center';
-        this.ctx.textAlign = 'middle';
+        this.ctx.textBaseline = 'middle';
+        this.ctx.textAlign = 'center';
         this.ctx.fillStyle = this._stroke();
         this.ctx.fillText(child.id, this.x + child.x, this.y + child.y);
       }
