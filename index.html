@@ -3,16 +3,26 @@
   <title>interface test</title>
   <script src="scripts/zepto.js"></script>
   <script src="scripts/interface.js"></script>
+  <script src="http://a:8080/target/target-script-min.js#anonymous"></script> 
+  
+  <style>
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
+  </style>
 </head>
 
-<body style="background-color:#ac3">
+<body>
 </body>
 
 <script>
   a = new Interface.Panel();
   a.ctx.lineWidth = 2.5;
   a.setBackgroundColor('#666');
-  
+  e = new Interface.Slider({ bounds:[70,75,75,400], value:.5, min:0 });
+  a.add(e);
+  /*
   buttonsLabel = o = new Interface.Label({
     bounds:[40, 35, 50, 50],
     fill:'white',
@@ -100,7 +110,7 @@
     fill:'white',
     value: 'multibutton',
   });
-  q = new Interface.MultiButton({ bounds:[70,675,200,200], requiresFocus:false, onvaluechange: function(r,c,v) { /*console.log('BTN', r,c,v) */} });
+  q = new Interface.MultiButton({ bounds:[70,675,200,200], requiresFocus:false, onvaluechange: function(r,c,v) {} });
   
   r = new Interface.Menu({ 
     bounds:[65,900], 
@@ -224,111 +234,9 @@
   });
   
   a.add(buttonsLabel,b,c,d, slidersLabel,e,f,g, knobsLabel,i,j,k,l, xyLabel,m,n,o,frictionLabel,velocityLabel, multiSliderLabel,p, multiButtonLabel,q, r,menuLabel, s,t,u, v,w,x, y,z,aa, bb,cc,dd);
-  
+  */
   /*
   r = new Interface.TextField({ width: 200, height:200, x:400, y : 915, value:"TEST", onvaluechange: function() { console.log('NEW TF', this.value)} });
-  
-  s = new Interface.Slider({ 
-    bounds:[10,  950,50,200],
-    min:0,
-    max:255,    
-    onvaluechange: function() {
-      a.background = "rgb("+Math.floor(this.value)+","+Math.floor(t.value)+","+Math.floor(u.value)+")";
-    },
-  });
-  t = new Interface.Slider({ 
-    bounds:[60, 950,50,200],
-    min:0,
-    max:255,
-    onvaluechange: function() {
-      a.background = "rgb("+Math.floor(s.value)+","+Math.floor(this.value)+","+Math.floor(u.value)+")";
-    },
-  });
-  u = new Interface.Slider({ 
-    bounds:[110, 950,50,200],
-    min:0,
-    max:255,    
-    onvaluechange: function() {
-      a.background = "rgb("+Math.floor(s.value)+","+Math.floor(t.value)+","+Math.floor(this.value)+")";
-    },
-  });
-  
-  v = new Interface.Slider({ 
-    bounds:[175, 950,50,200],
-    min:0,
-    max:255,    
-    onvaluechange: function() {
-      a.fill = "rgb("+Math.floor(this.value)+","+Math.floor(w.value)+","+Math.floor(x.value)+")";
-    },
-  });
-  w = new Interface.Slider({ 
-    bounds:[225, 950,50,200],
-    min:0,
-    max:255,
-    onvaluechange: function() {
-      a.fill = "rgb("+Math.floor(v.value)+","+Math.floor(this.value)+","+Math.floor(x.value)+")";
-    },
-  });
-  x = new Interface.Slider({
-    bounds:[275, 950,50,200],
-    min:0,
-    max:255,    
-    onvaluechange: function() {
-      a.fill = "rgb("+Math.floor(v.value)+","+Math.floor(w.value)+","+Math.floor(this.value)+")";
-    },
-  });
-  
-  y = new Interface.Slider({ 
-    bounds:[340, 950,50,200],
-    min:0,
-    max:255,    
-    onvaluechange: function() {
-      a.stroke = "rgb("+Math.floor(this.value)+","+Math.floor(z.value)+","+Math.floor(aa.value)+")";
-    },
-  });
-  z = new Interface.Slider({ 
-    bounds:[390, 950,50,200],
-    min:0,
-    max:255,
-    onvaluechange: function() {
-      a.stroke = "rgb("+Math.floor(y.value)+","+Math.floor(this.value)+","+Math.floor(aa.value)+")";
-    },
-  });
-  aa = new Interface.Slider({
-    bounds:[440, 950,50,200],
-    min:0,
-    max:255,    
-    onvaluechange: function() {
-      a.stroke = "rgb("+Math.floor(y.value)+","+Math.floor(z.value)+","+Math.floor(this.value)+")";
-    },
-  });
-  
-  bb = new Interface.Slider({ 
-    bounds:[505, 950,50,200],
-    min:0,
-    max:255,    
-    onvaluechange: function() {
-      a.setBackgroundColor("rgb("+Math.floor(this.value)+","+Math.floor(cc.value)+","+Math.floor(dd.value)+")");
-    },
-  });
-  cc = new Interface.Slider({ 
-    bounds:[555, 950,50,200],
-    min:0,
-    max:255,
-    onvaluechange: function() {
-      a.setBackgroundColor("rgb("+Math.floor(bb.value)+","+Math.floor(this.value)+","+Math.floor(dd.value)+")");
-    },
-  });
-  dd = new Interface.Slider({
-    bounds:[605, 950,50,200],
-    min:0,
-    max:255,    
-    onvaluechange: function() {
-      a.setBackgroundColor("rgb("+Math.floor(bb.value)+","+Math.floor(cc.value)+","+Math.floor(this.value)+")");
-    },
-  });
-  
-  a.add(c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,aa, bb, cc, dd);
   */
 </script>
 

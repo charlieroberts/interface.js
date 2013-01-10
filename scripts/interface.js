@@ -30,8 +30,11 @@ Interface.Panel = function(_container) {
     
     touchEvent : function(e) {
       for(var i = 0; i < self.children.length; i++) {
+        e.x = e.pageX - self.x;
+        e.y = e.pageY - self.y;
         self.children[i].touchEvent(e);
       }
+      e.preventDefault();
     },
     
     mouseEvent : function(e) {
@@ -54,7 +57,10 @@ Interface.Panel = function(_container) {
       this.height = parseFloat( $(this.container).css('height'));
       this.x      = parseFloat( $(this.container).css('left') );
       this.y      = parseFloat( $(this.container).css('top') );
-            
+      
+      if( isNaN(this.x)) this.x = 0;
+      if( isNaN(this.y)) this.y = 0;      
+      
       $(this.canvas).attr({
         'width':  this.width,
         'height': this.height,
@@ -233,15 +239,19 @@ Interface.Widget = {
     if(e.type === 'mouseup') this.hasFocus = false;
   },
   
-  touchEvent : function(event) {
-    for (var j = 0; j < event.changedTouches.length; j++){
-      var touch = event.changedTouches.item(j);
-  		this.processingTouch = touch;
-        
-  		var breakCheck = this[event.type].call(this, touch);
-
-      if(breakCheck) break;
+  touchEvent : function(e) {
+    //console.log(e.x, e.y);
+    var isHit = this.hitTest(e);
+    //console.log('TOUCHEVENT', isHit);
+    if(isHit || this.hasFocus || !this.requiresFocus) {
+      if(e.type === 'touchstart') this.hasFocus = true;
+      
+      //console.log(e.type);
+      this[e.type](e, isHit);  // normal event
+      
+      if(this['on'+e.type]) this['on'+e.type](e, isHit); // user defined event
     }
+    if(e.type === 'touchend') this.hasFocus = false;
   },
   draw : function() {},
   mousedown : function(e) {},
@@ -306,6 +316,11 @@ Interface.Slider = function() {
     mousemove : function(e, hit) { if(hit && Interface.mouseDown) this.changeValue( e.x - this.x, e.y - this.y ); },
     mouseup   : function(e, hit) { if(hit && Interface.mouseDown) this.changeValue( e.x - this.x, e.y - this.y ); },    
     
+    touchstart : function(e, hit) { if(hit) this.changeValue( e.x - this.x, e.y - this.y ); },
+    touchmove  : function(e, hit) { if(hit) this.changeValue( e.x - this.x, e.y - this.y ); },
+    touchend   : function(e, hit) { if(hit) this.changeValue( e.x - this.x, e.y - this.y ); },
+    
+    
   })
   .init( arguments[0] );
 };
@@ -350,7 +365,7 @@ Interface.Crossfader = function() {
     },
     
     mousedown : function(e) { 
-      this.offset = e.x - this.x < this.crossfaderWidth / 2 ? e.x - this.x < this.crossfaderWidth / 2 : 0;
+      //this.offset = e.x - this.x < this.crossfaderWidth / 2 ? e.x - this.x < this.crossfaderWidth / 2 : 0;
       this.changeValue( e.x - this.x, e.y - this.y ); 
     },
     mousemove : function(e) { this.changeValue( e.x - this.x, e.y - this.y ); },
