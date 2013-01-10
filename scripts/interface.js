@@ -370,6 +370,10 @@ Interface.Crossfader = function() {
     },
     mousemove : function(e) { this.changeValue( e.x - this.x, e.y - this.y ); },
     mouseup   : function(e) { this.changeValue( e.x - this.x, e.y - this.y ); },
+    
+    touchstart : function(e, hit) { if(hit) this.changeValue( e.x - this.x, e.y - this.y ); },
+    touchmove  : function(e, hit) { if(hit) this.changeValue( e.x - this.x, e.y - this.y ); },
+    touchend   : function(e, hit) { if(hit) this.changeValue( e.x - this.x, e.y - this.y ); },
   })
   .init( arguments[0] );
 };
@@ -446,7 +450,36 @@ Interface.Button = function() {
     mouseup   : function(e) {
       if(this.mode === 'momentary')
         this.changeValue( e.x - this.x, e.y - this.y ); 
-    },    
+    },
+    
+    touchstart : function(e, hit) {
+      if(hit) {
+        if(this.mode !== 'contact') {
+          this.changeValue( e.x - this.x, e.y - this.y ); 
+        }else{
+          this._value = 1;
+          this.draw();
+          var self = this;
+          setTimeout( function() { self._value = 0; self.draw(); }, 75);
+        }
+      }
+    },
+    touchmove : function(e, hit) { 
+      if(!this.requiresFocus && hit) {
+        if(this.mode !== 'contact') {
+          this.changeValue( e.x - this.x, e.y - this.y ); 
+        }else{
+          this._value = 1;
+          this.draw();
+          var self = this;
+          setTimeout( function() { self._value = 0; self.draw(); }, 75);
+        }
+      }
+    },
+    touchend   : function(e) {
+      if(this.mode === 'momentary')
+        this.changeValue( e.x - this.x, e.y - this.y ); 
+    },  
   })
   .init( arguments[0] );
 };
