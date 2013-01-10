@@ -365,6 +365,7 @@ Interface.Button = function() {
     _value: 0,
     mode : 'toggle',
     isMouseOver : false,
+    label : null,
     
     draw : function() {
       if(this._value) {
@@ -373,6 +374,13 @@ Interface.Button = function() {
         this.ctx.fillStyle = this._background();  
       }
       this.ctx.fillRect( this.x, this.y, this.width, this.height );
+      
+      if(this.label !== null) {
+        this.ctx.fillStyle = this._stroke();
+        this.ctx.textBaseline = 'middle';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText(this.label, this.x + this.width / 2, this.y + this.height / 2);
+      }
       
       this.ctx.strokeStyle = this._stroke();
       this.ctx.strokeRect( this.x, this.y, this.width, this.height );      
@@ -699,17 +707,21 @@ Interface.XY = function() {
       for(var i = 0; i < this.children.length; i++) {
         var child = this.children[i];
         
+        this.ctx.fillStyle = this._fill();
+        
         this.ctx.beginPath();
 
         this.ctx.arc(this.x + child.x, this.y + child.y, this.childWidth, 0, Math.PI*2, true); 
 
         this.ctx.closePath();
-
+        
         this.ctx.fill();
         this.ctx.stroke();
         //this.ctx.fillRect( this.x + child.x, this.y + child.y, this.childWidth, this.childHeight);
-        
-        this.ctx.strokeText(child.id, this.x + child.x - 3, this.y + child.y + 3);
+        this.ctx.textBaseline = 'center';
+        this.ctx.textAlign = 'middle';
+        this.ctx.fillStyle = this._stroke();
+        this.ctx.fillText(child.id, this.x + child.x, this.y + child.y);
       }
       
       this.ctx.closePath();
@@ -889,12 +901,16 @@ Interface.Menu.prototype = Interface.Widget;
 
 Interface.Label = function() {
   Interface.extend(this, {
-    size:14,
+    size:12,
     font:'helvetica',
     weight:'normal',
+    hAlign:'center',
+    vAlign:'middle',
     
     draw : function() {
       this.ctx.font = this.weight + ' ' + this.size + ' ' + this.font;
+      this.ctx.textAlign = this.hAlign;
+      this.ctx.textBaseline = this.vAlign;
       this.ctx.fillStyle = this._fill();
       this.ctx.fillText(this.value, this.x, this.y);
     },

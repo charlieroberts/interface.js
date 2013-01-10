@@ -11,10 +11,75 @@
 <script>
   a = new Interface.Panel();
   a.ctx.lineWidth = 2.5;
+  a.setBackgroundColor('#666');
   
+  buttonsLabel = o = new Interface.Label({
+    bounds:[40, 35, 50, 50],
+    fill:'white',
+    value: 'buttons : ',
+  });
+  b = new Interface.Button({ bounds:[70, 10, 60,50],  label:'toggle'  });
+  c = new Interface.Button({ bounds:[140, 10, 60,50], mode:'momentary', label:'momentary' });
+  d = new Interface.Button({ bounds:[210, 10, 60,50], mode:'contact',   label:'contact' });
+  
+  slidersLabel = o = new Interface.Label({
+    bounds:[40, 85, 50, 50],
+    fill:'white',
+    value: 'sliders : ',
+  });
+  
+  e = new Interface.Slider({ bounds:[70,75,35,100], value:.5, min:0 });
+  f = new Interface.Slider({ bounds:[140,140,100,35], isVertical:false });  
+  g = new Interface.Crossfader({ bounds:[140,75,100,35], min:-10, max:10, crossfaderWidth:15 });
+  
+  knobsLabel = o = new Interface.Label({
+    bounds:[40, 205, 50, 50],
+    fill:'white',
+    value: 'knobs : ',
+  });
+  i = new Interface.Knob({ 
+    bounds:[65,175],
+    radius:45,
+    usesRotation:true,
+    centerZero: true,
+  });
+  j = new Interface.Knob({ 
+    bounds:[150,175],
+    radius:45,
+    usesRotation:false,
+    centerZero: true,
+  });  
+  k = new Interface.Knob({ 
+    bounds:[235,175],
+    radius:45,
+    usesRotation:true,
+    centerZero: false,
+  });
+  l = new Interface.Knob({ 
+    bounds:[320,175],
+    radius:45,
+    usesRotation:false,
+    centerZero: false,
+  });
+  
+  xyLabel = o = new Interface.Label({
+    bounds:[40, 285, 50, 50],
+    fill:'white',
+    value: 'xy : ',
+  });
+  
+  m = new Interface.XY({
+    childWidth: 15,
+    numChildren: 4,
+    fill: "rgba(127,127,127,.5)",
+    bounds:[70, 285, 200,200],
+  });
+  
+  a.add(buttonsLabel,b,c,d, slidersLabel,e,f,g, knobsLabel,i,j,k,l, xyLabel,m );
+  
+  /*
   c = new Interface.Slider({ bounds:[10,250,50,200], value:.5, min:0 });
-  d = new Interface.Slider({ bounds:[75,375,200,50], isVertical:false });
-    
+  d = new Interface.Slider({ bounds:[75,375,200,50], isVertical:false });  
   e = new Interface.Crossfader({ bounds:[75,300,200,50], min:-10, max:10, });
 
   f = new Interface.Button({ bounds:[10, 175, 50,50],  });
@@ -93,7 +158,7 @@
       a.background = "rgb("+Math.floor(s.value)+","+Math.floor(this.value)+","+Math.floor(u.value)+")";
     },
   });
-  u = new Interface.Slider({
+  u = new Interface.Slider({ 
     bounds:[110, 1120,50,200],
     min:0,
     max:255,    
@@ -178,6 +243,7 @@
   });
   
   a.add(c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,aa, bb, cc, dd);
+  */
 </script>
 
 </html>
