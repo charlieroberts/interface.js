@@ -394,6 +394,7 @@ Interface.Button = function() {
     _value: 0,
     mode : 'toggle',
     isMouseOver : false,
+    isTouchOver : false,
     label : null,
     
     draw : function() {
@@ -464,6 +465,8 @@ Interface.Button = function() {
     
     touchstart : function(e, hit) {
       if(hit) {
+        this.isTouchOver = true;
+        
         if(this.mode !== 'contact') {
           this.changeValue( e.x - this.x, e.y - this.y ); 
         }else{
@@ -474,8 +477,9 @@ Interface.Button = function() {
         }
       }
     },
-    touchmove : function(e, hit) { 
-      if(!this.requiresFocus && hit) {
+    touchmove : function(e, hit) {
+      //if(hit) console.log('BTN HIT', this.isTouchOver);
+      if(!this.requiresFocus && hit && !this.isTouchOver) {
         if(this.mode !== 'contact') {
           this.changeValue( e.x - this.x, e.y - this.y ); 
         }else{
@@ -487,9 +491,10 @@ Interface.Button = function() {
       }
     },
     touchend   : function(e) {
+      this.isTouchOver = false;
       if(this.mode === 'momentary')
         this.changeValue( e.x - this.x, e.y - this.y ); 
-    },  
+    },
   })
   .init( arguments[0] );
 };
@@ -648,17 +653,17 @@ Interface.XY = function() {
       cDot = 0;
   
   Interface.extend(this, {
-    _value: 0,
-    childWidth: 25,
-    childHeight: 25,
-    children: [],
-    values: [],
-    numChildren: 1,
-    usePhysics: true,
-    detectCollisions: true,
-    friction:.9,
-    activeTouch: null,
-    maxVelocity : 10,
+    _value            : 0,
+    childWidth        : 25,
+    childHeight       : 25,
+    children          : [],
+    values            : [],
+    numChildren       : 1,
+    usePhysics        : true,
+    friction          : .9,
+    activeTouch       : null,
+    maxVelocity       : 10,
+    detectCollisions  : true,
     
     animate : function() {
       for(var i = 0; i < this.children.length; i++) {
@@ -892,16 +897,17 @@ Interface.XY = function() {
       
       for(var i = 0; i < this.children.length; i++) {
         var touch = this.children[i];
-        var xdiff = Math.abs(touch.x - xPos);
-        var ydiff = Math.abs(touch.y - yPos);
+        var xdiff = Math.abs(xPos);
+        var ydiff = Math.abs(yPos);
 
-        if(xdiff + ydiff < closestDiff) {
+        if(xdiff + ydiff < closestDiff && !touch.isActive) {
           closestDiff = xdiff + ydiff;
           touchFound = touch;
           touchNum = i;
         }
       }
       
+      touchFound.isActive = true;
       touchFound.vx = 0;
       touchFound.vy = 0;
       touchFound.identifier = _touch.identifier;
@@ -920,7 +926,7 @@ Interface.XY = function() {
       for(var t = 0; t < this.children.length; t++) {
         _t = this.children[t];
         if(touch.identifier == _t.identifier) {
-          this.changeValue(_t, touch.x, touch.y);
+          this.changeValue(_t, touch.x - this.x, touch.y - this.y);
 			    
           var now = {x:touch.x - this.x, y:touch.y - this.y};
           
@@ -944,6 +950,7 @@ Interface.XY = function() {
           _t.vy = _t.velocity.y;
           
           _t.lastPosition = null;
+          _t.isActive = false;
           
     			if(this.ontouchmove){            
     				this.ontouchmove();
