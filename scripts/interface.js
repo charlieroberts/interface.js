@@ -454,7 +454,7 @@ Interface.Button = function() {
           var self = this;
           setTimeout( function() { self._value = 0; self.draw(); }, 75);
         }
-      }else if(!hit) {
+      }else if(!hit && this.isMouseOver) {
         this.isMouseOver = false;
       }
     },
@@ -478,16 +478,19 @@ Interface.Button = function() {
       }
     },
     touchmove : function(e, hit) {
-      //if(hit) console.log('BTN HIT', this.isTouchOver);
       if(!this.requiresFocus && hit && !this.isTouchOver) {
+        this.isTouchOver = true;
         if(this.mode !== 'contact') {
-          this.changeValue( e.x - this.x, e.y - this.y ); 
+          this.changeValue( e.x - this.x, e.y - this.y );
+          
         }else{
           this._value = 1;
           this.draw();
           var self = this;
           setTimeout( function() { self._value = 0; self.draw(); }, 75);
         }
+      }else if(!hit && this.isTouchOver) {
+        this.isTouchOver = false;
       }
     },
     touchend   : function(e) {

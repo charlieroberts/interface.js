@@ -20,15 +20,9 @@
   a = new Interface.Panel();
   a.ctx.lineWidth = 2.5;
   a.setBackgroundColor('#f66');
-  m = new Interface.XY({
-    childWidth: 35,
-    numChildren: 4,
-    friction:1,
-    
-    fill: "rgba(127,127,127,.5)",
-    bounds:[100, 100, 500,500],
-  });
-  a.add(m);
+  q = new Interface.MultiButton({ bounds:[10,10,400,400], requiresFocus:false });
+
+  a.add(q);
   
   /*
   buttonsLabel = o = new Interface.Label({
