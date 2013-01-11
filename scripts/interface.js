@@ -107,6 +107,7 @@ Interface.Panel = function(_container) {
     },
     
     refresh: function() {
+      this.ctx.clearRect(0,0,this.canvas.width, this.canvas.height);
       for(var i = 0; i < this.children.length; i++) {
         this.children[i].draw();
       }
@@ -251,13 +252,10 @@ Interface.Widget = {
   },
   
   touchEvent : function(e) {
-    //console.log(e.x, e.y);
     var isHit = this.hitTest(e);
-    //console.log('TOUCHEVENT', isHit);
     if(isHit || this.hasFocus || !this.requiresFocus) {
       if(e.type === 'touchstart') this.hasFocus = true;
       
-      //console.log(e.type);
       if(this[e.type])
         this[e.type](e, isHit);  // normal event
       
@@ -265,10 +263,8 @@ Interface.Widget = {
     }
     if(e.type === 'touchend') this.hasFocus = false;
   },
+  
   draw : function() {},
-  mousedown : function(e) {},
-  mousemove : function(e) {},
-  mouseup   : function(e) {},
   
   _background : function() {
     return this.background || this.panel.background;
@@ -676,13 +672,25 @@ Interface.XY = function() {
         if(child.x + child.vx < this.width && child.x + child.vx > 0) {
           child.x += child.vx;
         }else{
-          child.vx *= -1;
+          if(child.x + child.vx >= this.width && child.vx > 0 ) {
+            child.vx *= -1;
+          }else if(child.x + child.vx <= 0 && child.vx < 0) {
+            child.vx *= -1;
+          }else{
+            child.x += child.vx;
+          }
         }
       
         if(child.y + child.vy < this.height && child.y + child.vy > 0) {
           child.y += child.vy;
         }else{
-          child.vy *= -1;
+          if(child.y + child.vy >= this.height && child.vy > 0 ) {
+            child.vy *= -1;
+          }else if(child.y + child.vy <= 0 && child.vy < 0) {
+            child.vy *= -1;
+          }else{
+            child.y += child.vy;
+          }
         }
         
         child.vx *= this.friction;
@@ -705,12 +713,13 @@ Interface.XY = function() {
     },
     
     collisionTest : function(c1) {
+      var cw2 = (this.childWidth * 2) * (this.childWidth * 2);
       for(var i = 0; i < this.children.length; i++) {
         var c2 = this.children[i];
         if(c1.id !== c2.id) {
-          var distance = Math.abs(c1.x - c2.x) + Math.abs(c1.y - c2.y);
-          if(distance < this.childWidth * 2) {
-            //console.log("COLLIDE", c1.id, c2.id);
+          var distance = Math.pow(c1.x - c2.x, 2) + Math.pow(c1.y - c2.y, 2);
+          
+          if(distance < cw2) { // avoid square root by raising the distance check
             this.collide(c1, c2)
           }
         }
@@ -730,17 +739,20 @@ Interface.XY = function() {
       normal.y = posDiff.y / cDot;
       
       var d = (normal.x * velDiff.x) + (normal.y * velDiff.y);
-      c2.vx = c1.vx + d * normal.x * 2;
-      c2.vy = c1.vy + d * normal.y * 2;
-      c1.vx = c2.vx - d * normal.x * 2;
-      c1.vy = c2.vy - d * normal.y * 2;
-      
-      //console.log("MAX VELOCITY", this.maxVelocity);
+      c2.vx = c1.vx + d * normal.x;
+      c2.vy = c1.vy + d * normal.y;
+      c1.vx = c2.vx - d * normal.x;
+      c1.vy = c2.vy - d * normal.y;
+
+      c2.x -= normal.x;
+      c2.y -= normal.y;
+      c1.x += normal.x;
+      c1.y += normal.y;
       
       c1.vx = Math.abs(c1.vx) > this.maxVelocity ? this.maxVelocity * sign(c1.vx) : c1.vx;
       c1.vy = Math.abs(c1.vy) > this.maxVelocity ? this.maxVelocity * sign(c1.vy) : c1.vy;
       c2.vx = Math.abs(c2.vx) > this.maxVelocity ? this.maxVelocity * sign(c2.vx) : c2.vx;
-      c2.vy = Math.abs(c2.vy) > this.maxVelocity ? this.maxVelocity * sign(c2.vy) : c2.vy;                  
+      c2.vy = Math.abs(c2.vy) > this.maxVelocity ? this.maxVelocity * sign(c2.vy) : c2.vy;
       
       c1.collideFlag = true;
       c2.collideFlag = true;         
@@ -900,8 +912,8 @@ Interface.XY = function() {
       
       for(var i = 0; i < this.children.length; i++) {
         var touch = this.children[i];
-        var xdiff = Math.abs(xPos);
-        var ydiff = Math.abs(yPos);
+        var xdiff = Math.abs(touch.x - xPos);
+        var ydiff = Math.abs(touch.y - yPos);
 
         if(xdiff + ydiff < closestDiff && !touch.isActive) {
           closestDiff = xdiff + ydiff;
@@ -923,6 +935,9 @@ Interface.XY = function() {
     touchstart : function(touch) {
       if(this.hitTest(touch)) {
         this.trackTouch(touch.x - this.x, touch.y - this.y, touch);
+  			if(this.ontouchstart){            
+  				this.ontouchstart();
+				}
       }
     },
     touchmove : function(touch) {
@@ -945,6 +960,7 @@ Interface.XY = function() {
       }
     },
     touchend : function(touch) {
+      var found = false;
       for(var t = 0; t < this.children.length; t++) {
         var _t = this.children[t];
         
@@ -955,11 +971,13 @@ Interface.XY = function() {
           _t.lastPosition = null;
           _t.isActive = false;
           
-    			if(this.ontouchmove){            
-    				this.ontouchmove();
+    			if(this.ontouchend){            
+    				this.ontouchend();
   				}
+          found = true;
         }
       }
+      if(!found) console.log("NOT FOUND", touch.identifier);
     },
     
     startAnimation : function() { 
@@ -971,6 +989,7 @@ Interface.XY = function() {
   })
   .init( arguments[0] );
   
+  this.requiresFocus = false; // is a widget default... must set after init.
   this.half = this.childWidth / 2;
   this.makeChildren();
   

@@ -3,7 +3,7 @@
   <title>interface test</title>
   <script src="scripts/zepto.js"></script>
   <script src="scripts/interface.js"></script>
-  <script src="http://a:8080/target/target-script-min.js#anonymous"></script> 
+  <script src="http://a.local:8080/target/target-script-min.js#anonymous"></script> 
   
   <style>
   html, body {
@@ -19,15 +19,23 @@
 <script>
   a = new Interface.Panel();
   a.ctx.lineWidth = 2.5;
-  a.setBackgroundColor('#f66');
-  q = new Interface.MultiButton({ bounds:[10,10,400,400], requiresFocus:false });
-
-  a.add(q);
+  a.setBackgroundColor('#666');
   
-  /*
+  /*m = new Interface.XY({
+    childWidth: 35,
+    numChildren: 10,
+    friction:.95,
+    detectCollisions:true,
+    maxVelocity: 10,
+    fill: "rgba(127,127,127,.5)",
+    bounds:[10, 10, 500,500],
+  });
+  a.add(m);
+  */
+  ///*
   buttonsLabel = o = new Interface.Label({
     bounds:[40, 35, 50, 50],
-    fill:'white',
+    fill : 'white',
     value: 'buttons : ',
   });
   b = new Interface.Button({ bounds:[70, 10, 60,50],  label:'toggle'  });
