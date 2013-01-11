@@ -28,13 +28,24 @@ Interface.Panel = function(_container) {
     
     canvas:  document.createElement('canvas'),
     
-    touchEvent : function(e) {
-      e.preventDefault();
-      for(var i = 0; i < self.children.length; i++) {
-        e.x = e.pageX - self.x;
-        e.y = e.pageY - self.y;
-        self.children[i].touchEvent(e);
-      }
+    touchEvent : function(event) {
+      event.preventDefault();
+      //console.log(event);
+      for (var j = 0; j < event.changedTouches.length; j++){
+        var touch = event.changedTouches.item(j);		
+        
+        for(var i = 0; i < self.children.length; i++) {
+          touch.x = touch.pageX - self.x;
+          touch.y = touch.pageY - self.y;
+          touch.type = event.type;
+          self.children[i].touchEvent(touch);
+        }
+    		//var breakCheck = this.events[event.type].call(this, touch);
+		
+        //if(breakCheck) break;
+    	}
+      
+
       //e.preventDefault();
     },
     
@@ -783,69 +794,24 @@ Interface.XY = function() {
         touch.x = xOffset;
         if(touch.x < 0 ) touch.x = 0;
         if(touch.x > this.width) touch.x = this.width;
-        
-        //if(touch.x > this.width - this.childWidth) touch.x = this.width - this.childWidth;
-        
+                
         touch.y = yOffset;// - this.half;
         if(touch.y < 0) touch.y = 0;
         if(touch.y > this.height) touch.y = this.height;        
         this.values[touch.id].x = xOffset / this.width;
         this.values[touch.id].y = yOffset / this.height;
                 
-        //if(this.values[touch] !== this.lastValue) {
         if(this.onvaluechange) this.onvaluechange();
         
         if(!this.usePhysics) {
           this.refresh();
         }
-        
-        //this.lastValue = this.value;
-        //}
       }     
-    },
-    
-    trackTouch : function(xPos, yPos, id) {
-      var closestDiff = 10000;
-      var touchFound = null;
-      var touchNum = null;
-      for(var i = 0; i < this.children.length; i++) {
-        var touch = this.children[i];
-        var xdiff = Math.abs(touch.x - xPos);
-        var ydiff = Math.abs(touch.y - yPos);
-
-        //if(!touch.isActive) {
-          if(xdiff + ydiff < closestDiff) {
-            closestDiff = xdiff + ydiff;
-            
-            touchFound = touch;
-            touchNum = i;
-          }
-        //}
-      }
-      //console.log(touchFound);
-      //touchFound.id = id;
-  	  //touchFound.pressure = Control.pressures[pressureID];
-	
-  	  //console.log(touchFound);
-      
-      touchFound.isActive = true;
-      touchFound.vx = 0;
-      touchFound.vy = 0;
-      
-      if(touchFound != null) {
-        this.changeValue(touchFound, xPos, yPos);
-      }
-      
-      //if(!Interface.useTouch) {
-      this.activeTouch = touchFound;
-      this.activeTouch.lastTouch = null;
-      
-      this.lastTouched = touchFound;
     },
     
     makeChildren : function() {
       for(var i = 0; i < this.numChildren; i++) {
-        this.children.push({ id:i, x:Math.random() * this.width, y:Math.random() * this.height, vx:0, vy:0, collideFlag:false, isActive:false });
+        this.children.push({ id:i, x:Math.random() * this.width, y:Math.random() * this.height, vx:0, vy:0, collideFlag:false, isActive:false, lastPosition:null, });
         this.values.push({ x:null, y:null });
       }
     },
@@ -860,9 +826,40 @@ Interface.XY = function() {
       return false;
     },
     
+    trackMouse : function(xPos, yPos, id) {
+      var closestDiff = 10000;
+      var touchFound = null;
+      var touchNum = null;
+      for(var i = 0; i < this.children.length; i++) {
+        var touch = this.children[i];
+        var xdiff = Math.abs(touch.x - xPos);
+        var ydiff = Math.abs(touch.y - yPos);
+        
+        if(xdiff + ydiff < closestDiff) {
+          closestDiff = xdiff + ydiff;
+            
+          touchFound = touch;
+          touchNum = i;
+        }
+      }
+      
+      touchFound.isActive = true;
+      touchFound.vx = 0;
+      touchFound.vy = 0;
+      
+      if(touchFound != null) {
+        this.changeValue(touchFound, xPos, yPos);
+      }
+      
+      this.activeTouch = touchFound;
+      this.activeTouch.lastTouch = null;
+      
+      this.lastTouched = touchFound;
+    },
+    
     mousedown : function(e) {
       if(this.hitTest(e)) {
-        this.trackTouch(e.x - this.x, e.y - this.y);
+        this.trackMouse(e.x - this.x, e.y - this.y);
       }
     },
     mousemove : function(e) { 
@@ -887,6 +884,74 @@ Interface.XY = function() {
         this.children[i].isActive = false;
       }
     },
+    
+    trackTouch : function(xPos, yPos, _touch) {
+      var closestDiff = 10000;
+      var touchFound = null;
+      var touchNum = null;
+      
+      for(var i = 0; i < this.children.length; i++) {
+        var touch = this.children[i];
+        var xdiff = Math.abs(touch.x - xPos);
+        var ydiff = Math.abs(touch.y - yPos);
+
+        if(xdiff + ydiff < closestDiff) {
+          closestDiff = xdiff + ydiff;
+          touchFound = touch;
+          touchNum = i;
+        }
+      }
+      
+      touchFound.vx = 0;
+      touchFound.vy = 0;
+      touchFound.identifier = _touch.identifier;
+	
+      if(touchFound != null)
+        this.changeValue(touchFound, xPos, yPos);
+    
+      this.lastTouched = touchFound;
+    },
+    touchstart : function(touch) {
+      if(this.hitTest(touch)) {
+        this.trackTouch(touch.x - this.x, touch.y - this.y, touch);
+      }
+    },
+    touchmove : function(touch) {
+      for(var t = 0; t < this.children.length; t++) {
+        _t = this.children[t];
+        if(touch.identifier == _t.identifier) {
+          this.changeValue(_t, touch.x, touch.y);
+			    
+          var now = {x:touch.x - this.x, y:touch.y - this.y};
+          
+          if(_t.lastPosition !== null) {
+            _t.velocity = {x:now.x - _t.lastPosition.x, y:now.y - _t.lastPosition.y };
+          }
+          _t.lastPosition = now;
+          
+    			if(this.ontouchmove){            
+    				this.ontouchmove();
+  				}
+        }
+      }
+    },
+    touchend : function(touch) {
+      for(var t = 0; t < this.children.length; t++) {
+        var _t = this.children[t];
+        
+        if(touch.identifier === _t.identifier) {
+          _t.vx = _t.velocity.x;
+          _t.vy = _t.velocity.y;
+          
+          _t.lastPosition = null;
+          
+    			if(this.ontouchmove){            
+    				this.ontouchmove();
+  				}
+        }
+      }
+    },
+    
     startAnimation : function() { 
       this.timer = setInterval( function() { self.refresh(); }, 30);
     },
