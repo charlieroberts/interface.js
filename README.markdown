@@ -2,7 +2,7 @@
 
 Interface.js is a GUI library designed to be device agnostic; it works with mouse, touch and motion events. This means you can write a GUI once and be reasonably assured that it will work on smartphones, tablets and laptops. Although you can register for touch or mouse events individually with widgets, Interface.js adds a new event category, touchmouse events, that works for both types. The onvaluechange event handler is also agnostic to the touch / mouse divide.
 
-Interface.js also features a simple theming system that makes it easy to experiment with colors or change interface characteristics on the fly. It was inspired by my work on Control and intended for use with my JavaScript DSP library Gibberish; Gibberish + Interface.js together provide a complete system for web-based musical instruments.
+Interface.js also features a simple theming system that makes it easy to experiment with colors or change interface characteristics on the fly. It was inspired by my work on [control][Control][controlRepo][(repo)] and intended for use with my JavaScript DSP library [gibberish][Gibberish][gibberishRepo][(repo)]; Gibberish + Interface.js together provide a complete system for web-based musical instruments.
 
 
 ## Widgets
@@ -65,3 +65,9 @@ Interface.js requires jQuery or Zepto (a minimal version of jQuery). The demo in
 
 ## License
 Interface.js uses the MIT license.
+
+[gibberish]:http://www.charlie-roberts.com/gibberish
+[gibberishRepo]:https://github.com/charlieroberts/Gibberish
+[control]:http://www.charlie-roberts.com/Control
+[controlRepo]:https://github.com/charlieroberts/Control
+
