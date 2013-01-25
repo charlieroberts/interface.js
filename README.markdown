@@ -46,5 +46,7 @@ Interface.js is a GUI library designed to be device agnostic; it works with mous
 </html>
 ```
 
+![Screenshot](https://raw.github.com/charlieroberts/Interface.js/screenshots/screenshot.png) 
+
 ## License
 Interface.js uses the MIT license.
