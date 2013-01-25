@@ -1310,4 +1310,3 @@ Interface.Orientation = function() {
   .init( arguments[0] );
 };
 Interface.Orientation.prototype = Interface.Widget;
-
