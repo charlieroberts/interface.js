@@ -1,9 +1,9 @@
 <html>
 <head>
   <title>interface test</title>
-  <script src="scripts/zepto.js"></script>
-  <script src="scripts/interface.js"></script>
-  <script src="http://a.local:8080/target/target-script-min.js#anonymous"></script> 
+  <script src="zepto.js"></script>
+  <script src="interface.js"></script>
+  <!--<script src="http://a.local:8080/target/target-script-min.js#anonymous"></script> -->
   
   <style>
   html, body {
@@ -19,7 +19,7 @@
 <script>
   a = new Interface.Panel();
   a.ctx.lineWidth = 2.5;
-  a.setBackgroundColor('#666');
+  a.setBackgroundColor('#444');
   
   /*m = new Interface.XY({
     childWidth: 35,
@@ -33,30 +33,18 @@
   a.add(m);
   */
   ///*
-  buttonsLabel = o = new Interface.Label({
-    bounds:[40, 35, 50, 50],
-    fill : 'white',
-    value: 'buttons : ',
-  });
+  buttonsLabel = o = new Interface.Label({ bounds:[40, 35, 50, 50], value: 'buttons : ' });
   b = new Interface.Button({ bounds:[70, 10, 60,50],  label:'toggle'  });
   c = new Interface.Button({ bounds:[140, 10, 60,50], mode:'momentary', label:'momentary' });
   d = new Interface.Button({ bounds:[210, 10, 60,50], mode:'contact',   label:'contact' });
   
-  slidersLabel = o = new Interface.Label({
-    bounds:[40, 85, 50, 50],
-    fill:'white',
-    value: 'sliders : ',
-  });
+  slidersLabel = o = new Interface.Label({ bounds:[40, 85, 50, 50], value: 'sliders : ' });
   
   e = new Interface.Slider({ bounds:[70,75,35,100], value:.5, min:0 });
   f = new Interface.Slider({ bounds:[140,140,100,35], isVertical:false });  
   g = new Interface.Crossfader({ bounds:[140,75,100,35], min:-10, max:10, crossfaderWidth:15 });
   
-  knobsLabel = o = new Interface.Label({
-    bounds:[40, 205, 50, 50],
-    fill:'white',
-    value: 'knobs : ',
-  });
+  knobsLabel = o = new Interface.Label({ bounds:[40, 205, 50, 50], value: 'knobs : ' });
   i = new Interface.Knob({ 
     bounds:[65,175],
     radius:45,
@@ -82,11 +70,7 @@
     centerZero: false,
   });
   
-  xyLabel = new Interface.Label({
-    bounds:[40, 285, 50, 50],
-    fill:'white',
-    value: 'xy : ',
-  });
+  xyLabel = new Interface.Label({ bounds:[40, 285, 50, 50], value: 'xy : ' });
   m = new Interface.XY({
     childWidth: 15,
     numChildren: 4,
@@ -97,29 +81,19 @@
   frictionLabel = o = new Interface.Label({
     bounds:[415, 305, 50, 50],
     hAlign:'left',
-    fill:'white',
     value: 'xy.friction ',
   });
   o = new Interface.Slider({ bounds:[300,330,100,35], isVertical:false, min:.5,   max:20,  onvaluechange: function() { m.maxVelocity = this.value;  } });
   velocityLabel = new Interface.Label({
     bounds:[415, 345, 50, 50],
     hAlign:'left',
-    fill:'white',
     value: 'xy.maxVelocity',
   });
   
-  multiSliderLabel = new Interface.Label({
-    bounds:[35, 525, 50, 50],
-    fill:'white',
-    value: 'multislider',
-  });
+  multiSliderLabel = new Interface.Label({ bounds:[35, 525, 50, 50], value: 'multislider' });
   p = new Interface.MultiSlider({ count:15, bounds:[70,500,400,150] });
   
-  multiButtonLabel = new Interface.Label({
-    bounds:[35, 700, 50, 50],
-    fill:'white',
-    value: 'multibutton',
-  });
+  multiButtonLabel = new Interface.Label({ bounds:[35, 700, 50, 50], value: 'multibutton' });
   q = new Interface.MultiButton({ bounds:[70,675,200,200], requiresFocus:false, onvaluechange: function(r,c,v) {} });
   
   r = new Interface.Menu({ 
@@ -137,11 +111,7 @@
     }, 
     value:'normal', 
   });
-  menuLabel = new Interface.Label({
-    bounds:[40, 910, 50, 50],
-    fill:'white',
-    value: 'menu : ',
-  });
+  menuLabel = new Interface.Label({ bounds:[40, 910, 50, 50], value: 'menu : ' });
   
   s = new Interface.Slider({ 
     bounds:[10,  950,50,200],
