@@ -1310,3 +1310,82 @@ Interface.Orientation = function() {
   .init( arguments[0] );
 };
 Interface.Orientation.prototype = Interface.Widget;
+
+Interface.Range = function() {
+  Interface.extend(this, {
+    isVertical: false,
+    handleSize: 20,
+    leftValue:0,
+    rightValue:1,
+    draw : function() {
+      this.ctx.fillStyle = this._background();
+      this.ctx.clearRect(this.x, this.y, this.width, this.height);    
+        
+      if(this.isVertical) {
+    		if(this.prevValue > this.value) {
+    		  this.ctx.clearRect(this.x, (this.y + this.height) - (prevPercent * this.height) - 1, this.width,(prevPercent * this.height) - (percent * this.height) + 1);
+    		}
+        this.ctx.fillRect(this.x, (this.y + this.height) - (percent * this.height), this.width, percent * this.height);
+      }else{
+    		var rightHandlePos = this.rightValue * this.width - this.handleSize;
+    		var leftHandlePos  = this.leftValue  * this.width;
+		    
+  	    this.ctx.fillStyle = this._background();
+        this.ctx.fillRect(this.x, this.y, this.width, this.height);
+        
+  	    this.ctx.fillStyle = this._fill();
+        this.ctx.fillRect(leftHandlePos, 0, rightHandlePos - leftHandlePos, this.height);
+		
+  	    this.ctx.fillStyle = this._stroke();
+    		this.ctx.fillRect(leftHandlePos, 0, this.handleSize, this.height);
+		
+  	    //this.ctx.fillStyle = "rgba(0,255,0,.25)";
+    		this.ctx.fillRect(rightHandlePos, 0, this.handleSize, this.height);
+      }
+    },
+    changeValue : function( xOffset, yOffset ) {
+      if(this.hasFocus || !this.requiresFocus) {
+        var value = this.isVertical ? 1 - (yOffset / this.height) : xOffset / this.width;
+      	//var value = 1 - ((this.x + this.width) - val) / (this.width);
+        
+        //console.log(value);
+        
+      	if(Math.abs( value - this.leftValue) < Math.abs( value - this.rightValue)) {
+      		this.leftValue = value;
+      	}else{
+      		this.rightValue = value;
+      	}
+        
+        this.refresh();
+        //this._value = this.isVertical ? 1 - (yOffset / this.height) : xOffset / this.width;
+        //this.leftValue = this.isVertical ? 1 - (yOffset / this.height) : xOffset / this.width;
+        
+        // if(this._value < 0) {
+        //   this._value = 0;
+        //   // this.hasFocus = false;
+        // }else if(this._value > 1) {
+        //   this._value = 1;
+        //   // this.hasFocus = false;
+        // }
+        // 
+        // this.value = this.min + (this.max - this.min) * this._value;
+        // 
+        // if(this.value !== this.lastValue) {
+        //   if(this.onvaluechange) this.onvaluechange();
+        //   this.refresh();
+        //   this.lastValue = this.value;
+        // }
+      }     
+    },
+    
+    mousedown : function(e, hit) { if(hit && Interface.mouseDown) this.changeValue( e.x - this.x, e.y - this.y ); },
+    mousemove : function(e, hit) { if(hit && Interface.mouseDown) this.changeValue( e.x - this.x, e.y - this.y ); },
+    mouseup   : function(e, hit) { if(hit && Interface.mouseDown) this.changeValue( e.x - this.x, e.y - this.y ); },    
+    
+    touchstart : function(e, hit) { if(hit) this.changeValue( e.x - this.x, e.y - this.y ); },
+    touchmove  : function(e, hit) { if(hit) this.changeValue( e.x - this.x, e.y - this.y ); },
+    touchend   : function(e, hit) { if(hit) this.changeValue( e.x - this.x, e.y - this.y ); },  
+  })
+  .init( arguments[0] );
+}
+Interface.Range.prototype = Interface.Widget;
