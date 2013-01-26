@@ -2,8 +2,9 @@
 
 Interface.js is a GUI library designed to be device agnostic; it works with mouse, touch and motion events. This means you can write a GUI once and be reasonably assured that it will work on smartphones, tablets and laptops. Although you can register for touch or mouse events individually with widgets, Interface.js adds a new event category, touchmouse events, that works for both types. The onvaluechange event handler is also agnostic to the touch / mouse divide.
 
-Interface.js also features a simple theming system that makes it easy to experiment with colors or change interface characteristics on the fly. It was inspired by my work on [Control][control] [(repo)][controlRepo] and intended for use with my JavaScript DSP library [Gibberish][gibberish] [(repo)][gibberishRepo]; Gibberish + Interface.js together provide a complete system for web-based musical instruments.
+Sizes and positions of widgets can be provided either in absolute pixel dimensions or relative to the size of the widgets containing panel. By using relative sizing and positioning you can ensure that interfaces will have the same relative sizes and positioning in interfaces with the same aspect ratio; absolute sizes allow you to customize interfaces for particular dimensions.
 
+Interface.js also features a simple theming system that makes it easy to experiment with colors or change interface characteristics on the fly. It was inspired by my work on [Control][control] [(repo)][controlRepo] and intended for use with my JavaScript DSP library [Gibberish][gibberish] [(repo)][gibberishRepo]; Gibberish + Interface.js together provide a complete system for web-based musical instruments.
 
 ## Widgets
 * Slider
@@ -17,6 +18,7 @@ Interface.js also features a simple theming system that makes it easy to experim
 * Label
 * Menu
 * TextField
+* Range Slider (select a range of values)
 
 ## Example Code
 ```html
@@ -27,16 +29,18 @@ Interface.js also features a simple theming system that makes it easy to experim
 </head>
 <body>
   <script>
-  panel = new Interface.Panel() // panel fills page by default, alternatively you can specify boundaries
+  panel = new Interface.Panel({ useRelativeSizesAndPositions:true }) // panel fills page by default, alternatively you can specify boundaries
   
   slider1 = new Interface.Slider({
-    bounds: [0,0,50,200],
+    bounds: [0,0,.1,.5],
     ontouchmousestart : function() { console.log('touch or mouse down on slider') }
   })
   
   slider2 = new Interface.Slider({
-    bounds: [50,0,50,200],
+    bounds: [.1,0,.1,.5],
   })
+  
+  panel.add( slider1, slider2 )
   
   orientation = new Interface.Orientation({ // this only works on devices with a gyro sensor
     onvaluechange : function(pitch, roll, yaw) {
@@ -45,7 +49,6 @@ Interface.js also features a simple theming system that makes it easy to experim
   })
   orientation.start()
   
-  panel.add( slider1, slider2 )
   </script>
 </body>
 </html>
