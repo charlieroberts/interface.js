@@ -17,7 +17,7 @@
 </body>
 
 <script>
-  a = new Interface.Panel();
+  a = new Interface.Panel({ useRelativeSizes: false });
   a.ctx.lineWidth = 2.5;
   a.setBackgroundColor('#444');
   
@@ -33,18 +33,18 @@
   a.add(m);
   */
   ///*
-  buttonsLabel = o = new Interface.Label({ bounds:[40, 35, 50, 50], value: 'buttons : ' });
+  buttonsLabel = new Interface.Label({ bounds:[40, 35, 50, 50], value: 'buttons : ' });
   b = new Interface.Button({ bounds:[70, 10, 60,50],  label:'toggle'  });
   c = new Interface.Button({ bounds:[140, 10, 60,50], mode:'momentary', label:'momentary' });
   d = new Interface.Button({ bounds:[210, 10, 60,50], mode:'contact',   label:'contact' });
   
-  slidersLabel = o = new Interface.Label({ bounds:[40, 85, 50, 50], value: 'sliders : ' });
+  slidersLabel = new Interface.Label({ bounds:[40, 85, 50, 50], value: 'sliders : ' });
   
   e = new Interface.Slider({ bounds:[70,75,35,100], value:.5, min:0 });
   f = new Interface.Slider({ bounds:[140,140,100,35], isVertical:false });  
   g = new Interface.Crossfader({ bounds:[140,75,100,35], min:-10, max:10, crossfaderWidth:15 });
   
-  knobsLabel = o = new Interface.Label({ bounds:[40, 205, 50, 50], value: 'knobs : ' });
+  knobsLabel = new Interface.Label({ bounds:[40, 205, 50, 50], value: 'knobs : ' });
   i = new Interface.Knob({ 
     bounds:[65,175],
     radius:45,
@@ -213,7 +213,8 @@
     },
   });
   
-  a.add(buttonsLabel,b,c,d, slidersLabel,e,f,g, knobsLabel,i,j,k,l,xyLabel,m,n,o,frictionLabel,velocityLabel, multiSliderLabel,p, multiButtonLabel,q, r,menuLabel, s,t,u, v,w,x, y,z,aa, bb,cc,dd);
+
+  a.add(buttonsLabel,b,c,d,slidersLabel,e,f,g, knobsLabel,i,j,k,l,xyLabel,m,n,o,frictionLabel,velocityLabel, multiSliderLabel,p, multiButtonLabel,q, r,menuLabel, s,t,u, v,w,x, y,z,aa, bb,cc,dd);
   /*
   r = new Interface.TextField({ width: 200, height:200, x:400, y : 915, value:"TEST", onvaluechange: function() { console.log('NEW TF', this.value)} });
   */

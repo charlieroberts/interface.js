@@ -20,15 +20,16 @@ var Interface = {
   })(),
 };
 
-Interface.Panel = function(_container) {
+Interface.Panel = function() {
   var self = this;
   
   Interface.extend(this, {
     children:     [],
     shouldDraw :  [],
     fps : 60,
+    useRelativeSizes : true,
     
-    container: _container || $('body')[0],
+    container: arguments[0].container || $('body')[0],
     
     canvas:  document.createElement('canvas'),
     
@@ -137,6 +138,8 @@ Interface.Panel = function(_container) {
       $(this.container).css({ backgroundColor:color });
     },
   });
+  
+  if(typeof arguments[0] !== 'undefined') Interface.extend(this, arguments[0]);
   
   this.init();
   
@@ -308,10 +311,10 @@ Interface.Widget = {
   _stroke : function() { return this.stroke || this.panel.stroke; },
   _fill : function() { return this.fill || this.panel.fill; },
   
-  _x : function() { return this.x * this.panel.width; },
-  _y : function() { return this.y * this.panel.height; },
-  _width  : function() { return this.width * this.panel.width; },
-  _height : function() { return this.height * this.panel.height; },
+  _x : function() { return this.panel.useRelativeSizes ? this.x * this.panel.width : this.x; },
+  _y : function() { return this.panel.useRelativeSizes ? this.y * this.panel.height : this.y; },
+  _width  : function() { return this.panel.useRelativeSizes ? this.width * this.panel.width : this.width; },
+  _height : function() { return this.panel.useRelativeSizes ? this.height * this.panel.height : this.height; },
 };
 
 Interface.Slider = function() {
@@ -1103,8 +1106,8 @@ Interface.Menu = function() {
       
       this.element.css({
         position:'absolute',
-        left: this.x,
-        top:  this.y,
+        left: this._x(),
+        top:  this._y(),
       });
       
       if(this.css) this.element.css( this.css );
@@ -1128,8 +1131,6 @@ Interface.Menu = function() {
     },   
   })
   .init( arguments[0] );
-
-  
 };
 Interface.Menu.prototype = Interface.Widget;
 
@@ -1146,7 +1147,7 @@ Interface.Label = function() {
       this.ctx.textAlign = this.hAlign;
       this.ctx.textBaseline = this.vAlign;
       this.ctx.fillStyle = this._fill();
-      this.ctx.fillText(this.value, this.x, this.y);
+      this.ctx.fillText(this.value, this._x(), this._y());
     },
   })
   .init( arguments[0] );
@@ -1163,8 +1164,8 @@ Interface.TextField = function() {
       }
       this.element.css({
         position:'absolute',
-        left: this.x,
-        top:  this.y,
+        left: this._x(),
+        top:  this._y(),
       });
       
       if(this.css) this.element.css( this.css );
@@ -1191,12 +1192,12 @@ Interface.MultiSlider = function() {
     children: [],
     
     _init     : function() {
-      var sliderWidth = this.width / this.count;
+      var sliderWidth = this._width() / this.count;
       
       for(var i = 0; i < this.count; i++) {
         var slider = new Interface.Slider({
-          x : this.x + i * sliderWidth,
-          y : this.y,
+          x : this._x() + i * sliderWidth,
+          y : this._y(),
           width: sliderWidth,
           height:this.height,
           requiresFocus: false,
@@ -1231,14 +1232,14 @@ Interface.MultiButton = function() {
     requiresFocus:true,
     
     _init     : function() {
-      var childWidth  = this.width  / this.columns;
-      var childHeight = this.height / this.rows;      
+      var childWidth  = this._width()  / this.columns;
+      var childHeight = this._height() / this.rows;      
       
       for(var i = 0; i < this.rows; i++) {
         for(var j = 0; j < this.columns; j++) {
           var button = new Interface.Button({
-            x : this.x + j * childWidth,
-            y : this.y + i * childHeight,
+            x : this._x() + j * childWidth,
+            y : this._y() + i * childHeight,
             width: childWidth,
             height:childHeight,
             parent:this,
@@ -1341,34 +1342,39 @@ Interface.Range = function() {
     leftValue:0,
     rightValue:1,
     draw : function() {
+      var x = this._x(),
+          y = this._y(),
+          width = this._width(),
+          height= this._height();
+          
       this.ctx.fillStyle = this._background();
-      this.ctx.clearRect(this.x, this.y, this.width, this.height);    
+      this.ctx.clearRect(x, y, width, height);    
         
       if(this.isVertical) {
     		if(this.prevValue > this.value) {
-    		  this.ctx.clearRect(this.x, (this.y + this.height) - (prevPercent * this.height) - 1, this.width,(prevPercent * this.height) - (percent * this.height) + 1);
+    		  this.ctx.clearRect(x, (y + height) - (prevPercent * height) - 1, width, (prevPercent * height) - (percent * height) + 1);
     		}
-        this.ctx.fillRect(this.x, (this.y + this.height) - (percent * this.height), this.width, percent * this.height);
+        this.ctx.fillRect(x, (y + height) - (percent * height), width, percent * height);
       }else{
-    		var rightHandlePos = this.x + (this.rightValue * this.width) - this.handleSize;
-    		var leftHandlePos  = this.x + this.leftValue  * this.width;
+    		var rightHandlePos = x + (this.rightValue * width) - this.handleSize;
+    		var leftHandlePos  = x + this.leftValue  * width;
 		    
   	    this.ctx.fillStyle = this._background();
-        this.ctx.fillRect(this.x, this.y, this.width, this.height);
+        this.ctx.fillRect(x, y, width, height);
         
   	    this.ctx.fillStyle = this._fill();
-        this.ctx.fillRect(leftHandlePos, this.y, rightHandlePos - leftHandlePos, this.height);
+        this.ctx.fillRect(leftHandlePos, y, rightHandlePos - leftHandlePos, height);
 		
   	    this.ctx.fillStyle = this._stroke();
-    		this.ctx.fillRect(leftHandlePos, this.y, this.handleSize, this.height);
+    		this.ctx.fillRect(leftHandlePos, y, this.handleSize, height);
 		
   	    //this.ctx.fillStyle = "rgba(0,255,0,.25)";
-    		this.ctx.fillRect(rightHandlePos, this.y, this.handleSize, this.height);
+    		this.ctx.fillRect(rightHandlePos, y, this.handleSize, height);
       }
     },
     changeValue : function( xOffset, yOffset ) {
       if(this.hasFocus || !this.requiresFocus) {
-        var value = this.isVertical ? 1 - (yOffset / this.height) : xOffset / this.width;
+        var value = this.isVertical ? 1 - (yOffset / this._height()) : xOffset / this._width();
       	//var value = 1 - ((this.x + this.width) - val) / (this.width);
         
         //console.log(value);
@@ -1402,13 +1408,13 @@ Interface.Range = function() {
       }     
     },
     
-    mousedown : function(e, hit) { if(hit && Interface.mouseDown) this.changeValue( e.x - this.x, e.y - this.y ); },
-    mousemove : function(e, hit) { if(hit && Interface.mouseDown) this.changeValue( e.x - this.x, e.y - this.y ); },
-    mouseup   : function(e, hit) { if(hit && Interface.mouseDown) this.changeValue( e.x - this.x, e.y - this.y ); },    
+    mousedown : function(e, hit) { if(hit && Interface.mouseDown) this.changeValue( e.x - this._x(), e.y - this._y() ); },
+    mousemove : function(e, hit) { if(hit && Interface.mouseDown) this.changeValue( e.x - this._x(), e.y - this._y() ); },
+    mouseup   : function(e, hit) { if(hit && Interface.mouseDown) this.changeValue( e.x - this._x(), e.y - this._y() ); },    
     
-    touchstart : function(e, hit) { if(hit) this.changeValue( e.x - this.x, e.y - this.y ); },
-    touchmove  : function(e, hit) { if(hit) this.changeValue( e.x - this.x, e.y - this.y ); },
-    touchend   : function(e, hit) { if(hit) this.changeValue( e.x - this.x, e.y - this.y ); },  
+    touchstart : function(e, hit) { if(hit) this.changeValue( e.x - this._x(), e.y - this._y() ); },
+    touchmove  : function(e, hit) { if(hit) this.changeValue( e.x - this._x(), e.y - this._y() ); },
+    touchend   : function(e, hit) { if(hit) this.changeValue( e.x - this._x(), e.y - this._y() ); },  
   })
   .init( arguments[0] );
 }
