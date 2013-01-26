@@ -28,7 +28,7 @@ Interface.Panel = function() {
     children:     [],
     shouldDraw :  [],
     fps : 60,
-    useRelativeSizes : true,
+    useRelativeSizesAndPositions : true,
     
     container: _container || $('body')[0],
     
@@ -325,10 +325,10 @@ Interface.Widget = {
   _stroke : function() { return this.stroke || this.panel.stroke; },
   _fill : function() { return this.fill || this.panel.fill; },
   
-  _x : function() { return this.panel.useRelativeSizes ? this.x * this.panel.width : this.x; },
-  _y : function() { return this.panel.useRelativeSizes ? this.y * this.panel.height : this.y; },
-  _width  : function() { return this.panel.useRelativeSizes ? this.width * this.panel.width : this.width; },
-  _height : function() { return this.panel.useRelativeSizes ? this.height * this.panel.height : this.height; },
+  _x : function() { return this.panel.useRelativeSizesAndPositions ? this.x * this.panel.width : this.x; },
+  _y : function() { return this.panel.useRelativeSizesAndPositions ? this.y * this.panel.height : this.y; },
+  _width  : function() { return this.panel.useRelativeSizesAndPositions ? this.width * this.panel.width : this.width; },
+  _height : function() { return this.panel.useRelativeSizesAndPositions ? this.height * this.panel.height : this.height; },
 };
 
 Interface.Slider = function() {
@@ -1402,13 +1402,13 @@ Interface.Range = function() {
       	//var value = 1 - ((this.x + this.width) - val) / (this.width);
         
         //console.log(value);
-        
-      	if(Math.abs( value - this.leftValue) < Math.abs( value - this.rightValue)) {
+        var range = this.max - this.min
+      	if(Math.abs( value - this._leftValue) < Math.abs( value - this._rightValue)) {
           this._leftValue = value;
-      		this.leftValue = this.min + this.range * value;
+      		this.leftValue = this.min + range * value;
       	}else{
           this._rightValue = value;
-      		this.rightValue = this.min + this.range * value;
+      		this.rightValue = this.min + range * value;
       	}
         
         this.refresh();
