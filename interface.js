@@ -781,9 +781,10 @@ Interface.XY = function() {
         var newValueX = child.x / width;
         var newValueY = child.y / height;
         
+        var range = this.max - this.min;
         if(this.values[child.id].x !== newValueX || this.values[child.id].y !== newValueY) {
-          this.values[child.id].x = newValueX;
-          this.values[child.id].y = newValueY;
+          this.values[child.id].x = this.min + this.range * newValueX;
+          this.values[child.id].y = this.min + this.range * newValueY;
           shouldrunvaluechange = true;
         }
         
@@ -1362,6 +1363,8 @@ Interface.Range = function() {
     handleSize: 20,
     leftValue:0,
     rightValue:1,
+    _leftValue:0,
+    _rightValue:1,
     draw : function() {
       var x = this._x(),
           y = this._y(),
@@ -1377,8 +1380,8 @@ Interface.Range = function() {
     		}
         this.ctx.fillRect(x, (y + height) - (percent * height), width, percent * height);
       }else{
-    		var rightHandlePos = x + (this.rightValue * width) - this.handleSize;
-    		var leftHandlePos  = x + this.leftValue  * width;
+    		var rightHandlePos = x + (this._rightValue * width) - this.handleSize;
+    		var leftHandlePos  = x + this._leftValue  * width;
 		    
   	    this.ctx.fillStyle = this._background();
         this.ctx.fillRect(x, y, width, height);
@@ -1401,9 +1404,11 @@ Interface.Range = function() {
         //console.log(value);
         
       	if(Math.abs( value - this.leftValue) < Math.abs( value - this.rightValue)) {
-      		this.leftValue = value;
+          this._leftValue = value;
+      		this.leftValue = this.min + this.range * value;
       	}else{
-      		this.rightValue = value;
+          this._rightValue = value;
+      		this.rightValue = this.min + this.range * value;
       	}
         
         this.refresh();
