@@ -720,15 +720,20 @@ Interface.XY = function() {
     touchCount        : 0,
     
     animate : function() {
-      var shouldrunvaluechange = false;
+      var x       = this._x(),
+          y       = this._y(),
+          width   = this._width(),
+          height  = this._height(),
+          shouldrunvaluechange = false;
+          
       for(var i = 0; i < this.children.length; i++) {
         var moveX = moveY = false,
             child = this.children[i];
         
-        if(child.x + child.vx < this.width && child.x + child.vx > 0) {
+        if(child.x + child.vx < width && child.x + child.vx > 0) {
           child.x += child.vx;
         }else{
-          if(child.x + child.vx >= this.width && child.vx > 0 ) {
+          if(child.x + child.vx >= width && child.vx > 0 ) {
             child.vx *= -1;
           }else if(child.x + child.vx <= 0 && child.vx < 0) {
             child.vx *= -1;
@@ -737,10 +742,10 @@ Interface.XY = function() {
           }
         }
 
-        if(child.y + child.vy < this.height && child.y + child.vy > 0) {
+        if(child.y + child.vy < height && child.y + child.vy > 0) {
           child.y += child.vy;
         }else{
-          if(child.y + child.vy >= this.height && child.vy > 0 ) {
+          if(child.y + child.vy >= height && child.vy > 0 ) {
             child.vy *= -1;
           }else if(child.y + child.vy <= 0 && child.vy < 0) {
             child.vy *= -1;
@@ -752,8 +757,8 @@ Interface.XY = function() {
         child.vx *= this.friction;
         child.vy *= this.friction;
         
-        var newValueX = child.x / this.width;
-        var newValueY = child.y / this.height;
+        var newValueX = child.x / width;
+        var newValueY = child.y / height;
         
         if(this.values[child.id].x !== newValueX || this.values[child.id].y !== newValueY) {
           this.values[child.id].x = newValueX;
@@ -824,10 +829,15 @@ Interface.XY = function() {
     },
 
     draw : function() {
+      var x = this._x(),
+          y = this._y(),
+          width = this._width(),
+          height= this._height();
+          
       if(this.usePhysics) {
         this.animate();
       }
-      
+
       this.ctx.fillStyle = this._background();
       //this.ctx.fillRect( this.x, this.y, this.width, this.height );
       
@@ -838,11 +848,11 @@ Interface.XY = function() {
       
       this.ctx.beginPath();
       
-      this.ctx.moveTo(this.x, this.y);
-      this.ctx.lineTo(this.x + this.width, this.y);
-      this.ctx.lineTo(this.x + this.width, this.y + this.height);
-      this.ctx.lineTo(this.x, this.y + this.height);
-      this.ctx.lineTo(this.x, this.y);
+      this.ctx.moveTo(x, y);
+      this.ctx.lineTo(x + width, y);
+      this.ctx.lineTo(x + width, y + height);
+      this.ctx.lineTo(x, y + height);
+      this.ctx.lineTo(x, y);
       this.ctx.fill();
       this.ctx.stroke();
       
@@ -857,7 +867,7 @@ Interface.XY = function() {
         
         this.ctx.beginPath();
 
-        this.ctx.arc(this.x + child.x, this.y + child.y, this.childWidth, 0, Math.PI*2, true); 
+        this.ctx.arc(x + child.x, y + child.y, this.childWidth, 0, Math.PI*2, true); 
 
         this.ctx.closePath();
         
@@ -867,7 +877,7 @@ Interface.XY = function() {
         this.ctx.textBaseline = 'middle';
         this.ctx.textAlign = 'center';
         this.ctx.fillStyle = this._stroke();
-        this.ctx.fillText(child.id, this.x + child.x, this.y + child.y);
+        this.ctx.fillText(child.id, x + child.x, y + child.y);
       }
       
       this.ctx.closePath();
@@ -878,13 +888,13 @@ Interface.XY = function() {
       if(this.hasFocus || !this.requiresFocus) {
         touch.x = xOffset;
         if(touch.x < 0 ) touch.x = 0;
-        if(touch.x > this.width) touch.x = this.width;
+        if(touch.x > this._width()) touch.x = this._width();
                 
         touch.y = yOffset;// - this.half;
         if(touch.y < 0) touch.y = 0;
-        if(touch.y > this.height) touch.y = this.height;        
-        this.values[touch.id].x = xOffset / this.width;
-        this.values[touch.id].y = yOffset / this.height;
+        if(touch.y > this._height()) touch.y = this._height();        
+        this.values[touch.id].x = xOffset / this._width();
+        this.values[touch.id].y = yOffset / this._height();
                 
         if(this.onvaluechange) this.onvaluechange();
         
@@ -896,7 +906,7 @@ Interface.XY = function() {
     
     makeChildren : function() {
       for(var i = 0; i < this.numChildren; i++) {
-        this.children.push({ id:i, x:Math.random() * this.width, y:Math.random() * this.height, vx:0, vy:0, collideFlag:false, isActive:false, lastPosition:null, });
+        this.children.push({ id:i, x:Math.random() * this._width(), y:Math.random() * this._height(), vx:0, vy:0, collideFlag:false, isActive:false, lastPosition:null, });
         this.values.push({ x:null, y:null });
       }
     },
@@ -909,7 +919,7 @@ Interface.XY = function() {
         if(touch.type === 'touchstart') {
           this.hasFocus = true;
           this.touchCount++;
-          this.trackTouch(touch.x - this.x, touch.y - this.y, touch);
+          this.trackTouch(touch.x - this._x(), touch.y - this._y(), touch);
         }else{
           if(this[touch.type])
             this[touch.type](touch, isHit, touch.childID);  // normal event
@@ -929,16 +939,6 @@ Interface.XY = function() {
         if(this['on'+touch.type]) this['on'+touch.type](touch, isHit, touch.childId); // user defined event
         if(this['on'+touchMouseName]) this['on'+touchMouseName](touch, isHit);  // user defined event
       }
-    },
-    
-    hitTest : function(e) {
-      if(e.x >= this.x && e.x < this.x + this.width) {
-      	if(e.y >= this.y && e.y < this.y + this.height) {  
-      		return true;
-      	} 
-      }
-    
-      return false;
     },
     
     trackMouse : function(xPos, yPos, id) {
@@ -974,20 +974,20 @@ Interface.XY = function() {
     
     mousedown : function(e) {
       if(this.hitTest(e)) {
-        this.trackMouse(e.x - this.x, e.y - this.y);
+        this.trackMouse(e.x - this._x(), e.y - this._y());
       }
     },
     mousemove : function(e) { 
       if(this.hitTest(e) && this.activeTouch !== null) {
         if(this.activeTouch.lastTouch === null) {
-          this.activeTouch.lastTouch = {x:e.x - this.x, y:e.y - this.y};
+          this.activeTouch.lastTouch = {x:e.x - this._x(), y:e.y - this._y()};
         }else{
-          var now = {x:e.x - this.x, y:e.y - this.y};
+          var now = {x:e.x - this._x(), y:e.y - this._y()};
           this.activeTouch.velocity = {x:now.x - this.activeTouch.lastTouch.x, y:now.y - this.activeTouch.lastTouch.y };
           this.activeTouch.lastTouch = now;
         }
 
-        this.changeValue(this.activeTouch, e.x - this.x, e.y - this.y);
+        this.changeValue(this.activeTouch, e.x - this._x(), e.y - this._y());
       }
     },
     mouseup   : function(e) {
@@ -1040,9 +1040,9 @@ Interface.XY = function() {
       for(var t = 0; t < this.children.length; t++) {
         _t = this.children[t];
         if(touch.identifier == _t.identifier) {
-          this.changeValue(_t, touch.x - this.x, touch.y - this.y);
+          this.changeValue(_t, touch.x - this._x(), touch.y - this._y());
 			    
-          var now = {x:touch.x - this.x, y:touch.y - this.y};
+          var now = {x:touch.x - this._x(), y:touch.y - this._y()};
           
           if(_t.lastPosition !== null) {
             _t.velocity = {x:now.x - _t.lastPosition.x, y:now.y - _t.lastPosition.y };
@@ -1075,14 +1075,16 @@ Interface.XY = function() {
     
     startAnimation : function() { this.timer = setInterval( function() { self.refresh(); }, 30); },
     stopAnimation : function() { clearInterval(this.timer); },
+    
+    _init : function() { 
+      this.makeChildren();
+      if(this.usePhysics) this.startAnimation();
+     },
   })
   .init( arguments[0] );
   
   this.requiresFocus = false; // is a widget default... must set after init.
-  this.half = this.childWidth / 2;
-  this.makeChildren();
-  
-  if(this.usePhysics) this.startAnimation();
+  this.half = this.childWidth / 2;  
 };
 Interface.XY.prototype = Interface.Widget;
 
