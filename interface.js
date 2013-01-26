@@ -263,8 +263,8 @@ Interface.Widget = {
   },
   
   hitTest : function(e) {
-    if(e.x >= this.x && e.x < this.x + this.width) {
-    	if(e.y >= this.y && e.y < this.y + this.height) {  
+    if(e.x >= this._x() && e.x < this._x() + this._width()) {
+    	if(e.y >= this._y() && e.y < this._y() + this._height()) {  
     		return true;
     	} 
     }
@@ -307,6 +307,11 @@ Interface.Widget = {
   _background : function() { return this.background || this.panel.background; },
   _stroke : function() { return this.stroke || this.panel.stroke; },
   _fill : function() { return this.fill || this.panel.fill; },
+  
+  _x : function() { return this.x * this.panel.width; },
+  _y : function() { return this.y * this.panel.height; },
+  _width  : function() { return this.width * this.panel.width; },
+  _height : function() { return this.height * this.panel.height; },
 };
 
 Interface.Slider = function() {
@@ -314,25 +319,30 @@ Interface.Slider = function() {
     isVertical : true,
     
     draw : function() {
+      var x = this._x(),
+          y = this._y(),
+          width = this._width(),
+          height= this._height();
+          
       this.ctx.fillStyle = this._background();
-      this.ctx.fillRect( this.x, this.y, this.width, this.height );
+      this.ctx.fillRect( x, y, width, height );
       
       this.ctx.fillStyle = this._fill();
       
       if(this.isVertical) {
-        this.ctx.fillRect( this.x, this.y + this.height - this._value * this.height, this.width, this._value * this.height);
+        this.ctx.fillRect( x, y + height - this._value * height, width, this._value * height);
       }else{
-        this.ctx.fillRect( this.x, this.y, this.width * this._value, this.height);
+        this.ctx.fillRect( x, y, width * this._value, height);
       }
       
       this.ctx.strokeStyle = this._stroke();
-      this.ctx.strokeRect( this.x, this.y, this.width, this.height );      
+      this.ctx.strokeRect( x, y, width, height );      
     },
     
     changeValue : function( xOffset, yOffset ) {
       if(this.hasFocus || !this.requiresFocus) {
         
-        this._value = this.isVertical ? 1 - (yOffset / this.height) : xOffset / this.width;
+        this._value = this.isVertical ? 1 - (yOffset / this._height()) : xOffset / this._width();
         
         if(this._value < 0) {
           this._value = 0;
@@ -352,13 +362,13 @@ Interface.Slider = function() {
       }     
     },
     
-    mousedown : function(e, hit) { if(hit && Interface.mouseDown) this.changeValue( e.x - this.x, e.y - this.y ); },
-    mousemove : function(e, hit) { if(hit && Interface.mouseDown) this.changeValue( e.x - this.x, e.y - this.y ); },
-    mouseup   : function(e, hit) { if(hit && Interface.mouseDown) this.changeValue( e.x - this.x, e.y - this.y ); },    
+    mousedown : function(e, hit) { if(hit && Interface.mouseDown) this.changeValue( e.x - this._x(), e.y - this._y() ); },
+    mousemove : function(e, hit) { if(hit && Interface.mouseDown) this.changeValue( e.x - this._x(), e.y - this._y() ); },
+    mouseup   : function(e, hit) { if(hit && Interface.mouseDown) this.changeValue( e.x - this._x(), e.y - this._y() ); },    
     
-    touchstart : function(e, hit) { if(hit) this.changeValue( e.x - this.x, e.y - this.y ); },
-    touchmove  : function(e, hit) { if(hit) this.changeValue( e.x - this.x, e.y - this.y ); },
-    touchend   : function(e, hit) { if(hit) this.changeValue( e.x - this.x, e.y - this.y ); },  
+    touchstart : function(e, hit) { if(hit) this.changeValue( e.x - this._x(), e.y - this._y() ); },
+    touchmove  : function(e, hit) { if(hit) this.changeValue( e.x - this._x(), e.y - this._y() ); },
+    touchend   : function(e, hit) { if(hit) this.changeValue( e.x - this._x(), e.y - this._y() ); },  
   })
   .init( arguments[0] );
 };
@@ -370,19 +380,24 @@ Interface.Crossfader = function() {
     _value : .5,
     
     draw : function() {
+      var x = this._x(),
+          y = this._y(),
+          width = this._width(),
+          height= this._height();
+          
       this.ctx.fillStyle = this._background();
-      this.ctx.fillRect( this.x, this.y, this.width, this.height );
+      this.ctx.fillRect( x, y, width, height );
       
       this.ctx.fillStyle = this._fill();
-      this.ctx.fillRect( this.x + (this.width - this.crossfaderWidth) * this._value, this.y, this.crossfaderWidth, this.height);
+      this.ctx.fillRect( x + (width - this.crossfaderWidth) * this._value, y, this.crossfaderWidth, height);
       
       this.ctx.strokeStyle = this._stroke();
-      this.ctx.strokeRect( this.x, this.y, this.width, this.height );      
+      this.ctx.strokeRect( x, y, width, height );
     },
     
     changeValue : function( xOffset, yOffset ) {
       if(this.hasFocus || !this.requiresFocus) {
-        this._value = xOffset / this.width;
+        this._value = xOffset / this._width();
         
         if(this._value < 0) {
           this._value = 0;
@@ -402,16 +417,13 @@ Interface.Crossfader = function() {
       }     
     },
     
-    mousedown : function(e) { 
-      //this.offset = e.x - this.x < this.crossfaderWidth / 2 ? e.x - this.x < this.crossfaderWidth / 2 : 0;
-      this.changeValue( e.x - this.x, e.y - this.y ); 
-    },
-    mousemove : function(e) { this.changeValue( e.x - this.x, e.y - this.y ); },
-    mouseup   : function(e) { this.changeValue( e.x - this.x, e.y - this.y ); },
+    mousedown : function(e) { this.changeValue( e.x - this._x(), e.y - this._y() ); },
+    mousemove : function(e) { this.changeValue( e.x - this._x(), e.y - this._y() ); },
+    mouseup   : function(e) { this.changeValue( e.x - this._x(), e.y - this._y() ); },
     
-    touchstart : function(e, hit) { if(hit) this.changeValue( e.x - this.x, e.y - this.y ); },
-    touchmove  : function(e, hit) { if(hit) this.changeValue( e.x - this.x, e.y - this.y ); },
-    touchend   : function(e, hit) { if(hit) this.changeValue( e.x - this.x, e.y - this.y ); },
+    touchstart : function(e, hit) { if(hit) this.changeValue( e.x - this._x(), e.y - this._y() ); },
+    touchmove  : function(e, hit) { if(hit) this.changeValue( e.x - this._x(), e.y - this._y() ); },
+    touchend   : function(e, hit) { if(hit) this.changeValue( e.x - this._x(), e.y - this._y() ); },
   })
   .init( arguments[0] );
 };
@@ -426,22 +438,27 @@ Interface.Button = function() {
     label : null,
     
     draw : function() {
+      var x = this._x(),
+          y = this._y(),
+          width = this._width(),
+          height= this._height();
+          
       if(this._value) {
         this.ctx.fillStyle = this._fill();
       }else{
         this.ctx.fillStyle = this._background();  
       }
-      this.ctx.fillRect( this.x, this.y, this.width, this.height );
+      this.ctx.fillRect( x, y, width, height );
       
       if(this.label !== null) {
         this.ctx.fillStyle = this._stroke();
         this.ctx.textBaseline = 'middle';
         this.ctx.textAlign = 'center';
-        this.ctx.fillText(this.label, this.x + this.width / 2, this.y + this.height / 2);
+        this.ctx.fillText(this.label, x + width / 2, y + height / 2);
       }
       
       this.ctx.strokeStyle = this._stroke();
-      this.ctx.strokeRect( this.x, this.y, this.width, this.height );      
+      this.ctx.strokeRect( x, y, width, height );      
     },
     
     changeValue : function( xOffset, yOffset ) {
@@ -462,7 +479,7 @@ Interface.Button = function() {
       if(hit && Interface.mouseDown) {
         this.isMouseOver = true;
         if(this.mode !== 'contact') {
-          this.changeValue( e.x - this.x, e.y - this.y ); 
+          this.changeValue();// e.x - this.x, e.y - this.y ); 
         }else{
           this._value = 1;
           this.draw();
@@ -475,7 +492,7 @@ Interface.Button = function() {
       if(!this.requiresFocus && hit && Interface.mouseDown && !this.isMouseOver) {
         this.isMouseOver = true;
         if(this.mode !== 'contact') {
-          this.changeValue( e.x - this.x, e.y - this.y ); 
+          this.changeValue();// e.x - this.x, e.y - this.y ); 
         }else{
           this._value = 1;
           this.draw();
@@ -488,7 +505,7 @@ Interface.Button = function() {
     },
     mouseup   : function(e) {
       if(this.mode === 'momentary')
-        this.changeValue( e.x - this.x, e.y - this.y ); 
+        this.changeValue();// e.x - this.x, e.y - this.y ); 
     },
     
     touchstart : function(e, hit) {
@@ -496,7 +513,7 @@ Interface.Button = function() {
         this.isTouchOver = true;
         
         if(this.mode !== 'contact') {
-          this.changeValue( e.x - this.x, e.y - this.y ); 
+          this.changeValue();// e.x - this.x, e.y - this.y ); 
         }else{
           this._value = 1;
           this.draw();
@@ -509,7 +526,7 @@ Interface.Button = function() {
       if(!this.requiresFocus && hit && !this.isTouchOver) {
         this.isTouchOver = true;
         if(this.mode !== 'contact') {
-          this.changeValue( e.x - this.x, e.y - this.y );
+          this.changeValue();// e.x - this.x, e.y - this.y );
           
         }else{
           this._value = 1;
@@ -524,7 +541,7 @@ Interface.Button = function() {
     touchend   : function(e) {
       this.isTouchOver = false;
       if(this.mode === 'momentary')
-        this.changeValue( e.x - this.x, e.y - this.y ); 
+        this.changeValue();// e.x - this.x, e.y - this.y ); 
     },
   })
   .init( arguments[0] );
@@ -540,6 +557,10 @@ Interface.Knob = function() {
     lastPosition: 0,
     
     draw : function() {
+      var x = this._x(),
+          y = this._y(),
+          width = this._width(),
+          height= this._height();
       //this.canvasCtx.clearRect(0, 0, this.width,this.height);
       this.ctx.strokeStyle = this._stroke();
       //this.ctx.lineWidth = 1.5;
@@ -550,8 +571,8 @@ Interface.Knob = function() {
       var angle1 = Math.PI * .4;
     
       this.ctx.beginPath();
-      this.ctx.arc(this.x + this.radius, this.y + this.radius, this.radius - this.knobBuffer, angle0, angle1, false);
-      this.ctx.arc(this.x + this.radius, this.y + this.radius, (this.radius - this.knobBuffer) * .3 , angle1, angle0, true);		
+      this.ctx.arc(x + this.radius, y + this.radius, this.radius - this.knobBuffer, angle0, angle1, false);
+      this.ctx.arc(x + this.radius, y + this.radius, (this.radius - this.knobBuffer) * .3 , angle1, angle0, true);		
       this.ctx.closePath();
       this.ctx.fill();
           
@@ -568,8 +589,8 @@ Interface.Knob = function() {
           if(this._value > Math.PI * 1.8) this._value -= Math.PI * 1.8; // wrap around      
         
           this.ctx.beginPath();
-          this.ctx.arc(this.x + this.radius , this.y + this.radius, this.radius -  this.knobBuffer, angle3, angle4, (this._value < .5));
-          this.ctx.arc(this.x + this.radius , this.y + this.radius, (this.radius - this.knobBuffer) * 0.3,  angle4, angle3, (this._value > .5));
+          this.ctx.arc(x + this.radius, y + this.radius, this.radius -  this.knobBuffer, angle3, angle4, (this._value < .5));
+          this.ctx.arc(x + this.radius, y + this.radius, (this.radius - this.knobBuffer) * 0.3,  angle4, angle3, (this._value > .5));
           this.ctx.closePath();
           
           // if(this._value > .495 && this._value < .505) { // draw circle if centered?
@@ -589,19 +610,19 @@ Interface.Knob = function() {
           this.ctx.beginPath();
           
           if(!this.isInverted) {
-              this.ctx.arc(this.x + this.radius, this.y + this.radius, this.radius - this.knobBuffer, angle0, angle2, false);
-              this.ctx.arc(this.x + this.radius, this.y + this.radius, (this.radius - this.knobBuffer) * .3, angle2, angle0, true);
+              this.ctx.arc(x + this.radius, y + this.radius, this.radius - this.knobBuffer, angle0, angle2, false);
+              this.ctx.arc(x + this.radius, y + this.radius, (this.radius - this.knobBuffer) * .3, angle2, angle0, true);
           } else {
-              this.ctx.arc(this.x + this.radius, this.y + this.radius, this.radius - this.knobBuffer, angle1, angle2 ,true);
-              this.ctx.arc(this.x + this.radius, this.y + this.radius, (this.radius - this.knobBuffer) * .3, angle2, angle1, false);
+              this.ctx.arc(x + this.radius, y + this.radius, this.radius - this.knobBuffer, angle1, angle2 ,true);
+              this.ctx.arc(x + this.radius, y + this.radius, (this.radius - this.knobBuffer) * .3, angle2, angle1, false);
           }
           this.ctx.closePath();
           this.ctx.fill();
       }
       
       this.ctx.beginPath();
-      this.ctx.arc(this.x + this.radius, this.y + this.radius, this.radius - this.knobBuffer, angle0, angle1, false);
-      this.ctx.arc(this.x + this.radius, this.y + this.radius, (this.radius - this.knobBuffer) * .3 , angle1, angle0, true);		
+      this.ctx.arc(x + this.radius, y + this.radius, this.radius - this.knobBuffer, angle0, angle1, false);
+      this.ctx.arc(x + this.radius, y + this.radius, (this.radius - this.knobBuffer) * .3 , angle1, angle0, true);		
       this.ctx.closePath();
       
       this.ctx.stroke();
@@ -646,8 +667,8 @@ Interface.Knob = function() {
     },
     
     hitTest : function(e) {
-      if(e.x >= this.x && e.x < this.x + this.radius * 2) {
-      	if(e.y >= this.y && e.y < this.y  + this.radius * 2) {  
+      if(e.x >= this._x() && e.x < this._x() + this.radius * 2) {
+      	if(e.y >= this._y() && e.y < this._y()  + this.radius * 2) {  
       		return true;
       	} 
       }
@@ -656,17 +677,17 @@ Interface.Knob = function() {
     },
     
     mousedown : function(e) {
-      this.lastPosition = e.y - this.y;
-      this.changeValue( e.x - this.x, e.y - this.y ); 
+      this.lastPosition = e.y - this._y();
+      this.changeValue( e.x - this._x(), e.y - this._y() ); 
     },
-    mousemove : function(e) { this.changeValue( e.x - this.x, e.y - this.y ); },
+    mousemove : function(e) { this.changeValue( e.x - this._x(), e.y - this._y() ); },
     mouseup   : function(e) {},
     
     touchstart : function(e) {
-      this.lastPosition = e.y - this.y;
-      this.changeValue( e.x - this.x, e.y - this.y ); 
+      this.lastPosition = e.y - this._y();
+      this.changeValue( e.x - this._x(), e.y - this._y() ); 
     },
-    touchmove : function(e) { this.changeValue( e.x - this.x, e.y - this.y ); },
+    touchmove : function(e) { this.changeValue( e.x - this._x(), e.y - this._y() ); },
     touchend   : function(e) {},
   })
   .init( arguments[0] );
