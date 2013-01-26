@@ -21,7 +21,8 @@ var Interface = {
 };
 
 Interface.Panel = function() {
-  var self = this;
+  var self = this,
+      _container = arguments.length >= 1 ? arguments[0].container : undefined;
   
   Interface.extend(this, {
     children:     [],
@@ -29,7 +30,7 @@ Interface.Panel = function() {
     fps : 60,
     useRelativeSizes : true,
     
-    container: arguments[0].container || $('body')[0],
+    container: _container || $('body')[0],
     
     canvas:  document.createElement('canvas'),
     
@@ -75,17 +76,20 @@ Interface.Panel = function() {
       this.x      = parseFloat( $(this.container).css('left') );
       this.y      = parseFloat( $(this.container).css('top') );
       
-      if( isNaN(this.x)) this.x = 0;
-      if( isNaN(this.y)) this.y = 0;      
+      if( isNaN(this.x) ) this.x = 0;
+      if( isNaN(this.y) ) this.y = 0;      
       
       $(this.canvas).attr({
         'width':  this.width,
         'height': this.height,
       });
       
-      if(typeof _container === 'undefined') $(this.container).css({
-        'margin': '0px',
-      });
+      // remove margin from body if no container element is provided
+      if(typeof _container === 'undefined') {
+        $(this.container).css({
+          'margin': '0px',
+        });
+      }
       
       $(this.container).css({ 'user-select': 'none', '-webkit-user-select': 'none'});
       
@@ -307,6 +311,16 @@ Interface.Widget = {
   
   draw : function() {},
   
+  sendTargetMessage : function() {
+    if(this.target && this.key) {
+      if(typeof this.target[this.key] === 'function') {
+        this.target[this.key]( this.value );
+      }else{
+        this.target[this.key] = this.value;
+      }
+    }  
+  },
+  
   _background : function() { return this.background || this.panel.background; },
   _stroke : function() { return this.stroke || this.panel.stroke; },
   _fill : function() { return this.fill || this.panel.fill; },
@@ -358,6 +372,7 @@ Interface.Slider = function() {
         this.value = this.min + (this.max - this.min) * this._value;
         
         if(this.value !== this.lastValue) {
+          this.sendTargetMessage();
           if(this.onvaluechange) this.onvaluechange();
           this.refresh();
           this.lastValue = this.value;
@@ -413,6 +428,7 @@ Interface.Crossfader = function() {
         this.value = this.min + (this.max - this.min) * this._value;
                 
         if(this.value !== this.lastValue) {
+          this.sendTargetMessage();
           if(this.onvaluechange) this.onvaluechange();
           this.refresh();
           this.lastValue = this.value;
@@ -471,6 +487,7 @@ Interface.Button = function() {
         this.value = this._value ? this.max : this.min;
                 
         if(this.value !== this.lastValue) {
+          this.sendTargetMessage();
           if(this.onvaluechange) this.onvaluechange();
           this.draw();
           this.lastValue = this.value;
@@ -662,6 +679,7 @@ Interface.Knob = function() {
         this.value = this.min + this._value * range;
       
         if(this.value !== this.lastValue) {
+          this.sendTargetMessage();
           if(this.onvaluechange) this.onvaluechange();
           this.refresh();
           this.lastValue = this.value;
@@ -1117,6 +1135,7 @@ Interface.Menu = function() {
         function(obj) {
           var oldValue = self.value;
           self.value = self.element.val();
+          self.sendTargetMessage();
           self.onvaluechange(self.value, oldValue);
         }
       );
@@ -1175,6 +1194,7 @@ Interface.TextField = function() {
         function(obj) {
           var oldValue = self.value;
           self.value = self.element.val();
+          self.sendTargetMessage();
           self.onvaluechange(self.value, oldValue);
         }
       );
@@ -1266,7 +1286,8 @@ Interface.MultiButton = function() {
 Interface.MultiButton.prototype = Interface.Widget;
 
 Interface.Accelerometer = function() {
-  var _self = this;
+  var self = this,
+      metersPerSecondSquared = 9.80665;
   
   Interface.extend(this, {
     name:"Accelerometer",
@@ -1275,18 +1296,19 @@ Interface.Accelerometer = function() {
     max: 1,
     maxValue: 0,
     update : function(acceleration) {
-      if(Math.abs(acceleration.x) > _self.maxValue) _self.maxValue = Math.abs(acceleration.x);
-      _self.x = _self.min + (((0 - _self.hardwareMin) + acceleration.x) / _self.hardwareRange );
-      _self.y = _self.min + (((0 - _self.hardwareMin) + acceleration.y) / _self.hardwareRange );
-      _self.z = _self.min + (((0 - _self.hardwareMin) + acceleration.z) / _self.hardwareRange );
+      if(Math.abs(acceleration.x) > self.maxValue) self.maxValue = Math.abs(acceleration.x);
+      self.x = self.min + (((0 - self.hardwareMin) + acceleration.x) / self.hardwareRange );
+      self.y = self.min + (((0 - self.hardwareMin) + acceleration.y) / self.hardwareRange );
+      self.z = self.min + (((0 - self.hardwareMin) + acceleration.z) / self.hardwareRange );
         
-      if(typeof _self.onvaluechange !== 'undefined') {
-        _self.onvaluechange(_self.x, _self.y, _self.z);
+      if(typeof self.onvaluechange !== 'undefined') {
+        //self.sendTargetMessage();
+        self.onvaluechange(self.x, self.y, self.z);
       }
     },
     start : function() {
       window.addEventListener('devicemotion', function (event) {
-        _self.update(event.acceleration);
+        self.update(event.acceleration);
       }, true);
     },
     unload : function() {
@@ -1295,7 +1317,6 @@ Interface.Accelerometer = function() {
   })
   .init( arguments[0] );
     
-  var metersPerSecondSquared = 9.80665;
 	if(!Interface.isAndroid) {
 	    this.hardwareMin = -2.307 * metersPerSecondSquared;  // as found here: http://www.iphonedevsdk.com/forum/iphone-sdk-development/4822-maximum-accelerometer-reading.html
 	    this.hardwareMax = 2.307 * metersPerSecondSquared;   // -1 to 1 works much better for devices without gyros to measure tilt, -2 to 2 much better to measure force
