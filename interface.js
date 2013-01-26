@@ -1327,20 +1327,20 @@ Interface.Range = function() {
     		}
         this.ctx.fillRect(this.x, (this.y + this.height) - (percent * this.height), this.width, percent * this.height);
       }else{
-    		var rightHandlePos = this.rightValue * this.width - this.handleSize;
-    		var leftHandlePos  = this.leftValue  * this.width;
+    		var rightHandlePos = this.x + (this.rightValue * this.width) - this.handleSize;
+    		var leftHandlePos  = this.x + this.leftValue  * this.width;
 		    
   	    this.ctx.fillStyle = this._background();
         this.ctx.fillRect(this.x, this.y, this.width, this.height);
         
   	    this.ctx.fillStyle = this._fill();
-        this.ctx.fillRect(leftHandlePos, 0, rightHandlePos - leftHandlePos, this.height);
+        this.ctx.fillRect(leftHandlePos, this.y, rightHandlePos - leftHandlePos, this.height);
 		
   	    this.ctx.fillStyle = this._stroke();
-    		this.ctx.fillRect(leftHandlePos, 0, this.handleSize, this.height);
+    		this.ctx.fillRect(leftHandlePos, this.y, this.handleSize, this.height);
 		
   	    //this.ctx.fillStyle = "rgba(0,255,0,.25)";
-    		this.ctx.fillRect(rightHandlePos, 0, this.handleSize, this.height);
+    		this.ctx.fillRect(rightHandlePos, this.y, this.handleSize, this.height);
       }
     },
     changeValue : function( xOffset, yOffset ) {
@@ -1370,11 +1370,12 @@ Interface.Range = function() {
         // 
         // this.value = this.min + (this.max - this.min) * this._value;
         // 
-        // if(this.value !== this.lastValue) {
-        //   if(this.onvaluechange) this.onvaluechange();
-        //   this.refresh();
-        //   this.lastValue = this.value;
-        // }
+        if(this.leftValue !== this.lastLeftValue || this.rightValue !== this.lastRightValue) {
+          if(this.onvaluechange) this.onvaluechange();
+          this.refresh();
+          this.lastLeftValue = this.leftValue;
+          this.lastRightValue = this.rightValue;          
+        }
       }     
     },
     
