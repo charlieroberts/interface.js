@@ -1295,25 +1295,24 @@ Interface.Accelerometer = function() {
     delay : 100, // measured in ms
     min: 0,
     max: 1,
-    maxValue: 0,
-    update : function(acceleration) {
-      if(Math.abs(acceleration.x) > self.maxValue) self.maxValue = Math.abs(acceleration.x);
-      self.x = self.min + (((0 - self.hardwareMin) + acceleration.x) / self.hardwareRange );
-      self.y = self.min + (((0 - self.hardwareMin) + acceleration.y) / self.hardwareRange );
-      self.z = self.min + (((0 - self.hardwareMin) + acceleration.z) / self.hardwareRange );
+
+    update : function(event) {
+      var acceleration = event.acceleration;
+      self.x = self.min + ((((0 - self.hardwareMin) + acceleration.x) / self.hardwareRange ) * self.max);
+      self.y = self.min + ((((0 - self.hardwareMin) + acceleration.y) / self.hardwareRange ) * self.max);
+      self.z = self.min + ((((0 - self.hardwareMin) + acceleration.z) / self.hardwareRange ) * self.max);
         
       if(typeof self.onvaluechange !== 'undefined') {
-        //self.sendTargetMessage();
         self.onvaluechange(self.x, self.y, self.z);
       }
     },
     start : function() {
-      window.addEventListener('devicemotion', function (event) {
-        self.update(event.acceleration);
-      }, true);
+      window.addEventListener('devicemotion', this.update, true);
+      return this;
     },
     unload : function() {
-      window.removeEventListener('devicemotion');
+      window.removeEventListener('devicemotion', this.update);
+      return this;
     },
   })
   .init( arguments[0] );
@@ -1336,18 +1335,24 @@ Interface.Orientation = function() {
   Interface.extend(this, {
     delay : 100, // measured in ms
     update : function(orientation) {
-      _self.roll   = _self.min + (orientation.alpha  /  360 );
-      _self.pitch  = _self.min + (((0 - -90) + orientation.beta) / 180 );
-      _self.yaw    = _self.min + (((0 - 180) + orientation.gammma) / 360 );
-        
+      //console.log("UPDATE");
+      _self.roll   = _self.min + ((orientation.alpha  /  360 ) * _self.max );
+      _self.pitch  = _self.min + ((((0 - -90) + orientation.beta) / 180 ) * _self.max );
+      _self.yaw    = _self.min + ((((0 - 180) + orientation.gammma) / 360 ) * _self.max );
+      
+      if( !isNaN(orientation.webkitCompassHeading) ) {
+        _self.heading = _self.min + ((orientation.webkitCompassHeading  /  360 ) * _self.max );
+      }
+      
       if(typeof _self.onvaluechange !== 'undefined') {
-        _self.onvaluechange(_self.pitch, _self.roll, _self.yaw);
+        _self.onvaluechange(_self.pitch, _self.roll, _self.yaw, _self.heading);
       }
     },
     start : function() {
       window.addEventListener('deviceorientation', function (event) {
         _self.update(event);
       }, true);
+      return this;
     },
     unload : function() {
       window.removeEventListener('deviceorientation');
