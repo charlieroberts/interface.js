@@ -23,7 +23,7 @@ var Interface = {
 Interface.Panel = function() {
   var self = this,
       _container = arguments.length >= 1 ? arguments[0].container : undefined;
-  
+
   Interface.extend(this, {
     children:     [],
     shouldDraw :  [],
@@ -132,9 +132,9 @@ Interface.Panel = function() {
         widget.ctx =        this.ctx;
         
         this.children.push( widget );
+        if(widget._init) widget._init();
         
         widget.draw();
-        if(widget._init) widget._init();
       }
     },
     
@@ -146,7 +146,7 @@ Interface.Panel = function() {
   if(typeof arguments[0] !== 'undefined') Interface.extend(this, arguments[0]);
   
   this.init();
-  
+
   this.timer = setInterval( function() { self.draw(); }, Math.round(1000 / this.fps) );
 
   var background ='#444',
@@ -177,7 +177,6 @@ Interface.Panel = function() {
       },
     }
   });
-  
 };
 
 var widgetDefaults = {
@@ -245,6 +244,8 @@ Interface.Widget = {
       this.fill       = options.colors[1];
       this.stroke     = options.colors[2];                
     }
+    
+    this.focusedTouches = [];
   },
   
   refresh : function() {
@@ -298,15 +299,25 @@ Interface.Widget = {
     var isHit = this.hitTest(touch);
     var touchMouseName = convertTouchEvent(touch.type);
     if(isHit || this.hasFocus || !this.requiresFocus) {
-      if(touch.type === 'touchstart') this.hasFocus = true;
-      
+      if(touch.type === 'touchstart') {
+        this.focusedTouches.push(touch);
+        this.hasFocus = true;
+      }
       if(this[touch.type])
         this[touch.type](touch, isHit);  // normal event
       
       if(this['on'+touch.type]) this['on'+touch.type](touch, isHit);          // user defined event
       if(this['on'+touchMouseName]) this['on'+touchMouseName](touch, isHit);  // user defined event
     }
-    if(touch.type === 'touchend') this.hasFocus = false;
+    if(touch.type === 'touchend') {
+      for(var i = 0; i < this.focusedTouches.length; i++) {
+        if(this.focusedTouches[i].id === touch.id) {
+          this.focusedTouches.splice(i, 1);
+          if(this.focusedTouches.length === 0) this.hasFocus = false;
+          break;
+        }
+      }
+    }
   },
   
   draw : function() {},
@@ -350,6 +361,13 @@ Interface.Slider = function() {
         this.ctx.fillRect( x, y + height - this._value * height, width, this._value * height);
       }else{
         this.ctx.fillRect( x, y, width * this._value, height);
+      }
+      
+      if(this.label) {
+        this.ctx.fillStyle = this._stroke();
+        this.ctx.textBaseline = 'middle';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText(this.label, x + width / 2, y + height / 2);
       }
       
       this.ctx.strokeStyle = this._stroke();
@@ -486,7 +504,7 @@ Interface.Button = function() {
         
         this.value = this._value ? this.max : this.min;
                 
-        if(this.value !== this.lastValue) {
+        if(this.value !== this.lastValue || this.mode === 'contact') {
           this.sendTargetMessage();
           if(this.onvaluechange) this.onvaluechange();
           this.draw();
@@ -498,11 +516,8 @@ Interface.Button = function() {
     mousedown : function(e, hit) {
       if(hit && Interface.mouseDown) {
         this.isMouseOver = true;
-        if(this.mode !== 'contact') {
-          this.changeValue();// e.x - this.x, e.y - this.y ); 
-        }else{
-          this._value = 1;
-          this.draw();
+        this.changeValue();
+        if(this.mode === 'contact') {
           var self = this;
           setTimeout( function() { self._value = 0; self.draw(); }, 75);
         }
@@ -531,12 +546,8 @@ Interface.Button = function() {
     touchstart : function(e, hit) {
       if(hit) {
         this.isTouchOver = true;
-        
-        if(this.mode !== 'contact') {
-          this.changeValue();// e.x - this.x, e.y - this.y ); 
-        }else{
-          this._value = 1;
-          this.draw();
+        this.changeValue();
+        if(this.mode === 'contact') {
           var self = this;
           setTimeout( function() { self._value = 0; self.draw(); }, 75);
         }
@@ -589,7 +600,7 @@ Interface.Knob = function() {
     
       var angle0 = Math.PI * .6;
       var angle1 = Math.PI * .4;
-    
+
       this.ctx.beginPath();
       this.ctx.arc(x + this.radius, y + this.radius, this.radius - this.knobBuffer, angle0, angle1, false);
       this.ctx.arc(x + this.radius, y + this.radius, (this.radius - this.knobBuffer) * .3 , angle1, angle0, true);		
@@ -710,8 +721,17 @@ Interface.Knob = function() {
     },
     touchmove : function(e) { this.changeValue( e.x - this._x(), e.y - this._y() ); },
     touchend   : function(e) {},
+    
+    _init : function() {
+      if(this.panel.useRelativeSizesAndPositions && this.radius < 1) {
+        this.radius = this.panel.width * this.radius;
+        this.draw();
+      }
+    },
   })
   .init( arguments[0] );
+  
+
 };
 Interface.Knob.prototype = Interface.Widget;
 
@@ -753,7 +773,7 @@ Interface.XY = function() {
         
         if(child.x + child.vx < width && child.x + child.vx > 0) {
           child.x += child.vx;
-        }else{
+        }else{  
           if(child.x + child.vx >= width && child.vx > 0 ) {
             child.vx *= -1;
           }else if(child.x + child.vx <= 0 && child.vx < 0) {
@@ -783,8 +803,8 @@ Interface.XY = function() {
         
         var range = this.max - this.min;
         if(this.values[child.id].x !== newValueX || this.values[child.id].y !== newValueY) {
-          this.values[child.id].x = this.min + this.range * newValueX;
-          this.values[child.id].y = this.min + this.range * newValueY;
+          this.values[child.id].x = this.min + range * newValueX;
+          this.values[child.id].y = this.min + range * newValueY;
           shouldrunvaluechange = true;
         }
         
@@ -1335,10 +1355,9 @@ Interface.Orientation = function() {
   Interface.extend(this, {
     delay : 100, // measured in ms
     update : function(orientation) {
-      //console.log("UPDATE");
-      _self.roll   = _self.min + ((orientation.alpha  /  360 ) * _self.max );
-      _self.pitch  = _self.min + ((((0 - -90) + orientation.beta) / 180 ) * _self.max );
-      _self.yaw    = _self.min + ((((0 - 180) + orientation.gammma) / 360 ) * _self.max );
+      _self.roll   = _self.min + ((90 + orientation.gamma)  /  180 ) * _self.max ;
+      _self.pitch  = _self.min + ((180 + orientation.beta) / 360 ) * _self.max ;
+      _self.yaw    = _self.min + (orientation.alpha / 360 ) * _self.max ;
       
       if( !isNaN(orientation.webkitCompassHeading) ) {
         _self.heading = _self.min + ((orientation.webkitCompassHeading  /  360 ) * _self.max );
