@@ -1,3 +1,25 @@
+/**#Interface
+A singleton object holding all widget constructors and a couple of other methods / properties. It is automatically created as soon as interface.js is loaded.
+**/
+
+/**###Interface.extend : method  
+This method deep copies all the properties and methods of one object to another.  
+
+param **destination** Object. The object that properties and methods will be inserted into.  
+param **source** Object. The object providing the properties and methods for copying.  
+**/
+
+/**###Interface.mouseDown : property  
+Boolean. This property tells whether the left mouse button (in non-touch browsers) is currently pressed.
+**/
+
+/**###Interface.useTouch : property  
+Boolean. Whether or not a touch UI browser is being used.
+**/
+
+/**###Interface.isAndroid : property  
+Boolean. Whether or not the browser is running under Android. This is used to determine the range of accelerometer values generated.
+**/
 var Interface = {
   extend : function(destination, source) {
     for (var property in source) {
@@ -20,6 +42,91 @@ var Interface = {
   })(),
 };
 
+/**#Interface.Panel - Widget
+A panel is a container for on-screen widgets. There can be multiple panels in a HTML page. Panels are the starting point for event processing in Interface.js.
+**/
+
+/**###Interface.Panel.children : property  
+Array. An array of all widgets displayed in the panel
+**/
+
+/**###Interface.Panel.shouldDraw : property  
+Boolean. Whenever the panel refreshes itself it will redraw widgets found in this array.
+**/
+
+/**###Interface.Panel.fps : property  
+Number. The number of times the panel should refresh itself per second.
+**/
+
+/**###Interface.Panel.useRelativeSizesAndPositions : property  
+Boolean. This determines whether widgets in the panel uses sizes/positions relative to the size of the panel or use absolute pixel coordinates.
+**/
+
+/**###Interface.Panel.container : property  
+HTMLElement. The HTMLElement (such as a div tag) containing the Panel.
+**/
+
+/**###Interface.Panel.canvas : property  
+HTMLElement. The canvas element that the Panel draws onto. This element is created when the panel is initialized.
+**/
+
+/**###Interface.Panel.touchEvent : method  
+The starting point for on-screen all touch event handling in a Panel. This method distributes events to all child widgets.  
+  
+param **event** HTML Touch Event Object.
+**/
+
+/**###Interface.Panel.mouseEvent : method  
+The starting point for on-screen all mouse event handling in a Panel. This method distributes events to all child widgets.  
+  
+param **event** HTML Mouse Event Object.
+**/
+
+/**###Interface.Panel.init : method  
+Initialization method called automatically when panel is instantiated.
+**/
+
+/**###Interface.Panel.x : property  
+Number. The x position of the panel in absolute coordinates relative to the window.
+**/
+/**###Interface.Panel.y : property  
+Number. The y position of the panel in absolute coordinates relative to the window.
+**/
+/**###Interface.Panel.width : property  
+Number. The width of the panel in pixels
+**/
+/**###Interface.Panel.width : property  
+Number. The height of the panel in pixels
+**/
+
+/**###Interface.Panel.draw : method  
+This method tells all 'dirty' widgets stored in the shouldDraw property to draw themselves.
+**/
+/**###Interface.Panel.refresh : method  
+Clear the entire panel and then tell all widgets to draw themselves.
+**/
+
+/**###Interface.Panel.add : method  
+Add a new widget to the panel  
+  
+param **widget** Object. The widget to be added. Motion widgets do not need to be added to the Panel
+**/
+
+/**###Interface.Panel.setBackgroundColor : method  
+Set the background color the panel using a css color value.  
+  
+param **cssColor** String. Any valid css color, such as 'red', '#f00', or 'rgb(255,0,0)'.
+**/
+
+/**###Interface.Panel.background : property  
+String. The default background color for all widgets in the panel. THIS IS NOT THE BACKGROUND COLOR FOR THE PANEL. Any valid css color, such as 'red', '#f00', or 'rgb(255,0,0)' can be assigned to this property.
+**/
+/**###Interface.Panel.fill : property  
+String. The default fill color for all widgets in the panel. Any valid css color, such as 'red', '#f00', or 'rgb(255,0,0)' can be assigned to this property.
+**/
+/**###Interface.Panel.stroke : property  
+String. The default stroke color for all widgets in the panel. Any valid css color, such as 'red', '#f00', or 'rgb(255,0,0)' can be assigned to this property.
+**/
 Interface.Panel = function() {
   var self = this,
       _container = arguments.length >= 1 ? arguments[0].container : undefined;
@@ -226,6 +333,122 @@ var convertTouchEvent = function(eventName) {
   }
 };
 
+/**#Interface.Widget - Widget
+The prototype object for all Interface.js widgets. These methods and properties are inherited by all widgets.
+**/
+
+/**###Interface.Widget.x : property  
+Number. The horizontal position of the widget inside of its parent panel. By default, this position is determined relative to the size of the widget's containing panel, but absolute values can also be used if the panel's useRelativeSizesAndPositions property is set to false.
+**/
+/**###Interface.Widget.y : property  
+Number. The vertical position of the widget inside of its parent panel. By default, this position is determined relative to the size of the widget's containing panel, but absolute values can also be used if the panel's useRelativeSizesAndPositions property is set to false.
+**/
+/**###Interface.Widget.width : property  
+Number. The width of the widget. By default, this is determined relative to the size of the widget's containing panel, but absolute values can also be used if the panel's useRelativeSizesAndPositions property is set to false.
+**/
+/**###Interface.Widget.height : property  
+Number. The width of the widget. By default, this is determined relative to the size of the widget's containing panel, but absolute values can also be used if the panel's useRelativeSizesAndPositions property is set to false.
+**/
+/**###Interface.Widget.bounds : property  
+Array. A shorthand to set x,y,width and height simultaneously upon initialization. By default, these values are determined relative to the size of the widget's containing panel, but absolute values can also be used if the panel's useRelativeSizesAndPositions property is set to false.
+**/
+/**###Interface.Widget.min : property  
+Number. Default 0. The minimum value the widget should output.
+**/
+/**###Interface.Widget.max : property  
+Number. Default 1. The maximum value the widget should output.
+**/
+/**###Interface.Widget.ontouchstart : method  
+Function. A user defined event handler for whenever a touch begins over a widget.
+**/
+/**###Interface.Widget.ontouchmove : method  
+Function. A user defined event handler for whenever a touch moves over a widget.
+**/
+/**###Interface.Widget.ontouchend : method  
+Function. A user defined event handler for whenever a touch ends.
+**/
+/**###Interface.Widget.onmousedown : method  
+Function. A user defined event handler for whenever a mouse press occurs over a widget.
+**/
+/**###Interface.Widget.onmousemove : method  
+Function. A user defined event handler for whenever a mouse moves over a widget while its button is pressed.
+**/
+/**###Interface.Widget.onmouseup : method  
+Function. A user defined event handler for whenever a mouse press ends.
+**/
+/**###Interface.Widget.ontouchmousedown : method  
+Function. A user defined event handler for whenever a mouse press or touch occurs over a widget.
+**/
+/**###Interface.Widget.ontouchmousemove : method  
+Function. A user defined event handler for whenever a mouse or touch moves over a widget.
+**/
+/**###Interface.Widget.ontouchmouseup : method  
+Function. A user defined event handler for whenever a mouse press ends or a touch leaves the screen.
+**/
+
+/**###Interface.Widget.init : method  
+This method is called as soon as widgets are created. It copies properties passed in the constructor to the widget and also copies some default property values.  
+  
+param **options** Object. A dictionary of options for the widget to be initilized with.
+**/
+/**###Interface.Widget.refresh : method  
+Tell the widget to redraw itself. This method adds the widget to the shouldDraw array of the parent panel.
+**/
+/**###Interface.Widget.setValue : method  
+Programmatically change the value of the widget. You can optionally not have the widget redraw itself when calling this method.  
+  
+param **value** Number or String. The new value for the widget.  
+param **doNotDraw** Optional, default false. Whether or not the widget should redraw itself.
+**/
+/**###Interface.Widget.hitTest : method  
+Given an HTML touch or mouse event, determine if the event overlaps a graphical widget.  
+  
+param **event** HTMLEvent. The touch or mouse event to check
+**/
+/**###Interface.Widget.hitTest : method  
+Given an HTML touch or mouse event, determine if the event overlaps a graphical widget.  
+  
+param **event** HTMLEvent. The touch or mouse event to check
+**/
+/**###Interface.Widget.draw : method  
+Tell the widget to draw itself. This method must be overridden by every graphical widget.
+**/
+/**###Interface.Widget.mouseEvent : method  
+The default mouse event handler for the widget. This method also calls any user defined mouse event handlers. This method should probably never be called manually, but you might want to override it.
+  
+param **event** HTMLEvent. The mouse event to process
+**/
+/**###Interface.Widget.mouseEvent : method  
+The default touch event handler for the widget. This method also calls any user defined touch event handlers. This method should probably never be called manually, but you might want to override it.
+  
+param **event** HTMLEvent. The touch event to process
+**/
+/**###Interface.Widget.sendTargetMessage : method  
+If the widget has a target and key property, set the key property or call the key method on the target using the widgets current value.
+**/
+/**###Interface.Widget._background : method  
+returns Color. If the widget has a background color specified, return that, otherwise return the background color of the widget's parent panel.
+**/
+/**###Interface.Widget._stroke : method  
+returns Color. If the widget has a stroke color specified, return that, otherwise return the stroke color of the widget's parent panel.
+**/
+/**###Interface.Widget._fill : method  
+returns Color. If the widget has a fill color specified, return that, otherwise return the fill color of the widget's parent panel.
+**/
+
+/**###Interface.Widget._x : method  
+returns Number. Return the widget's x position as a pixel value relative to the position of the panel. Note that this method will always return the pixel value, even if the panel uses relative values to determine sizes and positions.
+**/
+/**###Interface.Widget._y : method  
+returns Number. Return the widget's y position as a pixel value relative to the position of the panel. Note that this method will always return the pixel value, even if the panel uses relative values to determine sizes and positions.
+**/
+/**###Interface.Widget._width : method  
+returns Number. Return the widget's width. Note that this method will always return a size in pixels, even if the panel uses relative values to determine sizes and positions.
+**/
+/**###Interface.Widget._height : method  
+returns Number. Return the widget's height. Note that this method will always return a size in pixels, even if the panel uses relative values to determine sizes and positions.
+**/
+
 Interface.Widget = {
   init : function( options ) {        
     Interface.extend( this, widgetDefaults);
@@ -342,6 +565,22 @@ Interface.Widget = {
   _height : function() { return this.panel.useRelativeSizesAndPositions ? this.height * this.panel.height : this.height; },
 };
 
+/**#Interface.Slider - Widget
+A vertical or horizontal slider.
+
+## Example Usage##
+`a = new Interface.Slider({ bounds:[0,0,1,.2], isVertical:false });  
+panel = new Interface.Panel();
+panel.add(a);
+`  
+## Constructor   
+**param** *properties*: Object. A dictionary of property values (see below) to set for the slider on initialization.
+- - - -
+**/
+/**###Interface.Slider.isVertical : property
+Boolean. Whether or not the slider draws itself vertically or horizontally. Note this does not affect the boundaries of the slider, just the orientation of the slider's movement.
+**/
+
 Interface.Slider = function() {
   Interface.extend(this, {
     isVertical : true,
@@ -410,6 +649,21 @@ Interface.Slider = function() {
 };
 Interface.Slider.prototype = Interface.Widget;
 
+/**#Interface.Crossfader - Widget
+A horizontal crossfader.
+
+## Example Usage##
+`a = new Interface.Crossfader({ bounds:[0,0,1,.2], crossfaderWidth:20 });  
+panel = new Interface.Panel();
+panel.add(a);
+`  
+## Constructor   
+**param** *properties*: Object. A dictionary of property values (see below) to set for the slider on initialization.
+- - - -
+**/
+/**###Interface.Crossfader.crossfaderWidth : property
+Boolean. The width of the rectangle indicating the current position of the crossfader, in pixel values. TODO: use relative values when used by the panel.
+**/
 Interface.Crossfader = function() {
   Interface.extend(this, {
     crossfaderWidth: 30,
@@ -466,6 +720,24 @@ Interface.Crossfader = function() {
 };
 Interface.Crossfader.prototype = Interface.Widget;
 
+/**#Interface.Button - Widget
+A button with a variety of on/off modes
+
+## Example Usage##
+`a = new Interface.Button({ bounds:[0,0,.25,.25], mode:'contact', label:'test' });  
+panel = new Interface.Panel();
+panel.add(a);
+`  
+## Constructor   
+**param** *properties*: Object. A dictionary of property values (see below) to set for the slider on initialization.
+- - - -
+**/
+/**###Interface.Button.mode : property
+String. Can be 'toggle', 'momentary' or 'contact'. In toggle mode, the button turns on when it is pressed and off when it is pressed again. In momentary mode, the button turns on when pressed and off when released. In contact mode, the button briefly flashes when pressed and sends its value.
+**/
+/**###Interface.Button.label : property
+String. A text label to print in the center of the button.
+**/
 Interface.Button = function() {
   Interface.extend(this, {
     _value: 0,
@@ -579,10 +851,34 @@ Interface.Button = function() {
 };
 Interface.Button.prototype = Interface.Widget;
 
+/**#Interface.Knob - Widget
+A virtual knob. Great.
+
+## Example Usage##
+`a = new Interface.Knob({ x:.1, y:.1, radius:.3 });  
+panel = new Interface.Panel();
+panel.add(a);
+`  
+## Constructor   
+**param** *properties*: Object. A dictionary of property values (see below) to set for the slider on initialization.
+- - - -
+**/
+/**###Interface.Knob.radius : property
+Number. The size of the Knob.
+**/
+/**###Interface.Knob.knobBuffer : property
+Number. The size of the space in the middle of the knob.
+**/
+/**###Interface.Knob.centerZero : property
+Number. If true, the knob is centered at zero. Useful for panning knobs.
+**/
+/**###Interface.Knob.useRotation : property
+Number. If true, the knob value is determined by the slope of the touch or mouse event in relation to the knob. When false, the user simply presses the knob and moves their finger/mouse up and down to change its value.
+**/
+
 Interface.Knob = function() {
   Interface.extend(this, {
     _value: 0,
-    mode : 'toggle',
     radius: 30,
     knobBuffer:15,
     lastPosition: 0,
@@ -739,6 +1035,43 @@ function sign(n) {
   if(n < 0) return -1;
   return 1;
 }
+/**#Interface.XY - Widget
+A multitouch XY controller with optional built-in physics.
+
+## Example Usage##
+`a = new Interface.XY({ x:0, y:0, numChildren:2 });  
+panel = new Interface.Panel();
+panel.add(a);
+`  
+## Constructor   
+**param** *properties*: Object. A dictionary of property values (see below) to set for the slider on initialization.
+- - - -
+**/
+/**###Interface.XY.childWidth : property
+Number. The size of the children, currently in pixels. TODO: use relative values when the panel is using relative sizes and positions.
+**/
+/**###Interface.XY.usePhysics : property
+Boolean. Wheter or not the physics engine should be turned on.
+**/
+/**###Interface.XY.friction : property
+Number. Default .9. The amount of friction in the physics system. High values mean children will decelerate quicker.
+**/
+/**###Interface.XY.maxVelocity : property
+Number. Default 10. The maximum velocity for each child.
+**/
+/**###Interface.XY.detectCollisions : property
+Boolean. Default true. When true, children bounce off one another.
+**/
+/**###Interface.XY.values : property
+Array. An array of objects taking the form {x,y} that store the x and y positions of every child. So, to get the x position of child #0: myXY.values[0].x
+**/
+/**###Interface.XY.children : property
+Array. An array of objects representing the various children of the widget.
+**/
+/**###Interface.XY.animate : method
+This is called to run the physics engine, draw widgets with updated positions, change values of widgets and call appropriate event handlers.
+**/
+
 Interface.XY = function() {
   var self = this,
       posDiff = {x:0, y:0},
@@ -1130,6 +1463,31 @@ Interface.XY = function() {
 };
 Interface.XY.prototype = Interface.Widget;
 
+/**#Interface.Menu - Widget
+A multi-option dropdown menu.
+## Example Usage##
+`a = new Interface.Menu({x:0, y:0, options:['red', 'yellow', 'green'] });  
+a.onvaluechange = function() { b.background = this.value; }  
+b = new Interface.Slider({x:.5, y:.5, width:.2, height:.3});  
+panel = new Interface.Panel();  
+panel.add(a,b);
+`  
+## Constructor   
+**param** *properties*: Object. A dictionary of property values (see below) to set for the slider on initialization.
+- - - -
+**/
+/**###Interface.Menu.options : property
+Array. A list of values found in the menu.
+**/
+/**###Interface.Menu.css : property
+Object. A dictionary of css keys / values to be applied to the menu.
+**/
+/**###Interface.Menu.onvaluechange : method
+The event handler fired whenever the selected menu option changes.  
+  
+param **newValue** Number or String. The new menu value.
+param **oldValue** Number or String. The previous menu value.
+**/
 Interface.Menu = function() {
   Interface.extend(this, {
     _value: 0,
