@@ -169,8 +169,8 @@ Interface.Panel = function() {
         Interface.mouseDown = false;
       }
       
-      e.x = e.pageX - this.x;
-      e.y = e.pageY - this.y;
+      e.x = e.pageX - self.x;
+      e.y = e.pageY - self.y;
       
       for(var i = 0; i < self.children.length; i++) {
         self.children[i].mouseEvent(e);
