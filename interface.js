@@ -178,6 +178,12 @@ Interface.Panel = function() {
     },
     
     init : function() {
+      // remove margin from body if no container element is provided
+      if(typeof _container === 'undefined') {
+        $(this.container).css({
+          'margin': '0px',
+        });
+      }
       this.width  = parseFloat( $(this.container).css('width') );
       this.height = parseFloat( $(this.container).css('height'));
       this.x      = parseFloat( $(this.container).css('left') );
@@ -190,14 +196,7 @@ Interface.Panel = function() {
         'width':  this.width,
         'height': this.height,
       });
-      
-      // remove margin from body if no container element is provided
-      if(typeof _container === 'undefined') {
-        $(this.container).css({
-          'margin': '0px',
-        });
-      }
-      
+
       $(this.container).css({ 'user-select': 'none', '-webkit-user-select': 'none'});
       
       $(this.container).append(this.canvas);
@@ -1638,7 +1637,7 @@ Interface.MultiButton = function() {
         for(var j = 0; j < this.columns; j++) {
           var button = new Interface.Button({
             x : this.x + j * childWidth,
-            y : this.x + i * childHeight,
+            y : this.y + i * childHeight,
             width: childWidth,
             height:childHeight,
             parent:this,
