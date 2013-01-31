@@ -1591,12 +1591,12 @@ Interface.MultiSlider = function() {
     children: [],
     
     _init     : function() {
-      var sliderWidth = this._width() / this.count;
+      var sliderWidth = this.width / this.count;
       
       for(var i = 0; i < this.count; i++) {
         var slider = new Interface.Slider({
-          x : this._x() + i * sliderWidth,
-          y : this._y(),
+          x : this.x + i * sliderWidth,
+          y : this.y,
           width: sliderWidth,
           height:this.height,
           requiresFocus: false,
@@ -1631,14 +1631,14 @@ Interface.MultiButton = function() {
     requiresFocus:true,
     
     _init     : function() {
-      var childWidth  = this._width()  / this.columns;
-      var childHeight = this._height() / this.rows;      
+      var childWidth  = this.width  / this.columns;
+      var childHeight = this.height / this.rows;      
       
       for(var i = 0; i < this.rows; i++) {
         for(var j = 0; j < this.columns; j++) {
           var button = new Interface.Button({
-            x : this._x() + j * childWidth,
-            y : this._y() + i * childHeight,
+            x : this.x + j * childWidth,
+            y : this.x + i * childHeight,
             width: childWidth,
             height:childHeight,
             parent:this,
