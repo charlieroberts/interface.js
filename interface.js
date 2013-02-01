@@ -137,7 +137,32 @@ Interface.Panel = function() {
     fps : 60,
     useRelativeSizesAndPositions : true,
     
-    container: _container || $('body')[0],
+    container: (function() {
+      if(typeof _container === 'undefined') {
+        $('body').css({
+          margin : 0,
+          padding: 0,
+        });
+        
+        var d = $('<div id="container">');
+        d.css({
+          width:$(window).width(),
+          height:$(window).height(),
+          display:'block',
+          margin:0,
+          padding:0,
+          position:'absolute',
+          left:0,
+          top:0
+        });
+        
+        $('body').append(d);
+        
+        return d;
+      }else{
+        return _container;
+      }
+    })(),
     
     canvas:  document.createElement('canvas'),
     
@@ -179,11 +204,11 @@ Interface.Panel = function() {
     
     init : function() {
       // remove margin from body if no container element is provided
-      if(typeof _container === 'undefined') {
-        $(this.container).css({
-          'margin': '0px',
-        });
-      }
+      // if(typeof _container === 'undefined') {
+      //   $(this.container).css({
+      //     'margin': '0px',
+      //   });
+      // }
       this.width  = parseFloat( $(this.container).css('width') );
       this.height = parseFloat( $(this.container).css('height'));
       this.x      = parseFloat( $(this.container).css('left') );
@@ -192,6 +217,7 @@ Interface.Panel = function() {
       if( isNaN(this.x) ) this.x = 0;
       if( isNaN(this.y) ) this.y = 0;      
       
+      console.log(this.width, this.height);
       $(this.canvas).attr({
         'width':  this.width,
         'height': this.height,
@@ -1826,3 +1852,4 @@ Interface.Range = function() {
   .init( arguments[0] );
 }
 Interface.Range.prototype = Interface.Widget;
+  
