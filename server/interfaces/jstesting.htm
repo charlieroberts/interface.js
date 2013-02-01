@@ -1,0 +1,30 @@
+<html>
+<head>
+  <script src='interface.js'></script>
+</head>
+<body>
+  <script>
+  
+    Interface.OSC.init();
+    
+    panel = new Interface.Panel({ useRelativeSizesAndPositions: true });
+    panel.setBackgroundColor("#400");
+    
+    a = new Interface.Button({
+      bounds:[0,0,1,.5],
+      onvaluechange: function() {
+        Interface.OSC.send('/button', 'i', this.value)
+      }
+    })
+    b = new Interface.Slider({
+      bounds:[0,.5,1,.5],
+      onvaluechange: function() {
+        Interface.OSC.send('/slider', 'f', this.value)
+      }
+    })
+    
+    panel.add( a, b );
+    
+  </script>
+</body>
+</html>

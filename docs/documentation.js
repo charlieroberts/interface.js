@@ -5,7 +5,7 @@ var fs = require('fs');
 var converter = new Showdown.converter();
 var objs = {}
 var filenames = [
-"interface.js"
+"../interface.js"
 ];
 
 for (var i = 0; i < filenames.length; i++) {
