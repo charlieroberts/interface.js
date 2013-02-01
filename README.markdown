@@ -60,7 +60,7 @@ Every widget has three colors: background, fill and stroke. If you do not specif
 The included demo file has banks of sliders along the bottom of the panel that allow you to experiment with different colors.
 
 ## Live Demo
-[http://www.charlie-roberts.com/interface][demo]
+[http://www.charlie-roberts.com/gibberface][demo]
 
 ## Screenshot (buttons, sliders, xy, knobs)
 
@@ -76,4 +76,4 @@ Interface.js uses the MIT license.
 [gibberishRepo]:https://github.com/charlieroberts/Gibberish
 [control]:http://www.charlie-roberts.com/Control
 [controlRepo]:https://github.com/charlieroberts/Control
-[demo]:http://www.charlie-roberts.com/interface
+[demo]:http://www.charlie-roberts.com/gibberface
