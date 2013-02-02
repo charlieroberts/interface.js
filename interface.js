@@ -572,6 +572,18 @@ Interface.Widget = {
   
   sendTargetMessage : function() {
     if(this.target && this.key) {
+      if(this.target === Interface.OSC) {
+        if(typeof this.values === 'undefined') {
+          var tt = typeof this.value === 'string' ? 's' : 'f';
+          Interface.OSC.send(this.key, tt, [ this.value ] );
+        }else{
+          var tt = '';
+          for(var i = 0; i < this.values.length; i++) {
+            tt += typeof this.value === 'string' ? 's' : 'f';
+          }
+          Interface.OSC.send( this.key, tt, this.values );
+        }
+      }
       if(typeof this.target[this.key] === 'function') {
         this.target[this.key]( this.value );
       }else{
@@ -1742,9 +1754,14 @@ Interface.Orientation = function() {
       _self.pitch  = _self.min + ((180 + orientation.beta) / 360 ) * _self.max ;
       _self.yaw    = _self.min + (orientation.alpha / 360 ) * _self.max ;
       
+      _self.values = [_self.roll, _self.pitch, _self.yaw];
+      
       if( !isNaN(orientation.webkitCompassHeading) ) {
         _self.heading = _self.min + ((orientation.webkitCompassHeading  /  360 ) * _self.max );
+        _self.values.push( _self.heading );
       }
+
+      _self.sendTargetMessage();
       
       if(typeof _self.onvaluechange !== 'undefined') {
         _self.onvaluechange(_self.pitch, _self.roll, _self.yaw, _self.heading);
@@ -1852,4 +1869,3 @@ Interface.Range = function() {
   .init( arguments[0] );
 }
 Interface.Range.prototype = Interface.Widget;
-  

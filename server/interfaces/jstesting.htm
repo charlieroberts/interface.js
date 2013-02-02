@@ -8,22 +8,17 @@
     Interface.OSC.init();
     
     panel = new Interface.Panel({ useRelativeSizesAndPositions: true });
-    panel.setBackgroundColor("#400");
     
     a = new Interface.Button({
       bounds:[0,0,1,.5],
-      onvaluechange: function() {
-        Interface.OSC.send('/button', 'i', this.value)
-      }
-    })
-    b = new Interface.Slider({
-      bounds:[0,.5,1,.5],
-      onvaluechange: function() {
-        Interface.OSC.send('/slider', 'f', this.value)
-      }
+      target:Interface.OSC, key:'/button',
     })
     
-    panel.add( a, b );
+    b = new Interface.Orientation({
+      target:Interface.OSC, key:'/orientation',
+    })
+    b.start();
+    panel.add( a );
     
   </script>
 </body>
