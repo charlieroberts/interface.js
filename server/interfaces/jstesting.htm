@@ -4,21 +4,23 @@
 </head>
 <body>
   <script>
-  
-    Interface.OSC.init();
-    
+      
     panel = new Interface.Panel({ useRelativeSizesAndPositions: true });
     
     a = new Interface.Button({
       bounds:[0,0,1,.5],
-      target:Interface.OSC, key:'/button',
+      min:0, max:127,
+      mode:'contact',
+      target:Interface.MIDI, key:['noteon', 1, 64],
     })
     
-    b = new Interface.Orientation({
-      target:Interface.OSC, key:'/orientation',
+    b = new Interface.Slider({
+      bounds:[0,.5,1,.5],
+      min:0, max:127,
+      isVertical:false,
+      target:Interface.MIDI, key:['cc', 1, 64],
     })
-    b.start();
-    panel.add( a );
+    panel.add( a, b );
     
   </script>
 </body>

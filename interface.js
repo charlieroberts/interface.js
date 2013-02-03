@@ -583,11 +583,14 @@ Interface.Widget = {
           }
           Interface.OSC.send( this.key, tt, this.values );
         }
-      }
-      if(typeof this.target[this.key] === 'function') {
-        this.target[this.key]( this.value );
+      }else if(this.target === Interface.MIDI) {
+        Interface.MIDI.send( this.key[0],this.key[1],this.key[2], this.value )
       }else{
-        this.target[this.key] = this.value;
+        if(typeof this.target[this.key] === 'function') {
+          this.target[this.key]( this.value );
+        }else{
+          this.target[this.key] = this.value;
+        }
       }
     }  
   },

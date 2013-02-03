@@ -1,10 +1,16 @@
+var expr, socketAndIPPort, socketString;
+
+expr = /[-a-zA-Z0-9.]+(:(6553[0-5]|655[0-2]\d|65[0-4]\d{2}|6[0-4]\d{3}|[1-5]\d{4}|[1-9]\d{0,3}))/
+
+socketIPAndPort = expr.exec( window.location.toString() )[0];
+socketIPAndPort = socketIPAndPort.split(":");
+
+socketString = 'ws://' + socketIPAndPort[0] + ':' + (parseInt(socketIPAndPort[1]) + 1);
+
+Interface.Socket = new WebSocket( socketString );
+
 Interface.OSC = {
-  ip : null,
-  port: null,
-  socket : null,
-  init : function() {
-    this.socket = new WebSocket('ws://' + this.ip + ':' + this.port);
-  },
+  socket : Interface.Socket,
   send : function(_address, _typetags, _parameters) {
     if(typeof _address === 'string' && typeof _typetags === 'string') {
       var obj = {
@@ -21,5 +27,22 @@ Interface.OSC = {
 };
 
 Interface.MIDI = {
-  ip: null,
+  socket: Interface.Socket,
+  send : function(messageType, channel, number, value) {
+    var obj = null;
+    if(Array.isArray( arguments[0] )) {
+      // fill in to allow stuff like [145,1,127]
+    }else{
+      obj = {
+        type    : 'midi',
+        midiType  : messageType,
+        channel   : channel,
+        number    : number,
+      }
+      if(typeof value !== 'undefined') {
+        obj.value = value;
+      }
+      this.socket.send( JSON.stringify( obj ) );
+    }
+  }
 };
