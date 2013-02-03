@@ -1,6 +1,5 @@
 var fs                = require('fs'),
     ws                = require('ws'),
-    os                = require('os'),
     url               = require('url'),
     connect           = require('connect'),
     omgosc            = require('omgosc'),
@@ -53,6 +52,8 @@ server = connect()
   .listen( webServerPort );
 
 clients_in.on( 'connection', function (socket) {
+  console.log( "device connection received" );
+  
   socket.on( 'message', function( obj ) {
     var args = JSON.parse( obj );
         
@@ -73,21 +74,3 @@ clients_in.on( 'connection', function (socket) {
     }
   });
 });
-
-myIP = (function() {
-	var interfaces = os.networkInterfaces();
-	var addresses = [];
-	for ( k in interfaces ) {
-		for ( k2 in interfaces[k] ) {
-			var address = interfaces[k][k2];
-			if ( address.family == 'IPv4' && !address.internal ) {
-				//console.log(address.address);
-				addresses.push( address.address )
-			}
-		}
-	}
-	return addresses[0];
-})();
-
-interfaceJS += "\nInterface.OSC.ip = '" + myIP + "';";
-interfaceJS += "\nInterface.OSC.port = '" + socketPort + "';";

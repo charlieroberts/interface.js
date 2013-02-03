@@ -1,7 +1,7 @@
 #Using the Interface.js Server
 
 The Interface.js Server has two purposes: 
-  1) it serves interfaces to your browser 
+  1) it serves interfaces to any browser on the local network
   2) it translates network messages from your browser into OSC or MIDI messages.
   
 If you want to use the server, you'll need to have [node.js][nodejs] installed. Node.js will provide most of the functionality we need to serve web pages, but we'll also need to add a few utility libraries to send OSC and MIDI and carry out a few other specialized tasks. We can install these utilities using the Node Package Manager, or NPM, which is installed with Node.js. Open a terminal and run the following commands:
@@ -30,11 +30,12 @@ a = new Interface.Slider({
 });
 ```
 
-For MIDI, we specify a target of Interface.MIDI instead of Interface.OSC. For the key, we pass an array specifying the type of message we want to send, the channel it should go out on and the number of the message. Possible message types currently include 'noteon', 'noteoff', 'cc' and 'programchange'. For example, to create a button that outputs NoteOn on channel 1, number 64 we would use:
+For MIDI, we specify a target of Interface.MIDI instead of Interface.OSC. For the key, we pass an array specifying the type of message we want to send, the channel it should go out on and the number of the message. It's also important to limit the range of widgets to valid MIDI values between 0 - 127. Possible message types currently include 'noteon', 'noteoff', 'cc' and 'programchange'. For example, to create a button that outputs NoteOn on channel 1, number 64 we would use:
 
 ```javascript
 a = new Interface.Button({
   bounds:[0,0,1,1],
+  min:0, max:127,
   target:Interface.MIDI, key:['noteon', 0, 64],
 });
 ```
