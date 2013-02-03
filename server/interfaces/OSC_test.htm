@@ -4,21 +4,22 @@
 </head>
 <body>
   <script>
-      
+    // NOTE: The Interface.js server outputs all OSC messages to port 8082. See the README for more information
+    
     panel = new Interface.Panel({ useRelativeSizesAndPositions: true });
     
+    // send a message to the address '/button'
     a = new Interface.Button({
       bounds:[0,0,1,.5],
-      min:0, max:127,
       mode:'contact',
-      target:Interface.MIDI, key:['noteon', 1, 64],
+      target:Interface.OSC, key:'/button',
     })
     
+    // send a message to the address '/slider'
     b = new Interface.Slider({
       bounds:[0,.5,1,.5],
-      min:0, max:127,
       isVertical:false,
-      target:Interface.MIDI, key:['cc', 1, 64],
+      target:Interface.OSC, key:'/slider',
     })
     panel.add( a, b );
     
