@@ -40,5 +40,12 @@ a = new Interface.Button({
 });
 ```
 
+The server directory comes with a couple of simple test files to experiment with MIDI and OSC, MIDI_test.htm and OSC_test.htm. If your computer is named bar, you should be able to enter the following
+URL with the server running:
+
+http://bar.local:8080
+
+... and see a list of files to run including the two mentioned above.
+
 [nodejs]:http://nodejs.org
 [npm]:http://nodejs.org/download/
