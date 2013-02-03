@@ -40,5 +40,5 @@ a = new Interface.Button({
 });
 ```
 
-[nodejs][http://nodejs.org]
-[npm][http://nodejs.org/download/]
+[nodejs]:http://nodejs.org
+[npm]:http://nodejs.org/download/

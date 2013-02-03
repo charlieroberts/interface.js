@@ -4,7 +4,9 @@ Interface.js is a GUI library designed to be device agnostic; it works with mous
 
 Sizes and positions of widgets can be provided either in absolute pixel dimensions or relative to the size of the widgets containing panel. By using relative sizing and positioning you can ensure that interfaces will have the same relative sizes and positioning in interfaces with the same aspect ratio; absolute sizes allow you to customize interfaces for particular dimensions.
 
-Interface.js also features a simple theming system that makes it easy to experiment with colors or change interface characteristics on the fly. It was inspired by my work on [Control][control] [(repo)][controlRepo] and intended for use with my JavaScript DSP library [Gibberish][gibberish] [(repo)][gibberishRepo]; Gibberish + Interface.js together provide a complete system for web-based musical instruments.
+Interface.js also features a simple theming system that makes it easy to experiment with colors or change interface characteristics on the fly. It was inspired by my work on [Control][control] [(repo)][controlRepo] and intended for use with my JavaScript DSP library [Gibberish][gibberish] [(repo)][gibberishRepo]; Gibberish + Interface.js together provide a complete system for web-based musical instruments. 
+
+Interface.js also comes with a server that translates Interface.js messages OSC or MIDI messages that can then be used by other applications running on the same computer as the server. This allows Interface.js to be used in manner similar to Control, TouchOSC or Lemur. See the README in the server folder for more details.
 
 ## Widgets
 * Slider
@@ -59,7 +61,7 @@ Every widget has three colors: background, fill and stroke. If you do not specif
 
 The included demo file has banks of sliders along the bottom of the panel that allow you to experiment with different colors.
 
-## Live Demo
+## Live Demo (w/ Gibberish)
 [http://www.charlie-roberts.com/gibberface][demo]
 
 ## Screenshot (buttons, sliders, xy, knobs)
