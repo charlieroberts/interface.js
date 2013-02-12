@@ -624,10 +624,25 @@ Interface.Widget = {
   
   sendTargetMessage : function() {
     if(this.target && this.key) {
-      if(typeof this.target[this.key] === 'function') {
-        this.target[this.key]( this.value );
+      if(this.target === Interface.OSC) {
+        if(typeof this.values === 'undefined') {
+          var tt = typeof this.value === 'string' ? 's' : 'f';
+          Interface.OSC.send(this.key, tt, [ this.value ] );
+        }else{
+          var tt = '';
+          for(var i = 0; i < this.values.length; i++) {
+            tt += typeof this.value === 'string' ? 's' : 'f';
+          }
+          Interface.OSC.send( this.key, tt, this.values );
+        }
+      }else if(this.target === Interface.MIDI) {
+        Interface.MIDI.send( this.key[0],this.key[1],this.key[2], this.value )
       }else{
-        this.target[this.key] = this.value;
+        if(typeof this.target[this.key] === 'function') {
+          this.target[this.key]( this.value );
+        }else{
+          this.target[this.key] = this.value;
+        }
       }
     }  
   },

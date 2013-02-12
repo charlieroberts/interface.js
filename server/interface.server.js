@@ -55,7 +55,7 @@ clients_in.on( 'connection', function (socket) {
   
   socket.on( 'message', function( obj ) {
     var args = JSON.parse( obj );
-        
+
     if(args.type === 'osc') {
 			osc.send( args.address, args.typetags, args.parameters );
     }else if( args.type === 'midi' ) {
