@@ -1,27 +1,603 @@
 <html>
 <head>
   <title>interface test</title>
+  <script src="rainbow-custom.min.js"></script>
   <script src="zepto.js"></script>
   <script src="interface.js"></script>
   <!--<script src="http://a.local:8080/target/target-script-min.js#anonymous"></script> -->
   
+  <link href="themes/tricolore.css" rel="stylesheet" type="text/css">
+  
   <style>
   html, body {
     height: 100%;
-    overflow: hidden;
+    color:#555;
+    font-family:'Helvetica', sans-serif;
   }
-  a { color : #fff;}
+	h1, h2, h3 {
+    color:#000;
+		font-family: "HelveticaNeue-Light", sans-serif;
+		font-weight: normal;
+	}
+  
+  h2 { font-size:1.5em;}
+  
+  h3 { color :#000; margin:0;}
+  
+  ul {
+    padding:0;
+    margin:0;
+    list-decoration:none;
+  }
+  code,pre{
+    margin:0;
+    padding:0;
+    font-size:.8em;
+    overflow:scroll;
+    height: 275px;
+    background-color:#efefef;
+    width:90%;
+  }
+  .interfacePanel {
+    display:block;
+    width:50%;
+    height:300px;
+    float:right;
+    left:0;
+  }
+  .interfaceCode {
+    width:50%;
+    float:left;
+  }
+  #container {
+    width: 1024px;
+  }
+  li {
+    min-height:300px;
+    padding:5px;
+    border:1px solid #666;
+    display:block;
+  }
   </style>
 </head>
 
 <body>
-  <a href="docs/docs.html">See the reference.</a>
+  <div id="container">
+  <h1>Interface.js</h1>
+  A cross-platform library for touch, mouse and motion events oriented towards live performance.
+  <a href='./docs/docs.html'>See the reference documentation</a>
+  
+  <h2>Widgets</h2>
+  <ul>  
+    <li>
+      <div class="interfaceCode">
+        <h3>Button</h3>
+        
+        <pre><code data-language="javascript">
+var a = new Interface.Panel({  
+  background:"#000",
+  container:$("#buttonPanel") 
+});
+
+var b = new Interface.Button({ 
+  bounds:[.05,.05,.3,.9],  
+  label:'toggle'  
+});
+var c = new Interface.Button({ 
+  bounds:[.35,.05,.3,.9],
+  label:'momentary',
+  mode:'momentary'  
+});
+var d = new Interface.Button({ 
+  bounds:[.65,.05,.3,.9],
+  label:'contact',
+   mode:'contact'  
+});
+
+a.setBackgroundColor('#000');   
+a.add(b,c,d);
+
+        </code></pre>
+      </div>
+      <div id='buttonPanel' class='interfacePanel'>
+      </div>
+      <script>
+      var a = new Interface.Panel({  background:"#000", container:$("#buttonPanel") });
+      var b = new Interface.Button({ bounds:[.05,.05,.3,.9],  label:'toggle'  });
+      var c = new Interface.Button({ bounds:[.35,.05,.3,.9],  label:'momentary', mode:'momentary'  });
+      var d = new Interface.Button({ bounds:[.65,.05,.3,.9],  label:'contact', mode:'contact'  });
+      
+      a.setBackgroundColor('#000');
+      a.add(b,c,d);
+      </script>
+    </li>
+    <li>
+      <div class="interfaceCode">
+        <h3>Slider</h3>
+        <pre><code data-language="javascript">
+var a = new Interface.Panel({  
+  background:"#000",
+  container:$("#sliderPanel") 
+});
+var b = new Interface.Slider({ bounds:[.05,.05,.3,.9] });
+var c = new Interface.Slider({ 
+  bounds:[.4,.35,.55,.3], 
+  isVertical:false, 
+  value:.5,
+});
+
+a.setBackgroundColor('#000');
+a.add(b,c)
+        </code></pre>
+      </div>
+      <div id='sliderPanel' class='interfacePanel'>
+      </div>
+      <script>
+      var a = new Interface.Panel({  background:"#000", container:$("#sliderPanel") });      
+      var b = new Interface.Slider({ bounds:[.05,.05,.3,.9] });
+      var c = new Interface.Slider({ bounds:[.4,.35,.55,.3], isVertical:false, value:.5 });
+
+      a.setBackgroundColor('#000');
+      a.add(b,c)
+      </script>
+    </li>
+    <li>
+      <div class="interfaceCode">
+        <h3>XY</h3>
+        <pre><code data-language="javascript">
+var a = new Interface.Panel({  
+  background:"#000",
+  container:$("#xyPanel") 
+});
+var xy = new Interface.XY({
+  childWidth: 25,
+  numChildren: 4,
+  background:"#111",
+  fill: "rgba(127,127,127,.2)",
+  bounds:[0,0,.6,1],
+});
+var c = new Interface.Slider({ 
+  bounds:[.65,0,.15,1], 
+  min:.0, max:.25,
+  value:.125,
+  fill:'#333', background:'#111',
+  onvaluechange: function() { xy.friction = 1 - this.value; },
+  label:'friction',
+});
+var d = new Interface.Slider({ 
+  bounds:[.825,0,.15,1],
+  target:xy, key:'maxVelocity',
+  min:.5, max:20,
+  value:15,
+  fill:'#333', background:'#111',       
+  label:'velocity',
+});
+      
+a.setBackgroundColor('#000');
+a.add(xy, c, d);
+
+        </code></pre>
+      </div>
+      <div id='xyPanel' class='interfacePanel'>
+      </div>
+      <script>
+      var a = new Interface.Panel({  background:"#000", container:$("#xyPanel") });      
+      var xy = new Interface.XY({
+        childWidth: 25,
+        numChildren: 4,
+        background:"#111",
+        fill: "rgba(127,127,127,.2)",
+        bounds:[0,0,.6,1],
+      });
+      var c = new Interface.Slider({ 
+        bounds:[.65,0,.15,1], 
+        min:.0, max:.25,
+        value:.125,
+        fill:'#333', background:'#111',
+        onvaluechange: function() { xy.friction = 1 - this.value; },
+        label:'friction',
+      });
+      var d = new Interface.Slider({ 
+        bounds:[.825,0,.15,1],
+        target:xy, key:'maxVelocity',
+        min:.5, max:20,
+        value:15,
+        fill:'#333', background:'#111',       
+        label:'velocity',
+      });
+      
+      a.setBackgroundColor('#000');
+      a.add(xy, c, d);
+      </script>
+    </li>
+    <li>
+      <div class="interfaceCode">
+        <h3>Knob</h3>
+        <pre><code data-language="javascript">
+var a = new Interface.Panel({
+  background:"#000",
+  container:$("#knobPanel") 
+});
+var i = new Interface.Knob({ 
+  bounds:[.05,0],
+  value:.25,
+  radius:70,
+  usesRotation:true,
+  centerZero: true,
+});
+var k = new Interface.Knob({ 
+  bounds:[.35,0],
+  value:.75,
+  radius:70,
+  usesRotation:true,
+  centerZero: false,
+});
+var j = new Interface.Knob({ 
+  bounds:[.05,.5],
+  value:.1,
+  radius:70,
+  usesRotation:false,
+  centerZero: true,
+});  
+var l = new Interface.Knob({ 
+  bounds:[.35,.5],
+  radius:70,
+  value:.9,
+  usesRotation:false,
+  centerZero: false,
+});
+var m = new Interface.Label({ 
+  bounds:[.8,.25,.25,.5],
+  value:"USES ROTATION GESTURE",      
+});
+var n = new Interface.Label({ 
+  bounds:[.8,.75,.25,.5],
+  value:"USES VERTICAL GESTURE",      
+});
+a.setBackgroundColor('#000');
+a.add(i, k, j, l, m, n)
+
+        </code></pre>
+      </div>
+      <div id='knobPanel' class='interfacePanel'>
+      </div>
+      <script>
+      var a = new Interface.Panel({  background:"#000", container:$("#knobPanel") });      
+      var i = new Interface.Knob({ 
+        bounds:[.05,0],
+        value:.25,
+        radius:70,
+        usesRotation:true,
+        centerZero: true,
+      });
+      var k = new Interface.Knob({ 
+        bounds:[.35,0],
+        value:.75,
+        radius:70,
+        usesRotation:true,
+        centerZero: false,
+      });
+      var j = new Interface.Knob({ 
+        bounds:[.05,.5],
+        value:.1,
+        radius:70,
+        usesRotation:false,
+        centerZero: true,
+      });  
+      var l = new Interface.Knob({ 
+        bounds:[.35,.5],
+        radius:70,
+        value:.9,
+        usesRotation:false,
+        centerZero: false,
+      });
+      var m = new Interface.Label({ 
+        bounds:[.8,.25,.25,.5],
+        value:"USES ROTATION GESTURE",      
+      });
+      var n = new Interface.Label({ 
+        bounds:[.8,.75,.25,.5],
+        value:"USES VERTICAL GESTURE",      
+      });
+      a.setBackgroundColor('#000');
+      a.add(i, k, j, l, m, n)
+      </script>
+    </li>
+    <li>
+      <div class="interfaceCode">
+        <h3>Crossfader</h3>
+        <pre><code data-language="javascript">
+var a = new Interface.Panel({  background:"#000", container:$("#crossfaderPanel") }); 
+var crossfaderLabel = new Interface.Label({ 
+  bounds:[.5,.2],
+  hAlign:'center',
+  value:0
+});     
+var crossfader = new Interface.Crossfader({
+  bounds:[.1,.35,.8,.3],
+  min:-1, max:1,
+  crossfaderWidth:30,
+  target: crossfaderLabel, key:'setValue',
+});
+      
+a.setBackgroundColor('#000');
+a.add(crossfaderLabel, crossfader);
+        </code></pre>
+      </div>
+      <div id='crossfaderPanel' class='interfacePanel'>
+      </div>
+      <script>
+      var a = new Interface.Panel({  background:"#000", container:$("#crossfaderPanel") }); 
+      var crossfaderLabel = new Interface.Label({ bounds:[.5,.2], hAlign:'center', value:0 });     
+      var crossfader = new Interface.Crossfader({
+        bounds:[.1,.35,.8,.3],
+        min:-1, max:1,
+        crossfaderWidth:30,
+        target: crossfaderLabel, key:'setValue',
+        onvaluechange : function() { console.log('change')},
+      });
+      
+      a.setBackgroundColor('#000');
+      a.add(crossfaderLabel, crossfader);
+      </script>
+    </li>
+    <li>
+      <div class="interfaceCode">
+        <h3>Range</h3>
+        <pre><code data-language="javascript">
+var a = new Interface.Panel({  background:"#000", container:$("#rangePanel") }); 
+var rangeLabel = new Interface.Label({ 
+  bounds:[.5,.2],
+  hAlign:'center',
+  value:0
+});     
+var range = new Interface.Range({
+  bounds:[.1,.35,.8,.3],
+  min:-1, max:1,
+  crossfaderWidth:30,
+  onvaluechange : function(min, max) { 
+    rangeLabel.setValue('min : ' + min + ', max : ' + max);
+  }
+});
+
+a.setBackgroundColor('#000');
+a.add(rangeLabel, range);
+
+        </code></pre>
+      </div>
+      <div id='rangePanel' class='interfacePanel'>
+      </div>
+      <script>
+      var a = new Interface.Panel({  background:"#000", container:$("#rangePanel") }); 
+      var rangeLabel = new Interface.Label({ 
+        bounds:[.5,.2],
+        hAlign:'center',
+        value:0
+      });     
+      var range = new Interface.Range({
+        bounds:[.1,.35,.8,.3],
+        min:-1, max:1,
+        crossfaderWidth:30,
+        onvaluechange : function(min, max) { 
+          rangeLabel.setValue('min : ' + min + ', max : ' + max);
+        }
+      });
+
+      a.setBackgroundColor('#000');
+      a.add(rangeLabel, range);
+      </script>
+    </li>
+    <li>
+      <div class="interfaceCode">
+        <h3>MultiSlider</h3>
+        <pre><code data-language="javascript">
+var a = new Interface.Panel({  background:"#000", container:$("#multiSliderPanel") });            
+var multiSlider = new Interface.MultiSlider({ 
+  count:15,
+  bounds:[.05,.05,.9,.8],
+  onvaluechange : function(number, value) {
+    multiSliderLabel.setValue( 'num : ' + number + ' , value : ' + value);
+  }
+});
+
+var multiSliderLabel = new Interface.Label({ 
+  bounds:[.05, .9],
+  hAlign:"left",
+  value:""
+});
+
+a.setBackgroundColor('#000');
+a.add(multiSlider, multiSliderLabel);
+
+for(var i = 0; i &lt; multiSlider.count; i++) {
+  multiSlider.children[i].setValue( Math.random() );
+}
+        </code></pre>
+      </div>
+      <div id='multiSliderPanel' class='interfacePanel'>
+      </div>
+      <script>
+      var a = new Interface.Panel({  background:"#000", container:$("#multiSliderPanel") });            
+      var multiSlider = new Interface.MultiSlider({ 
+        count:15,
+        bounds:[.05,.05,.9,.8],
+        onvaluechange : function(number, value) {
+          multiSliderLabel.setValue( 'num : ' + number + ' , value : ' + value);
+        }
+      });
+      var multiSliderLabel = new Interface.Label({ 
+        bounds:[.05,.9],
+        hAlign:"left",
+        value:"",
+      });
+      a.setBackgroundColor('#000');
+      a.add(multiSlider, multiSliderLabel);
+      
+      for(var i = 0; i < multiSlider.count; i++) {
+        multiSlider.children[i].setValue( Math.random() );
+      }
+      </script>
+    </li>
+    <li>
+      <div class="interfaceCode">
+        <h3>MultiButton</h3>
+        <pre><code data-language="javascript">
+var a = new Interface.Panel({  background:"#000", container:$("#multiButtonPanel") });            
+var multiButton = new Interface.MultiButton({ 
+  row:4,
+  columns:8,
+  bounds:[.05,.05,.9,.8],
+  onvaluechange : function(row, col, value) {
+    multiButtonLabel.setValue( 'row : ' + row + ' , col : ' + col + ' , value : ' + value);
+  }
+});
+
+var multiButtonLabel = new Interface.Label({ 
+  bounds:[.05,.9],
+  hAlign:"left",
+  value:""
+});
+
+a.setBackgroundColor('#000');
+a.add(multiButton, multiButtonLabel);
+
+for(var i = 0; i &lt; multiButton.count; i++) {
+  multiSlider.children[i].setValue( Math.random() > .5 );
+}
+        </code></pre>
+      </div>
+      <div id='multiButtonPanel' class='interfacePanel'>
+      </div>
+      <script>
+      var a = new Interface.Panel({  background:"#000", container:$("#multiButtonPanel") });            
+      var multiButton = new Interface.MultiButton({ 
+        row:4,
+        columns:8,
+        bounds:[.05,.05,.9,.8],
+        onvaluechange : function(row, col, value) {
+          multiButtonLabel.setValue( 'row : ' + row + ' , col : ' + col + ' , value : ' + value);
+        }
+      });
+
+      var multiButtonLabel = new Interface.Label({ 
+        bounds:[.05,.9],
+        hAlign:"left",
+        value:""
+      });
+
+      a.setBackgroundColor('#000');
+      a.add(multiButton, multiButtonLabel);
+
+      for(var i = 0; i < multiButton.children.length; i++) {
+        multiButton.children[i].setValue( Math.random() > .5 );
+      }
+      </script>
+    </li>
+    <li>
+      <div class="interfaceCode">
+        <h3>TextField</h3>
+        <pre><code data-language="javascript">
+var a = new Interface.Panel({  
+  background:"#000",
+  container:$("#textFieldPanel") 
+});
+var textField = new Interface.TextField({ 
+  bounds:[.05,.05,.5,.2],
+  onvaluechange : function(value, oldValue) {
+    textFieldLabel.setValue( "new value : " + value );
+  },
+  value: " TEST ",
+  fill:"#fff",
+});
+
+var textFieldLabel = new Interface.Label({ 
+  bounds:[.05,.5],
+  size: 20,
+  hAlign:"left",
+  value:"Enter something in the text field above and hit return"
+});
+      
+a.setBackgroundColor('#000');
+a.add(textField, textFieldLabel);
+        </code></pre>
+      </div>
+      <div id='textFieldPanel' class='interfacePanel'>
+      </div>
+      <script>
+      var a = new Interface.Panel({  
+        background:"#000",
+        container:$("#textFieldPanel") 
+      });
+      var textField = new Interface.TextField({ 
+        bounds:[.05,.05,.5,.2],
+        onvaluechange : function(value, oldValue) {
+          textFieldLabel.setValue( "new value : " + value );
+        },
+        value: " TEST ",
+        fill:"#fff",
+      });
+
+      var textFieldLabel = new Interface.Label({ 
+        bounds:[.05,.5],
+        size: 20,
+        hAlign:"left",
+        value:"Enter something in the text field above and hit return"
+      });
+      
+      a.setBackgroundColor('#000');
+      a.add(textField, textFieldLabel);
+      </script>
+    </li>
+    <li>
+      <div class="interfaceCode">
+        <h3>Menu</h3>
+        <pre><code data-language="javascript">
+var a = new Interface.Panel({  
+  background:"#000",
+  container:$("#menuPanel") 
+});
+var menu = new Interface.Menu({ 
+  bounds:[.05,.05,.5,.1],
+  options:['red','green','blue','pink','purple'],
+  onvaluechange : function(value) {
+    this.panel.setBackgroundColor(value);
+  }
+});
+
+a.setBackgroundColor('#000');
+a.add(menu);
+        </code></pre>
+      </div>
+      <div id='menuPanel' class='interfacePanel'>
+      </div>
+      <script>
+      var a = new Interface.Panel({  
+        background:"#000",
+        container:$("#menuPanel") 
+      });
+      var menu = new Interface.Menu({ 
+        bounds:[.05,.05,.5,.1],
+        options:['red','green','blue','pink','purple'],
+        onvaluechange : function(value) {
+          this.panel.setBackgroundColor(value);
+        }
+      });
+
+      a.setBackgroundColor('#000');
+      a.add(menu);
+      
+      </script>
+    </li> 
+  </ul>
+  </div>
 </body>
 
 <script>
-  a = new Interface.Panel({ useRelativeSizesAndPositions: false });
-  a.ctx.lineWidth = 2.5;
-  a.setBackgroundColor('#444');
+  Rainbow.color(function() { console.log("COLOR"); });
+
+  // a = new Interface.Panel({  background:"#000", useRelativeSizesAndPositions: false });
+  // a.ctx.lineWidth = 2.5;
+  // a.setBackgroundColor('#444');
   
   /*m = new Interface.XY({
     childWidth: 35,
@@ -33,8 +609,8 @@
     bounds:[10, 10, 500,500],
   });
   a.add(m);
-  */
-  ///*
+  
+  
   buttonsLabel = new Interface.Label({ bounds:[40, 35, 50, 50], value: 'buttons : ' });
   b = new Interface.Button({ bounds:[70, 10, 60,50],  label:'toggle'  });
   c = new Interface.Button({ bounds:[140, 10, 60,50], mode:'momentary', label:'momentary' });
