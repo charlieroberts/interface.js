@@ -74,8 +74,7 @@
         <h3>Button</h3>
         
         <pre><code data-language="javascript">
-var a = new Interface.Panel({  
-  background:"#000",
+var a = new Interface.Panel({ 
   container:$("#buttonPanel") 
 });
 
@@ -115,27 +114,30 @@ a.add(b,c,d);
       <div class="interfaceCode">
         <h3>Slider</h3>
         <pre><code data-language="javascript">
-var a = new Interface.Panel({  
-  background:"#000",
+var a = new Interface.Panel({ 
   container:$("#sliderPanel") 
 });
-var b = new Interface.Slider({ bounds:[.05,.05,.3,.9] });
+var b = new Interface.Slider({
+  label: 'vertical slider',  
+  bounds:[.05,.05,.3,.9] 
+});
 var c = new Interface.Slider({ 
   bounds:[.4,.35,.55,.3], 
+  label: 'horizontal slider',  
   isVertical:false, 
   value:.5,
 });
 
 a.setBackgroundColor('#000');
-a.add(b,c)
+a.add(b,c);
         </code></pre>
       </div>
       <div id='sliderPanel' class='interfacePanel'>
       </div>
       <script>
       var a = new Interface.Panel({  background:"#000", container:$("#sliderPanel") });      
-      var b = new Interface.Slider({ bounds:[.05,.05,.3,.9] });
-      var c = new Interface.Slider({ bounds:[.4,.35,.55,.3], isVertical:false, value:.5 });
+      var b = new Interface.Slider({ bounds:[.05,.05,.3,.9], label: 'vertical slider' });
+      var c = new Interface.Slider({ bounds:[.4,.35,.55,.3], label: 'horizontal slider', isVertical:false, value:.5 });
 
       a.setBackgroundColor('#000');
       a.add(b,c)
@@ -145,8 +147,7 @@ a.add(b,c)
       <div class="interfaceCode">
         <h3>XY</h3>
         <pre><code data-language="javascript">
-var a = new Interface.Panel({  
-  background:"#000",
+var a = new Interface.Panel({ 
   container:$("#xyPanel") 
 });
 var xy = new Interface.XY({
@@ -214,10 +215,7 @@ a.add(xy, c, d);
       <div class="interfaceCode">
         <h3>Knob</h3>
         <pre><code data-language="javascript">
-var a = new Interface.Panel({
-  background:"#000",
-  container:$("#knobPanel") 
-});
+var a = new Interface.Panel({ container:$("#knobPanel") });
 var i = new Interface.Knob({ 
   bounds:[.05,0],
   value:.25,
@@ -248,11 +246,11 @@ var l = new Interface.Knob({
 });
 var m = new Interface.Label({ 
   bounds:[.8,.25,.25,.5],
-  value:"USES ROTATION GESTURE",      
+  value:"uses rotation gesture",      
 });
 var n = new Interface.Label({ 
   bounds:[.8,.75,.25,.5],
-  value:"USES VERTICAL GESTURE",      
+  value:"uses vertical gesture",      
 });
 a.setBackgroundColor('#000');
 a.add(i, k, j, l, m, n)
@@ -292,12 +290,14 @@ a.add(i, k, j, l, m, n)
         centerZero: false,
       });
       var m = new Interface.Label({ 
-        bounds:[.8,.25,.25,.5],
-        value:"USES ROTATION GESTURE",      
+        bounds:[.95,.25,.25,.5],
+        value:"uses rotation gesture",
+        hAlign:'right',
       });
       var n = new Interface.Label({ 
-        bounds:[.8,.75,.25,.5],
-        value:"USES VERTICAL GESTURE",      
+        bounds:[.95,.75,.25,.5],
+        value:"uses vertical gesture",
+        hAlign:'right,'
       });
       a.setBackgroundColor('#000');
       a.add(i, k, j, l, m, n)
@@ -307,7 +307,7 @@ a.add(i, k, j, l, m, n)
       <div class="interfaceCode">
         <h3>Crossfader</h3>
         <pre><code data-language="javascript">
-var a = new Interface.Panel({  background:"#000", container:$("#crossfaderPanel") }); 
+var a = new Interface.Panel({ container:$("#crossfaderPanel") }); 
 var crossfaderLabel = new Interface.Label({ 
   bounds:[.5,.2],
   hAlign:'center',
@@ -345,7 +345,7 @@ a.add(crossfaderLabel, crossfader);
       <div class="interfaceCode">
         <h3>Range</h3>
         <pre><code data-language="javascript">
-var a = new Interface.Panel({  background:"#000", container:$("#rangePanel") }); 
+var a = new Interface.Panel({ container:$("#rangePanel") }); 
 var rangeLabel = new Interface.Label({ 
   bounds:[.5,.2],
   hAlign:'center',
@@ -391,7 +391,7 @@ a.add(rangeLabel, range);
       <div class="interfaceCode">
         <h3>MultiSlider</h3>
         <pre><code data-language="javascript">
-var a = new Interface.Panel({  background:"#000", container:$("#multiSliderPanel") });            
+var a = new Interface.Panel({ container:$("#multiSliderPanel") });            
 var multiSlider = new Interface.MultiSlider({ 
   count:15,
   bounds:[.05,.05,.9,.8],
@@ -403,7 +403,7 @@ var multiSlider = new Interface.MultiSlider({
 var multiSliderLabel = new Interface.Label({ 
   bounds:[.05, .9],
   hAlign:"left",
-  value:""
+  value:" ",
 });
 
 a.setBackgroundColor('#000');
@@ -442,16 +442,15 @@ for(var i = 0; i &lt; multiSlider.count; i++) {
       <div class="interfaceCode">
         <h3>MultiButton</h3>
         <pre><code data-language="javascript">
-var a = new Interface.Panel({  background:"#000", container:$("#multiButtonPanel") });            
-var multiButton = new Interface.MultiButton({ 
-  row:4,
-  columns:8,
+var a = new Interface.Panel({ container:("#multiButtonPanel") });
+var multiButton = new Interface.MultiButton({
+  row:4, columns:8,
   bounds:[.05,.05,.9,.8],
   onvaluechange : function(row, col, value) {
-    multiButtonLabel.setValue( 'row : ' + row + ' , col : ' + col + ' , value : ' + value);
-  }
+    multiButtonLabel
+    .setValue( 'row : ' + row + ' , col : ' + col + ' , value : ' + value);
+  },
 });
-
 var multiButtonLabel = new Interface.Label({ 
   bounds:[.05,.9],
   hAlign:"left",
@@ -497,10 +496,7 @@ for(var i = 0; i &lt; multiButton.count; i++) {
       <div class="interfaceCode">
         <h3>TextField</h3>
         <pre><code data-language="javascript">
-var a = new Interface.Panel({  
-  background:"#000",
-  container:$("#textFieldPanel") 
-});
+var a = new Interface.Panel({ container:$("#textFieldPanel") });
 var textField = new Interface.TextField({ 
   bounds:[.05,.05,.5,.2],
   onvaluechange : function(value, oldValue) {
@@ -552,12 +548,10 @@ a.add(textField, textFieldLabel);
       <div class="interfaceCode">
         <h3>Menu</h3>
         <pre><code data-language="javascript">
-var a = new Interface.Panel({  
-  background:"#000",
-  container:$("#menuPanel") 
-});
+var a = new Interface.Panel({ container:$("#menuPanel") });
 var menu = new Interface.Menu({ 
-  bounds:[.05,.05,.5,.1],
+  bounds:[.25,.45,.5,.1],
+  stroke:"#666",
   options:['red','green','blue','pink','purple'],
   onvaluechange : function(value) {
     this.panel.setBackgroundColor(value);
@@ -576,7 +570,8 @@ a.add(menu);
         container:$("#menuPanel") 
       });
       var menu = new Interface.Menu({ 
-        bounds:[.05,.05,.5,.1],
+        bounds:[.25,.45,.5,.1],
+        stroke:"#666",
         options:['red','green','blue','pink','purple'],
         onvaluechange : function(value) {
           this.panel.setBackgroundColor(value);
@@ -587,214 +582,219 @@ a.add(menu);
       a.add(menu);
       
       </script>
-    </li> 
+    </li>
+    <li>
+      <div class="interfaceCode">
+        <h3>Label</h3>
+        <pre><code data-language="javascript">
+var a = new Interface.Panel({ container:$("#labelPanel") });
+var label = new Interface.Label({
+  value:"center aligned",
+  size: 25,
+  bounds:[.5,.15,.5,.1],
+});
+var label2 = new Interface.Label({
+  value:"left aligned",
+  hAlign:'left',
+  size: 25,
+  bounds:[.5,.25,.5,.1],
+});
+var label3 = new Interface.Label({
+  value:"right aligned",
+  hAlign:'right',
+  size: 25,
+  bounds:[.5,.35,.5,.1],
+});
+var label4 = new Interface.Label({
+  value:'bold',
+  style:'bold',
+  size: 25,
+  bounds:[.5,.45,.5,.1],
+});
+var label5 = new Interface.Label({
+  value:'Times Italic Big',
+  style:'italic',
+  font:'Times',
+  size: 45,
+  bounds:[.5,.55,.5,.1],
+});
+
+a.setBackgroundColor('#000');
+a.add(label, label2, label3, label4, label5);
+        </code></pre>
+      </div>
+      <div id='labelPanel' class='interfacePanel'>
+      </div>
+      <script>
+      var a = new Interface.Panel({ container:$("#labelPanel") });
+      var label = new Interface.Label({
+        value:"center aligned",
+        size: 25,
+        bounds:[.5,.15,.5,.1],
+      });
+      var label2 = new Interface.Label({
+        value:"left aligned",
+        hAlign:'left',
+        size: 25,
+        bounds:[.5,.25,.5,.1],
+      });
+      var label3 = new Interface.Label({
+        value:"right aligned",
+        hAlign:'right',
+        size: 25,
+        bounds:[.5,.35,.5,.1],
+      });
+      var label4 = new Interface.Label({
+        value:'bold',
+        style:'bold',
+        size: 25,
+        bounds:[.5,.45,.5,.1],
+      });
+      var label5 = new Interface.Label({
+        value:'Times Italic Big',
+        style:'italic',
+        font:'Times',
+        size: 45,
+        bounds:[.5,.55,.5,.1],
+      });
+
+      a.setBackgroundColor('#000');
+      a.add(label, label2, label3, label4, label5);
+      </script>
+    </li>
+    <li>
+      <div class="interfaceCode">
+        <h3>Orientation (mobile + Chrome only)</h3>
+        <pre><code data-language="javascript">
+var a = new Interface.Panel({ 
+  container:$("#sliderPanel") 
+});
+var orientation = new Interface.Orientation({
+  onvaluechange : function(_pitch, _roll, _yaw, _heading) {
+    pitch.setValue(_pitch);
+    roll.setValue(_roll);
+    yaw.setValue(_yaw);        
+  }
+});
+var pitch = new Interface.Slider({
+  label: 'pitch',  
+  bounds:[.05,.05,.2,.9] 
+});
+var roll = new Interface.Slider({
+  label: 'roll',  
+  bounds:[.25,.05,.2,.9] 
+});
+var yaw = new Interface.Slider({
+  label: 'yaw',  
+  bounds:[.45,.05,.2,.9] 
+});
+
+a.setBackgroundColor('#000');
+a.add(pitch, roll, yaw);
+        </code></pre>
+      </div>
+      <div id='orientationPanel' class='interfacePanel'>
+      </div>
+      <script>
+      var a = new Interface.Panel({ 
+        container:$("#orientationPanel") 
+      });
+      var orientation = new Interface.Orientation({
+        onvaluechange : function(_pitch, _roll, _yaw, _heading) {
+          pitch.setValue(_pitch);
+          roll.setValue(_roll);
+          yaw.setValue(_yaw); 
+          heading.setValue( 'heading : ' + _heading);        
+        }
+      }).start();
+      var pitch = new Interface.Slider({
+        label: 'pitch',  
+        bounds:[.05,.05,.2,.9] 
+      });
+      var roll = new Interface.Slider({
+        label: 'roll',  
+        bounds:[.25,.05,.2,.9] 
+      });
+      var yaw = new Interface.Slider({
+        label: 'yaw',  
+        bounds:[.45,.05,.2,.9] 
+      });
+      var heading = new Interface.Label({
+        label: 'heading : ',  
+        bounds:[.82,.5],
+      });
+      
+      a.setBackgroundColor('#000');
+      a.add(pitch, roll, yaw, heading);
+      </script>
+    </li>
+    <li>
+      <div class="interfaceCode">
+        <h3>Accelerometer (mobile only)</h3>
+        <pre><code data-language="javascript">
+var a = new Interface.Panel({ 
+  container:$("#sliderPanel") 
+});
+var accelerometer = new Interface.Accelerometer({
+  onvaluechange : function(_x,_y,_z) {
+    x.setValue(_x);
+    y.setValue(_y);
+    z.setValue(_z);        
+  }
+}).start();
+var x = new Interface.Slider({
+  label: 'x',  
+  bounds:[.05,.05,.2,.9] 
+});
+var y = new Interface.Slider({
+  label: 'y',  
+  bounds:[.25,.05,.2,.9] 
+});
+var z = new Interface.Slider({
+  label: 'z',  
+  bounds:[.45,.05,.2,.9] 
+});
+
+a.setBackgroundColor('#000');
+a.add(x,y,z);
+        </code></pre>
+      </div>
+      <div id='accelerometerPanel' class='interfacePanel'>
+      </div>
+      <script>
+      var a = new Interface.Panel({ 
+        container:$("#accelerometerPanel") 
+      });
+      var accelerometer = new Interface.Accelerometer({
+        onvaluechange : function(_x,_y,_z) {
+          x.setValue(_x);
+          y.setValue(_y);
+          z.setValue(_z);        
+        }
+      }).start();
+      var x = new Interface.Slider({
+        label: 'x',  
+        bounds:[.05,.05,.2,.9] 
+      });
+      var y = new Interface.Slider({
+        label: 'y',  
+        bounds:[.25,.05,.2,.9] 
+      });
+      var z = new Interface.Slider({
+        label: 'z',  
+        bounds:[.45,.05,.2,.9] 
+      });
+
+      a.setBackgroundColor('#000');
+      a.add(x,y,z);
+      </script>
+    </li>    
   </ul>
   </div>
 </body>
 
 <script>
-  Rainbow.color(function() { console.log("COLOR"); });
-
-  // a = new Interface.Panel({  background:"#000", useRelativeSizesAndPositions: false });
-  // a.ctx.lineWidth = 2.5;
-  // a.setBackgroundColor('#444');
-  
-  /*m = new Interface.XY({
-    childWidth: 35,
-    numChildren: 10,
-    friction:.95,
-    detectCollisions:true,
-    maxVelocity: 10,
-    fill: "rgba(127,127,127,.5)",
-    bounds:[10, 10, 500,500],
-  });
-  a.add(m);
-  
-  
-  buttonsLabel = new Interface.Label({ bounds:[40, 35, 50, 50], value: 'buttons : ' });
-  b = new Interface.Button({ bounds:[70, 10, 60,50],  label:'toggle'  });
-  c = new Interface.Button({ bounds:[140, 10, 60,50], mode:'momentary', label:'momentary' });
-  d = new Interface.Button({ bounds:[210, 10, 60,50], mode:'contact',   label:'contact' });
-  
-  slidersLabel = new Interface.Label({ bounds:[40, 85, 50, 50], value: 'sliders : ' });
-  
-  e = new Interface.Slider({ bounds:[70,75,35,100], value:.5, min:0 });
-  f = new Interface.Slider({ bounds:[140,140,100,35], isVertical:false });  
-  g = new Interface.Crossfader({ bounds:[140,75,100,35], min:-10, max:10, crossfaderWidth:15 });
-  
-  knobsLabel = new Interface.Label({ bounds:[40, 205, 50, 50], value: 'knobs : ' });
-  i = new Interface.Knob({ 
-    bounds:[65,175],
-    radius:45,
-    usesRotation:true,
-    centerZero: true,
-  });
-  j = new Interface.Knob({ 
-    bounds:[150,175],
-    radius:45,
-    usesRotation:false,
-    centerZero: true,
-  });  
-  k = new Interface.Knob({ 
-    bounds:[235,175],
-    radius:45,
-    usesRotation:true,
-    centerZero: false,
-  });
-  l = new Interface.Knob({ 
-    bounds:[320,175],
-    radius:45,
-    usesRotation:false,
-    centerZero: false,
-  });
-  
-  xyLabel = new Interface.Label({ bounds:[40, 285, 50, 50], value: 'xy : ' });
-  m = new Interface.XY({
-    childWidth: 15,
-    numChildren: 4,
-    fill: "rgba(127,127,127,.5)",
-    bounds:[70, 285, 200,200],
-  });
-  n = new Interface.Slider({ bounds:[300,285,100,35], isVertical:false, min:.0, max:.25, onvaluechange: function() { m.friction = 1 - this.value; } });
-  frictionLabel = o = new Interface.Label({
-    bounds:[415, 305, 50, 50],
-    hAlign:'left',
-    value: 'xy.friction ',
-  });
-  o = new Interface.Slider({ bounds:[300,330,100,35], isVertical:false, min:.5,   max:20,  onvaluechange: function() { m.maxVelocity = this.value;  } });
-  velocityLabel = new Interface.Label({
-    bounds:[415, 345, 50, 50],
-    hAlign:'left',
-    value: 'xy.maxVelocity',
-  });
-  
-  multiSliderLabel = new Interface.Label({ bounds:[35, 525, 50, 50], value: 'multislider' });
-  p = new Interface.MultiSlider({ count:15, bounds:[70,500,400,150] });
-  
-  multiButtonLabel = new Interface.Label({ bounds:[35, 700, 50, 50], value: 'multibutton' });
-  q = new Interface.MultiButton({ bounds:[70,675,200,200], requiresFocus:false, onvaluechange: function(r,c,v) {} });
-  
-  r = new Interface.Menu({ 
-    bounds:[65,900], 
-    options:['normal', 'darker', 'lighter'], 
-    onvaluechange: function(val, old) {
-      if(this.value === 'normal') {
-        a.setBackgroundColor('#666');        
-      }else if(this.value === 'darker') {
-        a.setBackgroundColor('#000');
-      }else{
-        a.setBackgroundColor('#999');
-      }
-    }, 
-    value:'normal', 
-  });
-  menuLabel = new Interface.Label({ bounds:[40, 910, 50, 50], value: 'menu : ' });
-  
-  s = new Interface.Slider({ 
-    bounds:[10,950,50,200],
-    min:0,
-    max:255,    
-    onvaluechange: function() {
-      a.background = "rgb("+Math.floor(this.value)+","+Math.floor(t.value)+","+Math.floor(u.value)+")";
-    },
-  });
-  t = new Interface.Slider({ 
-    bounds:[60, 950,50,200],
-    min:0,
-    max:255,
-    onvaluechange: function() {
-      a.background = "rgb("+Math.floor(s.value)+","+Math.floor(this.value)+","+Math.floor(u.value)+")";
-    },
-  });
-  u = new Interface.Slider({ 
-    bounds:[110, 950,50,200],
-    min:0,
-    max:255,    
-    onvaluechange: function() {
-      a.background = "rgb("+Math.floor(s.value)+","+Math.floor(t.value)+","+Math.floor(this.value)+")";
-    },
-  });
-  
-  v = new Interface.Slider({ 
-    bounds:[175, 950,50,200],
-    min:0,
-    max:255,    
-    onvaluechange: function() {
-      a.fill = "rgb("+Math.floor(this.value)+","+Math.floor(w.value)+","+Math.floor(x.value)+")";
-    },
-  });
-  w = new Interface.Slider({ 
-    bounds:[225, 950,50,200],
-    min:0,
-    max:255,
-    onvaluechange: function() {
-      a.fill = "rgb("+Math.floor(v.value)+","+Math.floor(this.value)+","+Math.floor(x.value)+")";
-    },
-  });
-  x = new Interface.Slider({
-    bounds:[275, 950,50,200],
-    min:0,
-    max:255,    
-    onvaluechange: function() {
-      a.fill = "rgb("+Math.floor(v.value)+","+Math.floor(w.value)+","+Math.floor(this.value)+")";
-    },
-  });
-  
-  y = new Interface.Slider({ 
-    bounds:[340, 950,50,200],
-    min:0,
-    max:255,    
-    onvaluechange: function() {
-      a.stroke = "rgb("+Math.floor(this.value)+","+Math.floor(z.value)+","+Math.floor(aa.value)+")";
-    },
-  });
-  z = new Interface.Slider({ 
-    bounds:[390, 950,50,200],
-    min:0,
-    max:255,
-    onvaluechange: function() {
-      a.stroke = "rgb("+Math.floor(y.value)+","+Math.floor(this.value)+","+Math.floor(aa.value)+")";
-    },
-  });
-  aa = new Interface.Slider({
-    bounds:[440, 950,50,200],
-    min:0,
-    max:255,    
-    onvaluechange: function() {
-      a.stroke = "rgb("+Math.floor(y.value)+","+Math.floor(z.value)+","+Math.floor(this.value)+")";
-    },
-  });
-  
-  bb = new Interface.Slider({ 
-    bounds:[505, 950,50,200],
-    min:0,
-    max:255,    
-    onvaluechange: function() {
-      a.setBackgroundColor("rgb("+Math.floor(this.value)+","+Math.floor(cc.value)+","+Math.floor(dd.value)+")");
-    },
-  });
-  cc = new Interface.Slider({ 
-    bounds:[555, 950,50,200],
-    min:0,
-    max:255,
-    onvaluechange: function() {
-      a.setBackgroundColor("rgb("+Math.floor(bb.value)+","+Math.floor(this.value)+","+Math.floor(dd.value)+")");
-    },
-  });
-  dd = new Interface.Slider({
-    bounds:[605, 950,50,200],
-    min:0,
-    max:255,    
-    onvaluechange: function() {
-      a.setBackgroundColor("rgb("+Math.floor(bb.value)+","+Math.floor(cc.value)+","+Math.floor(this.value)+")");
-    },
-  });
-  
-
-  a.add(buttonsLabel,b,c,d,slidersLabel,e,f,g, knobsLabel,i,j,k,l,xyLabel,m,n,o,frictionLabel,velocityLabel, multiSliderLabel,p, multiButtonLabel,q, r,menuLabel, s,t,u, v,w,x, y,z,aa, bb,cc,dd);
-  /*
-  r = new Interface.TextField({ width: 200, height:200, x:400, y : 915, value:"TEST", onvaluechange: function() { console.log('NEW TF', this.value)} });
-  */
+  Rainbow.color();
 </script>
 
 </html>

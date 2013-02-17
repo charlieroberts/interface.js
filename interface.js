@@ -217,8 +217,6 @@ Interface.Panel = function() {
     canvas:  document.createElement('canvas'),
     
     touchEvent : function(event) {
-      event.preventDefault();
-      //console.log(event);
       for (var j = 0; j < event.changedTouches.length; j++){
         var touch = event.changedTouches.item(j);		
         
@@ -232,9 +230,7 @@ Interface.Panel = function() {
 		
         //if(breakCheck) break;
     	}
-      
-
-      //e.preventDefault();
+      event.preventDefault(); // HTML Elements must simulate touch events in their touchEvent method
     },
     
     mouseEvent : function(e) {
@@ -244,12 +240,14 @@ Interface.Panel = function() {
         Interface.mouseDown = false;
       }
       
-      delete e.x; delete e.y;
-      e.x = e.offsetX;
-      e.y = e.offsetY;
+      var event = {
+        x : e.pageX - self.x,
+        y : e.pageY - self.y,
+        type: e.type,
+      }
       
       for(var i = 0; i < self.children.length; i++) {
-        self.children[i].mouseEvent(e);
+        self.children[i].mouseEvent(event);
       }
     },
     
@@ -269,7 +267,6 @@ Interface.Panel = function() {
       if( isNaN(this.x) ) this.x = 0;
       if( isNaN(this.y) ) this.y = 0;      
       
-      console.log(this.width, this.height);
       $(this.canvas).attr({
         'width':  this.width,
         'height': this.height,
@@ -1649,6 +1646,26 @@ Interface.Menu = function() {
     _value: 0,
     options: [],
     size:15,
+    touchEvent: function(e) { // we have to simulate this since the actual event was cancelled to avoid scrolling behavior
+      if(this.hitTest(e)) {
+        var evt = document.createEvent('TouchEvent');
+        evt.initUIEvent('touchstart', true, true);
+        
+        evt.view = window;
+        evt.screenX = e.screenX;
+        evt.screenY = e.screenY;
+        evt.clientX = e.clientX;
+        evt.clientY = e.clientY; 
+        evt.bubbles = false;
+        evt.view = window;       
+        evt.altKey = false;
+        evt.ctrlKey = false;
+        evt.shiftKey = false;
+        evt.metaKey = false;
+
+        this.element.dispatchEvent(evt);
+      }
+    },
     _init : function() {
       this.element = $("<select>");
       
@@ -1687,7 +1704,6 @@ Interface.Menu = function() {
       }else{
         this.element.val( this.options[0] );
       }
-      
       $(this.container).append(this.element);
     },   
   })
@@ -1698,12 +1714,16 @@ Interface.Menu.prototype = Interface.Widget;
 Interface.Label = function() {
   Interface.extend(this, {
     size:12,
-    weight:'normal',
+    style:'normal',
     hAlign:'center',
     vAlign:'middle',
     font : 'sans-serif',
     
     draw : function() {
+      this.ctx.font = this.style + ' ' + this.size + 'px ' + this.font;
+      this.ctx.textAlign = this.hAlign;
+      this.ctx.textBaseline = this.vAlign;
+      
       var metrics = this.ctx.measureText(this.lastValue),
           rect = {
             x: 0,
@@ -1724,11 +1744,7 @@ Interface.Label = function() {
           break;
       }
 
-      this.ctx.clearRect(rect.x, rect.y, rect.width, rect.height);
-      
-      this.ctx.font = this.weight + ' ' + this.size + ' ' + this.font;
-      this.ctx.textAlign = this.hAlign;
-      this.ctx.textBaseline = this.vAlign;
+      this.ctx.clearRect(rect.x, rect.y, rect.width, rect.height);      
       this.ctx.fillStyle = this._stroke();
       this.ctx.fillText(this.value, this._x(), this._y());
       this.lastValue = this.value;
@@ -1742,6 +1758,26 @@ Interface.Label.prototype = Interface.Widget;
 Interface.TextField = function() {
   Interface.extend(this, {
     size: 15, 
+    touchEvent: function(e) { // we have to simulate this since the actual event was cancelled to avoid scrolling behavior
+      if(this.hitTest(e)) {
+        var evt = document.createEvent('TouchEvent');
+        evt.initUIEvent('touchstart', true, true);
+        
+        evt.view = window;
+        evt.screenX = e.screenX;
+        evt.screenY = e.screenY;
+        evt.clientX = e.clientX;
+        evt.clientY = e.clientY; 
+        evt.bubbles = false;
+        evt.view = window;       
+        evt.altKey = false;
+        evt.ctrlKey = false;
+        evt.shiftKey = false;
+        evt.metaKey = false;
+
+        this.element.dispatchEvent(evt);
+      }
+    },
     _init : function() {
       this.element = $("<input>");
       
@@ -1884,7 +1920,7 @@ Interface.Accelerometer = function() {
       window.addEventListener('devicemotion', this.update, true);
       return this;
     },
-    unload : function() {
+    stop : function() {
       window.removeEventListener('devicemotion', this.update);
       return this;
     },
@@ -1929,7 +1965,7 @@ Interface.Orientation = function() {
       }, true);
       return this;
     },
-    unload : function() {
+    stop : function() {
       window.removeEventListener('deviceorientation');
     },
   })
