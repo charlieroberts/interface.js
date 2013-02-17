@@ -185,6 +185,7 @@ Interface.Panel = function() {
     fps : 30,
     useRelativeSizesAndPositions : true,
     labelSize: '12px',
+    font:'normal 12px Helvetica',
     
     container: (function() {
       if(typeof _container === 'undefined') {
@@ -216,8 +217,6 @@ Interface.Panel = function() {
     canvas:  document.createElement('canvas'),
     
     touchEvent : function(event) {
-      event.preventDefault();
-      //console.log(event);
       for (var j = 0; j < event.changedTouches.length; j++){
         var touch = event.changedTouches.item(j);		
         
@@ -231,9 +230,7 @@ Interface.Panel = function() {
 		
         //if(breakCheck) break;
     	}
-      
-
-      //e.preventDefault();
+      event.preventDefault(); // HTML Elements must simulate touch events in their touchEvent method
     },
     
     mouseEvent : function(e) {
@@ -243,11 +240,14 @@ Interface.Panel = function() {
         Interface.mouseDown = false;
       }
       
-      e.x = e.pageX - self.x;
-      e.y = e.pageY - self.y;
+      var event = {
+        x : e.pageX - self.x,
+        y : e.pageY - self.y,
+        type: e.type,
+      }
       
       for(var i = 0; i < self.children.length; i++) {
-        self.children[i].mouseEvent(e);
+        self.children[i].mouseEvent(event);
       }
     },
     
@@ -258,15 +258,15 @@ Interface.Panel = function() {
       //     'margin': '0px',
       //   });
       // }
-      this.width  = parseFloat( $(this.container).css('width') );
-      this.height = parseFloat( $(this.container).css('height'));
-      this.x      = parseFloat( $(this.container).css('left') );
-      this.y      = parseFloat( $(this.container).css('top') );
+      var offset = $(this.container).offset();
+      this.width  = offset.width;
+      this.height = offset.height;
+      this.x      = offset.left;
+      this.y      = offset.top;
       
       if( isNaN(this.x) ) this.x = 0;
       if( isNaN(this.y) ) this.y = 0;      
       
-      console.log(this.width, this.height);
       $(this.canvas).attr({
         'width':  this.width,
         'height': this.height,
@@ -277,6 +277,7 @@ Interface.Panel = function() {
       $(this.container).append(this.canvas);
       
       this.ctx = this.canvas.getContext( '2d' );
+      this.ctx.translate(0.5, 0.5);
       
       if(Interface.useTouch) {
         $(this.container).on( 'touchstart', this.touchEvent );
@@ -330,9 +331,9 @@ Interface.Panel = function() {
 
   this.timer = setInterval( function() { self.draw(); }, Math.round(1000 / this.fps) );
 
-  var background ='#444',
-      fill = '#888',
-      stroke = '#ccc',
+  var background ='#000',
+      fill = '#333',
+      stroke = '#999',
       self = this;
       
   Object.defineProperties(this, {
@@ -358,6 +359,9 @@ Interface.Panel = function() {
       },
     }
   });
+  if(arguments[0].background) this.background = arguments[0].background;
+  if(arguments[0].fill) this.fill = arguments[0].fill;
+  if(arguments[0].stroke) this.stroke = arguments[0].stroke;    
   Interface.panels.push( this );
 };
 
@@ -571,8 +575,8 @@ Interface.Widget = {
   },
   
   hitTest : function(e) {
-    if(e.x >= this._x() && e.x < this._x() + this._width()) {
-    	if(e.y >= this._y() && e.y < this._y() + this._height()) {  
+    if(e.x >= this._x() && e.x <= this._x() + this._width()) {
+    	if(e.y >= this._y() && e.y <= this._y() + this._height()) {  
     		return true;
     	} 
     }
@@ -651,16 +655,17 @@ Interface.Widget = {
   _stroke : function() { return this.stroke || this.panel.stroke; },
   _fill : function() { return this.fill || this.panel.fill; },
   
-  _x : function() { return this.panel.useRelativeSizesAndPositions ? Math.floor(this.x * this.panel.width) + .5 : this.x; },
-  _y : function() { return this.panel.useRelativeSizesAndPositions ? Math.floor(this.y * this.panel.height) + .5 : this.y; },
-  _width  : function() { return this.panel.useRelativeSizesAndPositions ? Math.floor(this.width * this.panel.width) + .5 : this.width; },
-  _height : function() { return this.panel.useRelativeSizesAndPositions ? Math.floor(this.height * this.panel.height) + .5 : this.height; },
+  _x : function() { return this.panel.useRelativeSizesAndPositions ? Math.floor(this.x * this.panel.width)  : this.x; },
+  _y : function() { return this.panel.useRelativeSizesAndPositions ? Math.floor(this.y * this.panel.height) : this.y; },
+  _width  : function() { return this.panel.useRelativeSizesAndPositions ? Math.floor(this.width * this.panel.width)  : this.width; },
+  _height : function() { return this.panel.useRelativeSizesAndPositions ? Math.floor(this.height * this.panel.height) : this.height; },
   
   _font : function() { 
     var font = this.font || this.panel.font;
 
     return font;
   },
+  label:null,
 };
 
 /**#Interface.Slider - Widget
@@ -1003,7 +1008,7 @@ Interface.Knob = function() {
           y = this._y(),
           width = this._width(),
           height= this._height();
-      this.ctx.clearRect(x, y, this.radius * 2,this.radius * 2.5);
+      this.ctx.clearRect(x, y, this.radius * 2,this.radius * 2);
       this.ctx.strokeStyle = this._stroke();
       //this.ctx.lineWidth = 1.5;
 	
@@ -1640,7 +1645,27 @@ Interface.Menu = function() {
   Interface.extend(this, {
     _value: 0,
     options: [],
-    
+    size:15,
+    touchEvent: function(e) { // we have to simulate this since the actual event was cancelled to avoid scrolling behavior
+      if(this.hitTest(e)) {
+        var evt = document.createEvent('TouchEvent');
+        evt.initUIEvent('touchstart', true, true);
+        
+        evt.view = window;
+        evt.screenX = e.screenX;
+        evt.screenY = e.screenY;
+        evt.clientX = e.clientX;
+        evt.clientY = e.clientY; 
+        evt.bubbles = false;
+        evt.view = window;       
+        evt.altKey = false;
+        evt.ctrlKey = false;
+        evt.shiftKey = false;
+        evt.metaKey = false;
+
+        this.element.dispatchEvent(evt);
+      }
+    },
     _init : function() {
       this.element = $("<select>");
       
@@ -1651,8 +1676,15 @@ Interface.Menu = function() {
       
       this.element.css({
         position:'absolute',
-        left: this._x(),
-        top:  this._y(),
+        backgroundColor:this._background(),
+        color:this._stroke(),
+        left: this._x() + this.panel.x,
+        top:  this._y() + this.panel.y,
+        width: this._width(),
+        height: this._height(),
+        fontSize: this.size,
+        display:'block',
+        border: '1px solid ' + this._stroke(),
       });
       
       if(this.css) this.element.css( this.css );
@@ -1672,7 +1704,6 @@ Interface.Menu = function() {
       }else{
         this.element.val( this.options[0] );
       }
-      
       $(this.container).append(this.element);
     },   
   })
@@ -1683,25 +1714,70 @@ Interface.Menu.prototype = Interface.Widget;
 Interface.Label = function() {
   Interface.extend(this, {
     size:12,
-    weight:'normal',
+    style:'normal',
     hAlign:'center',
     vAlign:'middle',
+    font : 'sans-serif',
     
     draw : function() {
-      this.ctx.font = this.weight + ' ' + this.size + ' ' + this.font;
+      this.ctx.font = this.style + ' ' + this.size + 'px ' + this.font;
       this.ctx.textAlign = this.hAlign;
       this.ctx.textBaseline = this.vAlign;
-      this.ctx.fillStyle = this._fill();
-      this.ctx.font = this._font();
+      
+      var metrics = this.ctx.measureText(this.lastValue),
+          rect = {
+            x: 0,
+            y: this._y() - this.size / 2,
+            width: metrics.width,
+            height: this.size,
+          };
+
+      switch(this.hAlign) {
+        case 'center':
+          rect.x = this._x() - metrics.width / 2;
+          break;
+        case 'left':
+          rect.x = this._x();
+          break; 
+        case 'right':
+          rect.x = this._x() - metrics.width;
+          break;
+      }
+
+      this.ctx.clearRect(rect.x, rect.y, rect.width, rect.height);      
+      this.ctx.fillStyle = this._stroke();
       this.ctx.fillText(this.value, this._x(), this._y());
+      this.lastValue = this.value;
     },
   })
   .init( arguments[0] );
+  this.lastValue = this.value;
 };
 Interface.Label.prototype = Interface.Widget;
 
 Interface.TextField = function() {
   Interface.extend(this, {
+    size: 15, 
+    touchEvent: function(e) { // we have to simulate this since the actual event was cancelled to avoid scrolling behavior
+      if(this.hitTest(e)) {
+        var evt = document.createEvent('TouchEvent');
+        evt.initUIEvent('touchstart', true, true);
+        
+        evt.view = window;
+        evt.screenX = e.screenX;
+        evt.screenY = e.screenY;
+        evt.clientX = e.clientX;
+        evt.clientY = e.clientY; 
+        evt.bubbles = false;
+        evt.view = window;       
+        evt.altKey = false;
+        evt.ctrlKey = false;
+        evt.shiftKey = false;
+        evt.metaKey = false;
+
+        this.element.dispatchEvent(evt);
+      }
+    },
     _init : function() {
       this.element = $("<input>");
       
@@ -1710,8 +1786,15 @@ Interface.TextField = function() {
       }
       this.element.css({
         position:'absolute',
-        left: this._x(),
-        top:  this._y(),
+        backgroundColor:this._background(),
+        color:this._fill(),
+        left: this._x() + this.panel.x,
+        top:  this._y() + this.panel.y,
+        width: this._width(),
+        height: this._height(),
+        fontSize: this.size,
+        display:'block',
+        border: '1px solid ' + this._stroke(),
       });
       
       if(this.css) this.element.css( this.css );
@@ -1776,7 +1859,6 @@ Interface.MultiButton = function() {
     children: [],
     rows:     4,
     columns:  4,
-    requiresFocus:true,
     
     _init     : function() {
       var childWidth  = this.width  / this.columns;
@@ -1807,9 +1889,10 @@ Interface.MultiButton = function() {
       }
     },
     draw : function() { for(var i = 0; i < this.children.length; i++) this.children[i].draw(); },
-    onvaluechange : function(row, column, value) {},
+    onvaluechange : function(row, column, value) { console.log("VALUE")},
   })
   .init( arguments[0] );
+  this.requiresFocus = false;
 };
 Interface.MultiButton.prototype = Interface.Widget;
 
@@ -1837,7 +1920,7 @@ Interface.Accelerometer = function() {
       window.addEventListener('devicemotion', this.update, true);
       return this;
     },
-    unload : function() {
+    stop : function() {
       window.removeEventListener('devicemotion', this.update);
       return this;
     },
@@ -1882,7 +1965,7 @@ Interface.Orientation = function() {
       }, true);
       return this;
     },
-    unload : function() {
+    stop : function() {
       window.removeEventListener('deviceorientation');
     },
   })
@@ -1928,11 +2011,21 @@ Interface.Range = function() {
   	    //this.ctx.fillStyle = "rgba(0,255,0,.25)";
     		this.ctx.fillRect(rightHandlePos, y, this.handleSize, height);
       }
+      
+      this.ctx.strokeStyle = this._stroke();
+      this.ctx.strokeRect(x, y, width, height);    
     },
     changeValue : function( xOffset, yOffset ) {
       if(this.hasFocus || !this.requiresFocus) {
         var value = this.isVertical ? 1 - (yOffset / this._height()) : xOffset / this._width();
       	//var value = 1 - ((this.x + this.width) - val) / (this.width);
+        if(value < 0) {
+          value = 0;
+          // this.hasFocus = false;
+        }else if(value > 1) {
+          value = 1;
+          // this.hasFocus = false;
+        }
         
         //console.log(value);
         var range = this.max - this.min
@@ -1959,7 +2052,7 @@ Interface.Range = function() {
         // this.value = this.min + (this.max - this.min) * this._value;
         // 
         if(this.leftValue !== this.lastLeftValue || this.rightValue !== this.lastRightValue) {
-          if(this.onvaluechange) this.onvaluechange();
+          if(this.onvaluechange) this.onvaluechange(this.leftValue, this.rightValue);
           this.refresh();
           this.lastLeftValue = this.leftValue;
           this.lastRightValue = this.rightValue;          
