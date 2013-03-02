@@ -180,12 +180,15 @@ Interface.Panel = function() {
       _container = arguments.length >= 1 ? arguments[0].container : undefined;
 
   Interface.extend(this, {
+    type: 'Panel',
+    active: true,
     children:     [],
     shouldDraw :  [],
     fps : 30,
     useRelativeSizesAndPositions : true,
     labelSize: '12px',
     font:'normal 12px Helvetica',
+    serializeMe: ['fps', 'useRelativeSizesAndPositions', 'labelSize', 'font', 'background', 'fill', 'stroke', 'backgroundColor'],
     
     container: (function() {
       if(typeof _container === 'undefined') {
@@ -217,50 +220,49 @@ Interface.Panel = function() {
     canvas:  document.createElement('canvas'),
     
     touchEvent : function(event) {
-      for (var j = 0; j < event.changedTouches.length; j++){
-        var touch = event.changedTouches.item(j);		
+      if(self.active) {
+        for (var j = 0; j < event.changedTouches.length; j++){
+          var touch = event.changedTouches.item(j);		
         
-        for(var i = 0; i < self.children.length; i++) {
-          touch.x = touch.pageX - self.x;
-          touch.y = touch.pageY - self.y;
-          touch.type = event.type;
-          self.children[i].touchEvent(touch);
-        }
-    		//var breakCheck = this.events[event.type].call(this, touch);
+          for(var i = 0; i < self.children.length; i++) {
+            touch.x = touch.pageX - self.x;
+            touch.y = touch.pageY - self.y;
+            touch.type = event.type;
+            self.children[i].touchEvent(touch);
+          }
+      		//var breakCheck = this.events[event.type].call(this, touch);
 		
-        //if(breakCheck) break;
-    	}
-      event.preventDefault(); // HTML Elements must simulate touch events in their touchEvent method
+          //if(breakCheck) break;
+      	}
+        event.preventDefault(); // HTML Elements must simulate touch events in their touchEvent method
+      }
     },
     
     mouseEvent : function(e) {
-      if(e.type === 'mousedown') {
-        Interface.mouseDown = true;
-      }else if(e.type === 'mouseup') {
-        Interface.mouseDown = false;
-      }
+      if(self.active) {
+        if(e.type === 'mousedown') {
+          Interface.mouseDown = true;
+        }else if(e.type === 'mouseup') {
+          Interface.mouseDown = false;
+        }
       
-      var event = {
-        x : e.pageX - self.x,
-        y : e.pageY - self.y,
-        type: e.type,
-      }
+        var event = {
+          x : e.offsetX,// - self.x,
+          y : e.offsetY,// - self.y,
+          type: e.type,
+        }
+        //console.log("MOUSE", event, self.y, e.pageY, e.layerY, e.clientY, e );
       
-      for(var i = 0; i < self.children.length; i++) {
-        self.children[i].mouseEvent(event);
+        for(var i = 0; i < self.children.length; i++) {
+          self.children[i].mouseEvent(event);
+        }
       }
     },
     
     init : function() {
-      // remove margin from body if no container element is provided
-      // if(typeof _container === 'undefined') {
-      //   $(this.container).css({
-      //     'margin': '0px',
-      //   });
-      // }
       var offset = $(this.container).offset();
-      this.width  = offset.width;
-      this.height = offset.height;
+      this.width  = $(this.container).width();
+      this.height = $(this.container).height();
       this.x      = offset.left;
       this.y      = offset.top;
       
@@ -278,6 +280,7 @@ Interface.Panel = function() {
       
       this.ctx = this.canvas.getContext( '2d' );
       this.ctx.translate(0.5, 0.5);
+      this.ctx.lineWidth = 1;
       
       if(Interface.useTouch) {
         $(this.container).on( 'touchstart', this.touchEvent );
@@ -291,16 +294,49 @@ Interface.Panel = function() {
     },
     
     draw : function() {
-      for(var i = 0; i < this.shouldDraw.length; i++) {
-        this.shouldDraw[i].draw();
+      if(this.active) {
+        for(var i = 0; i < this.shouldDraw.length; i++) {
+          this.shouldDraw[i].draw();
+        }
+        this.shouldDraw.length = 0;
       }
-      this.shouldDraw.length = 0;
+    },
+    
+    getWidgetWithName: function( name ) {
+      for(var i = 0; i < this.children.length; i++) {
+        if( this.children[i].name === name) {
+          return this.children[i];
+        }
+      }
+    },
+    
+    redoBoundaries : function() {
+      var offset = $(this.container).offset();
+      this.width  = $(this.container).width();
+      this.height = $(this.container).height();
+      this.x      = offset.left;
+      this.y      = offset.top;
+      
+      if( isNaN(this.x) ) this.x = 0;
+      if( isNaN(this.y) ) this.y = 0;      
+      
+      $(this.canvas).attr({
+        'width':  this.width,
+        'height': this.height,
+      });
+      
+      this.ctx.translate(0.5, 0.5);
+      this.ctx.lineWidth = 1;
+      
+      this.refresh();
     },
     
     refresh: function() {
-      this.ctx.clearRect(0,0,this.canvas.width, this.canvas.height);
-      for(var i = 0; i < this.children.length; i++) {
-        this.children[i].draw();
+      if(this.active) {
+        this.ctx.clearRect(0,0,this.canvas.width, this.canvas.height);
+        for(var i = 0; i < this.children.length; i++) {
+          this.children[i].draw();
+        }
       }
     },
     
@@ -314,77 +350,124 @@ Interface.Panel = function() {
         widget.ctx =        this.ctx;
         
         this.children.push( widget );
-        if(widget._init) widget._init();
+        if(widget._init && !widget.added) widget._init();
         
         widget.draw();
+        widget.added = true;
+        
+        if(typeof widget.add === 'function') widget.add();
       }
     },
     
-    setBackgroundColor : function(color) {
-      $(this.container).css({ backgroundColor:color });
+    clear : function() {
+      this.ctx.clearRect( 0,0,this.width,this.height );
+      this.children.length = 0;
     },
+    remove: function(widget) {
+      this.ctx.clearRect( widget._x(), widget._y(), widget._width(), widget._height() );
+      
+      if(typeof widget.children !== 'undefined' && widget.type !== "XY") {
+        for(var i = 0; i < widget.children.length; i++) {
+          this.children.splice( this.children.indexOf(widget.children[i]) );
+        }
+      }else{
+        console.log(this.children, this.children.indexOf( widget ) );
+        if(this.children.indexOf( widget ) > -1) {
+          this.children.splice( this.children.indexOf( widget ) );
+          if(typeof widget.remove === 'function') widget.remove();
+        }
+        console.log("DELETED", this.children.indexOf( widget ) )
+      }
+      
+    },
+    
+    /*setBackgroundColor : function(color) {
+      this.backgroundColor = color;
+      $(this.container).css({ backgroundColor:color });
+    },*/
   });
   
   if(typeof arguments[0] !== 'undefined') Interface.extend(this, arguments[0]);
+  if(this.backgroundColor) this.setBackgroundColor( this.backgroundColor );
   
   this.init();
 
   this.timer = setInterval( function() { self.draw(); }, Math.round(1000 / this.fps) );
 
-  var background ='#000',
-      fill = '#333',
-      stroke = '#999',
-      self = this;
+  var childBackground ='#000',
+      childFill = '#333',
+      childStroke = '#999',
+      background = 'transparent',
+      self = this,
+      useRelativeSizesAndPositions = this.useRelativeSizesAndPositions;
       
   Object.defineProperties(this, {
+    'useRelativeSizesAndPositions' : {
+      get: function() { return useRelativeSizesAndPositions; },
+      set: function(val) {
+        if(val !== useRelativeSizesAndPositions) {
+          useRelativeSizesAndPositions = val;
+          if(val === false) {
+            for(var i = 0; i < this.children.length; i++) {
+              var child = this.children[i];
+              child.bounds = [
+                Math.round( child.x * this.width ),
+                Math.round( child.y * this.height ),
+                Math.round( child.width * this.width ),
+                Math.round( child.height * this.height ),
+              ];
+            }
+          }else{
+            for(var i = 0; i < this.children.length; i++) {
+              var child = this.children[i];
+              child.bounds = [
+                child.x / this.width,
+                child.y / this.height,
+                child.width / this.width,
+                child.height / this.height,
+              ];
+            }
+          }
+        } 
+        this.refresh();
+      },
+    },
     'background': {
       get: function() { return background; },
       set: function(val) { 
         background = val;
+        $(this.container).css({ backgroundColor:background });
+      },
+    },
+    'childBackground': {
+      get: function() { return childBackground; },
+      set: function(val) { 
+        childBackground = val;
         self.refresh();
       },
     },
-    'stroke': {
-      get: function() { return stroke; },
+    'childStroke': {
+      get: function() { return childStroke; },
       set: function(val) { 
-        stroke = val;
+        childStroke = val;
         self.refresh();
       },
     },
-    'fill': {
-      get: function() { return fill; },
+    'childFill': {
+      get: function() { return childFill; },
       set: function(val) { 
-        fill = val;
+        childFill = val;
         self.refresh();
       },
     }
   });
-  if(arguments[0].background) this.background = arguments[0].background;
-  if(arguments[0].fill) this.fill = arguments[0].fill;
-  if(arguments[0].stroke) this.stroke = arguments[0].stroke;    
+  if(arguments[0]) {
+    if(arguments[0].childBackground) this.childBackground = arguments[0].childBackground;
+    if(arguments[0].childFill) this.childFill = arguments[0].childFill;
+    if(arguments[0].childStroke) this.childStroke = arguments[0].childStroke;    
+  }
   Interface.panels.push( this );
 };
-
-var widgetDefaults = {
-  hasFocus      : false,
-  requiresFocus : true,
-  min           : 0,
-  max           : 1,
-  value         : 0,
-  lastValue     : null,
-  events : {
-    ontouchstart  : null,
-    ontouchmove   : null,
-    ontouchend    : null,
-    onmousedown   : null,
-    onmousemove   : null,
-    onmouseup     : null,
-    ontouchmousedown : null,
-    ontouchmousemove : null,    
-    ontouchmouseup : null,    
-    onvaluechange : null,
-  },
-}
 
 var convertMouseEvent = function(eventName) {
   switch(eventName) {
@@ -527,13 +610,39 @@ returns Number. Return the widget's width. Note that this method will always ret
 /**###Interface.Widget._height : method  
 returns Number. Return the widget's height. Note that this method will always return a size in pixels, even if the panel uses relative values to determine sizes and positions.
 **/
-
+var __widgetCount = 0;
+var widgetDefaults = {
+  hasFocus      : false,
+  requiresFocus : true,
+  min           : 0,
+  max           : 1,
+  value         : 0,
+  lastValue     : null,
+  name          : null,
+  events : {
+    ontouchstart  : null,
+    ontouchmove   : null,
+    ontouchend    : null,
+    onmousedown   : null,
+    onmousemove   : null,
+    onmouseup     : null,
+    ontouchmousedown : null,
+    ontouchmousemove : null,    
+    ontouchmouseup : null,    
+    onvaluechange : null,
+  },
+}
 Interface.Widget = {
-  init : function( options ) {        
+  init : function( options ) {
+    this.added = false;
     Interface.extend( this, widgetDefaults);
     
-    Interface.extend( this, options);
+    this.name = options.name || this.type + "_" + __widgetCount++;
+    this.target = "OSC";
+    this.key = "/" + this.name;   
     
+    Interface.extend( this, options);
+        
     if(this.bounds) {
       this.x = options.bounds[0];
       this.y = options.bounds[1];
@@ -550,6 +659,46 @@ Interface.Widget = {
     this.focusedTouches = [];
     
     if(this.value) this.setValue(this.value, true);
+    
+    var bounds = this.bounds || [this.x, this.y, this.width, this.height],
+        x = this.x, y = this.y, width = this.width, height = this.height, value = this.value;
+    
+    Object.defineProperties(this, {
+      bounds : {
+        configurable: true,
+        get : function() { return bounds; },
+        set : function(_bounds) { bounds = _bounds; this.x = bounds[0]; this.y = bounds[1]; this.width = bounds[2]; this.height = bounds[3]; }
+      },
+      x : {
+        configurable: true,        
+        get : function() { return x; },
+        set : function(val) { this.clear(); x = val; this.refresh(); },
+      },
+      y : {
+        configurable: true,        
+        get : function() { return y; },
+        set : function(val) { this.clear(); y = val; this.refresh(); },
+      },
+      width : {
+        configurable: true,        
+        get : function() { return width; },
+        set : function(val) { this.clear(); width = val; this.refresh(); },
+      },
+      height : {
+        configurable: true,        
+        get : function() { return height; },
+        set : function(val) { this.clear(); height = val; this.refresh(); },
+      },
+      /*value : {
+        configurable: true,        
+        get : function() { return value; },
+        set : function(val) { if(value !== val) { value = val; this.refresh(); } },
+      },*/        
+    });
+  },
+  
+  clear : function() {
+    this.panel.ctx.clearRect( this._x(), this._y(), this._width(), this._height() );
   },
   
   refresh : function() {
@@ -628,19 +777,23 @@ Interface.Widget = {
   
   sendTargetMessage : function() {
     if(this.target && this.key) {
-      if(this.target === Interface.OSC) {
-        if(typeof this.values === 'undefined') {
-          var tt = typeof this.value === 'string' ? 's' : 'f';
-          Interface.OSC.send(this.key, tt, [ this.value ] );
-        }else{
-          var tt = '';
-          for(var i = 0; i < this.values.length; i++) {
-            tt += typeof this.value === 'string' ? 's' : 'f';
+      if(this.target === "OSC") {
+        if(Interface.OSC) {
+          if(typeof this.values === 'undefined') {
+            var tt = typeof this.value === 'string' ? 's' : 'f';
+            Interface.OSC.send(this.key, tt, [ this.value ] );
+          }else{
+            var tt = '';
+            for(var i = 0; i < this.values.length; i++) {
+              tt += typeof this.value === 'string' ? 's' : 'f';
+            }
+            Interface.OSC.send( this.key, tt, this.values );
           }
-          Interface.OSC.send( this.key, tt, this.values );
         }
-      }else if(this.target === Interface.MIDI) {
-        Interface.MIDI.send( this.key[0],this.key[1],this.key[2], this.value )
+      }else if(this.target === "MIDI") {
+        if(Interface.MIDI) {
+          Interface.MIDI.send( this.key[0],this.key[1],this.key[2], this.value )
+        }
       }else{
         if(typeof this.target[this.key] === 'function') {
           this.target[this.key]( this.value );
@@ -651,9 +804,9 @@ Interface.Widget = {
     }  
   },
   
-  _background : function() { return this.background || this.panel.background; },
-  _stroke : function() { return this.stroke || this.panel.stroke; },
-  _fill : function() { return this.fill || this.panel.fill; },
+  _background : function() { return this.background || this.panel.childBackground; },
+  _stroke : function() { return this.stroke || this.panel.childStroke; },
+  _fill : function() { return this.fill || this.panel.childFill; },
   
   _x : function() { return this.panel.useRelativeSizesAndPositions ? Math.floor(this.x * this.panel.width)  : this.x; },
   _y : function() { return this.panel.useRelativeSizesAndPositions ? Math.floor(this.y * this.panel.height) : this.y; },
@@ -666,6 +819,12 @@ Interface.Widget = {
     return font;
   },
   label:null,
+  
+  _serializeMe : [
+    "background", "stroke", "fill", "x", "y", "width", "height", "value",
+    "label", "onmousedown", "onmousemove", "onmouseup", "ontouchmousedown", "ontouchmousemove", "ontouchmouseup",
+    "ontouchstart", "ontouchmove", "ontouchend", "onvaluechange", "name", "type", "target", "key"
+  ],
 };
 
 /**#Interface.Slider - Widget
@@ -686,7 +845,9 @@ Boolean. Whether or not the slider draws itself vertically or horizontally. Note
 
 Interface.Slider = function() {
   Interface.extend(this, {
+    type : 'Slider',
     isVertical : true,
+    serializeMe : ["isVertical"],
     
     draw : function() {
       var x = this._x(),
@@ -770,7 +931,10 @@ Boolean. The width of the rectangle indicating the current position of the cross
 **/
 Interface.Crossfader = function() {
   Interface.extend(this, {
+    type : 'Crossfader',    
     crossfaderWidth: 30,
+    serializeMe : ["crossfaderWidth"],
+    
     _value : .5,
     
     draw : function() {
@@ -844,7 +1008,10 @@ String. A text label to print in the center of the button.
 **/
 Interface.Button = function() {
   Interface.extend(this, {
+    type : 'Button',    
     _value: 0,
+    serializeMe : ["mode", "label"],
+    
     mode : 'toggle',
     isMouseOver : false,
     isTouchOver : false,
@@ -992,25 +1159,28 @@ Number. The size of the space in the middle of the knob.
 /**###Interface.Knob.centerZero : property
 Number. If true, the knob is centered at zero. Useful for panning knobs.
 **/
-/**###Interface.Knob.useRotation : property
+/**###Interface.Knob.usesRotation : property
 Number. If true, the knob value is determined by the slope of the touch or mouse event in relation to the knob. When false, the user simply presses the knob and moves their finger/mouse up and down to change its value.
 **/
 
-Interface.Knob = function() {
+Interface.Knob = function() {  
   Interface.extend(this, {
+    type : 'Knob',    
     _value: 0,
-    radius: 30,
-    knobBuffer:0,
+    serializeMe : ["usesRotation", "knobBuffer"],
+    knobBuffer:3,
     lastPosition: 0,
+    usesRotation: true,
     
     draw : function() {
       var x = this._x(),
           y = this._y(),
           width = this._width(),
-          height= this._height();
-      this.ctx.clearRect(x, y, this.radius * 2,this.radius * 2);
+          height= this._height(),
+          radius = width / 2;
+          
+      this.ctx.clearRect(x, y, radius * 2,radius * 2);
       this.ctx.strokeStyle = this._stroke();
-      //this.ctx.lineWidth = 1.5;
 	
     	this.ctx.fillStyle = this._background(); // draw background of widget first
     
@@ -1018,8 +1188,9 @@ Interface.Knob = function() {
       var angle1 = Math.PI * .4;
 
       this.ctx.beginPath();
-      this.ctx.arc(x + this.radius, y + this.radius, this.radius - this.knobBuffer, angle0, angle1, false);
-      this.ctx.arc(x + this.radius, y + this.radius, (this.radius - this.knobBuffer) * .3 , angle1, angle0, true);		
+      
+      this.ctx.arc(x + radius, y + radius, radius - this.knobBuffer, angle0, angle1, false);
+      this.ctx.arc(x + radius, y + radius, (radius - this.knobBuffer) * .3 , angle1, angle0, true);		
       this.ctx.closePath();
       this.ctx.fill();
           
@@ -1036,13 +1207,13 @@ Interface.Knob = function() {
           if(this._value > Math.PI * 1.8) this._value -= Math.PI * 1.8; // wrap around      
         
           this.ctx.beginPath();
-          this.ctx.arc(x + this.radius, y + this.radius, this.radius -  this.knobBuffer, angle3, angle4, (this._value < .5));
-          this.ctx.arc(x + this.radius, y + this.radius, (this.radius - this.knobBuffer) * 0.3,  angle4, angle3, (this._value > .5));
+          this.ctx.arc(x + radius, y + radius, radius -  this.knobBuffer, angle3, angle4, (this._value < .5));
+          this.ctx.arc(x + radius, y + radius, (radius - this.knobBuffer) * 0.3,  angle4, angle3, (this._value > .5));
           this.ctx.closePath();
           
           // if(this._value > .495 && this._value < .505) { // draw circle if centered?
           //     this.ctx.beginPath();
-          //     this.ctx.arc(this.x + this.radius , this.y + this.radius, (this.radius -  this.knobBuffer) * .3, 0, Math.PI*2, true); 
+          //     this.ctx.arc(this.x + radius , this.y + radius, (radius -  this.knobBuffer) * .3, 0, Math.PI*2, true); 
           //     this.ctx.closePath();
           // }
           this.ctx.fill();
@@ -1057,19 +1228,19 @@ Interface.Knob = function() {
           this.ctx.beginPath();
           
           if(!this.isInverted) {
-              this.ctx.arc(x + this.radius, y + this.radius, this.radius - this.knobBuffer, angle0, angle2, false);
-              this.ctx.arc(x + this.radius, y + this.radius, (this.radius - this.knobBuffer) * .3, angle2, angle0, true);
+              this.ctx.arc(x + radius, y + radius, radius - this.knobBuffer, angle0, angle2, false);
+              this.ctx.arc(x + radius, y + radius, (radius - this.knobBuffer) * .3, angle2, angle0, true);
           } else {
-              this.ctx.arc(x + this.radius, y + this.radius, this.radius - this.knobBuffer, angle1, angle2 ,true);
-              this.ctx.arc(x + this.radius, y + this.radius, (this.radius - this.knobBuffer) * .3, angle2, angle1, false);
+              this.ctx.arc(x + radius, y + radius, radius - this.knobBuffer, angle1, angle2 ,true);
+              this.ctx.arc(x + radius, y + radius, (radius - this.knobBuffer) * .3, angle2, angle1, false);
           }
           this.ctx.closePath();
           this.ctx.fill();
       }
       
       this.ctx.beginPath();
-      this.ctx.arc(x + this.radius, y + this.radius, this.radius - this.knobBuffer, angle0, angle1, false);
-      this.ctx.arc(x + this.radius, y + this.radius, (this.radius - this.knobBuffer) * .3 , angle1, angle0, true);		
+      this.ctx.arc(x + radius, y + radius, radius - this.knobBuffer, angle0, angle1, false);
+      this.ctx.arc(x + radius, y + radius, (radius - this.knobBuffer) * .3 , angle1, angle0, true);		
       this.ctx.closePath();
       
       this.ctx.stroke();
@@ -1079,7 +1250,7 @@ Interface.Knob = function() {
         this.ctx.textBaseline = 'middle';
         this.ctx.textAlign = 'center';
         this.ctx.font = this._font();
-        this.ctx.fillText(this.label, x + this.radius, y + this.radius * 2.25);
+        this.ctx.fillText(this.label, x + radius, y + radius * 2.25);
       }
     },
     
@@ -1110,15 +1281,16 @@ Interface.Knob = function() {
     
     changeValue : function( xOffset, yOffset ) {
       if(this.hasFocus || !this.requiresFocus) {
+        var radius = this._width() / 2;
         this.lastValue = this.value;
 
         if(!this.usesRotation) {
           if (this.lastPosition != -1) { 
-            this._value -= (yOffset - this.lastPosition) / (this.radius * 2);
+            this._value -= (yOffset - this.lastPosition) / (radius * 2);
           }
         }else{
-            var xdiff = ((this.radius)) - xOffset;
-            var ydiff = ((this.radius)) - yOffset;
+            var xdiff = radius - xOffset;
+            var ydiff = radius - yOffset;
             var angle = Math.PI + Math.atan2(ydiff, xdiff);
             this._value =  ((angle + (Math.PI * 1.5)) % (Math.PI * 2)) / (Math.PI * 2);
             
@@ -1148,8 +1320,8 @@ Interface.Knob = function() {
     },
     
     hitTest : function(e) {
-      if(e.x >= this._x() && e.x < this._x() + this.radius * 2) {
-      	if(e.y >= this._y() && e.y < this._y()  + this.radius * 2) {  
+      if( e.x >= this._x() && e.x < this._x() + this._width() ) {
+      	if( e.y >= this._y() && e.y < this._y()  + this._width() ) {  
       		return true;
       	} 
       }
@@ -1172,15 +1344,21 @@ Interface.Knob = function() {
     touchend   : function(e) {},
     
     _init : function() {
-      if(this.panel.useRelativeSizesAndPositions && this.radius < 1) {
-        this.radius = this.panel.width * this.radius;
-        this.draw();
-      }
+      var width = this.width,
+          height = this.height;
+      Object.defineProperty(this, 'width', {
+        configurable: true,
+        get : function() { return width; },
+        set : function(_width) { this.clear(); width = height = _width; this.refresh(); }
+      });
+      Object.defineProperty(this, 'height', {
+        configurable: true,
+        get : function() { return height; },
+        set : function(_height) { height = _height; }
+      });
     },
   })
   .init( arguments[0] );
-  
-
 };
 Interface.Knob.prototype = Interface.Widget;
 
@@ -1233,7 +1411,9 @@ Interface.XY = function() {
       cDot = 0;
   
   Interface.extend(this, {
+    type : 'XY',    
     _value            : 0,
+    serializeMe       : ["childWidth", "childHeight", "numChildren", "usePhysics", "values", "friction", "maxVelocity", "detectCollisions", "fps"],
     childWidth        : 25,
     childHeight       : 25,
     children          : [],
@@ -1245,6 +1425,17 @@ Interface.XY = function() {
     maxVelocity       : 10,
     detectCollisions  : true,
     touchCount        : 0,
+    timer             : null,
+    fps               : 30,
+    
+    remove: function() { this.stopAnimation(); },
+    add : function() { if(this.usePhysics) this.startAnimation(); },
+    startAnimation : function() { 
+      if(this.timer === null) { 
+        this.timer = setInterval( function() { self.refresh(); }, (1 / this.fps) * 1000); 
+      } 
+    },
+    stopAnimation : function() { clearInterval(this.timer); this.timer = null; },
     
     animate : function() {
       var x       = this._x(),
@@ -1362,10 +1553,8 @@ Interface.XY = function() {
           width = this._width(),
           height= this._height();
           
-      if(this.usePhysics) {
-        this.animate();
-      }
-
+      if(this.usePhysics) this.animate();
+      
       this.ctx.fillStyle = this._background();
       //this.ctx.fillRect( this.x, this.y, this.width, this.height );
       
@@ -1601,18 +1790,35 @@ Interface.XY = function() {
       //if(!found) console.log("NOT FOUND", touch.identifier);
     },
     
-    startAnimation : function() { this.timer = setInterval( function() { self.refresh(); }, 30); },
-    stopAnimation : function() { clearInterval(this.timer); },
-    
     _init : function() { 
       this.makeChildren();
-      if(this.usePhysics) this.startAnimation();
      },
   })
   .init( arguments[0] );
   
   this.requiresFocus = false; // is a widget default... must set after init.
-  this.half = this.childWidth / 2;  
+  this.half = this.childWidth / 2;
+  
+  var numChildren = this.numChildren;
+  Object.defineProperty(this, 'numChildren', {
+    get : function() { return numChildren; },
+    set : function(_numChildren) { 
+      var temp = _numChildren;
+      while(_numChildren > numChildren) {
+        this.children.push({ id:this.children.length, x:Math.random() * this._width(), y:Math.random() * this._height(), vx:0, vy:0, collideFlag:false, isActive:false, lastPosition:null, });
+        this.values.push({ x:null, y: null});
+        numChildren++;
+      }
+      
+      while(_numChildren < numChildren) {
+        this.chidren.pop();
+        this.values.pop();
+        numChildren--;
+      }
+      this.refresh();
+      numChildren = _numChildren; 
+    }
+  });
 };
 Interface.XY.prototype = Interface.Widget;
 
@@ -1643,12 +1849,15 @@ param **oldValue** Number or String. The previous menu value.
 **/
 Interface.Menu = function() {
   Interface.extend(this, {
+    type : 'Menu',    
     _value: 0,
+    serializeMe : ["options", "fontSize"],
     options: [],
-    size:15,
+    fontSize:15,
     touchEvent: function(e) { // we have to simulate this since the actual event was cancelled to avoid scrolling behavior
       if(this.hitTest(e)) {
-        var evt = document.createEvent('TouchEvent');
+        e.stopPropagation();
+        /*var evt = document.createEvent('TouchEvent');
         evt.initUIEvent('touchstart', true, true);
         
         evt.view = window;
@@ -1663,7 +1872,7 @@ Interface.Menu = function() {
         evt.shiftKey = false;
         evt.metaKey = false;
 
-        this.element.dispatchEvent(evt);
+        this.element.dispatchEvent(evt);*/
       }
     },
     _init : function() {
@@ -1682,7 +1891,7 @@ Interface.Menu = function() {
         top:  this._y() + this.panel.y,
         width: this._width(),
         height: this._height(),
-        fontSize: this.size,
+        fontSize: this.fontSize,
         display:'block',
         border: '1px solid ' + this._stroke(),
       });
@@ -1713,10 +1922,12 @@ Interface.Menu.prototype = Interface.Widget;
 
 Interface.Label = function() {
   Interface.extend(this, {
+    type : 'Label',    
+    serializeMe : ["size", "style", "hAlign", "vAlign", "font"],
     size:12,
     style:'normal',
     hAlign:'center',
-    vAlign:'middle',
+    vAlign:'top',
     font : 'sans-serif',
     
     draw : function() {
@@ -1731,22 +1942,55 @@ Interface.Label = function() {
             width: metrics.width,
             height: this.size,
           };
-
+      
+      var x, y;
       switch(this.hAlign) {
         case 'center':
-          rect.x = this._x() - metrics.width / 2;
+          x = (this._x() + this._width() / 2)
+          rect.x = x - metrics.width / 2;
           break;
         case 'left':
-          rect.x = this._x();
+          x = this._x();
+          rect.x = x;
           break; 
         case 'right':
-          rect.x = this._x() - metrics.width;
+          x = this._x() + this._width();
+          rect.x =  x - metrics.width;
           break;
       }
+      switch(this.vAlign) {
+        case 'middle':
+          y = (this._y() + this._height() / 2)
+          rect.y = y - metrics.height / 2;
+          break;
+        case 'top':
+          y = this._y();
+          rect.y = y;
+          break; 
+        case 'bottom':
+          y = this._y() + this._height();
+          rect.y =  y - metrics.height;
+          break;
+      }
+      this.ctx.clearRect(rect.x, rect.y, rect.width, rect.height * 2);      
+      
+      this.ctx.save();
+      
+      this.ctx.beginPath();
+      
+      this.ctx.moveTo(this._x(), this._y());
+      this.ctx.lineTo(this._x() + this._width(), this._y());
+      this.ctx.lineTo(this._x() + this._width(), this._y() + this._height());
+      this.ctx.lineTo(this._x(), this._y() + this._height());
+      this.ctx.lineTo(this._x(), this._y());
+      this.ctx.closePath();
+      
+      this.ctx.clip();
 
-      this.ctx.clearRect(rect.x, rect.y, rect.width, rect.height);      
       this.ctx.fillStyle = this._stroke();
-      this.ctx.fillText(this.value, this._x(), this._y());
+      this.ctx.fillText(this.value, x, y);
+      
+      this.ctx.restore();
       this.lastValue = this.value;
     },
   })
@@ -1757,7 +2001,9 @@ Interface.Label.prototype = Interface.Widget;
 
 Interface.TextField = function() {
   Interface.extend(this, {
-    size: 15, 
+    type : 'TextField',    
+    serializeMe : ["fontSize"],
+    fontSize: 15, 
     touchEvent: function(e) { // we have to simulate this since the actual event was cancelled to avoid scrolling behavior
       if(this.hitTest(e)) {
         var evt = document.createEvent('TouchEvent');
@@ -1792,7 +2038,7 @@ Interface.TextField = function() {
         top:  this._y() + this.panel.y,
         width: this._width(),
         height: this._height(),
-        fontSize: this.size,
+        fontSize: this.fontSize,
         display:'block',
         border: '1px solid ' + this._stroke(),
       });
@@ -1818,12 +2064,25 @@ Interface.TextField.prototype = Interface.Widget;
 
 Interface.MultiSlider = function() {
   Interface.extend(this, {
+    type : 'MultiSlider',    
     isVertical : true,
+    serializeMe : ["isVertical", "count", "values"],
     children: [],
     values: [],
+    count:16,
+
     _init     : function() {
-      var sliderWidth = this.width / this.count;
+      this.makeChildren();
+    },
+    makeChildren: function() {
+      if(this.children.length > 0) {
+        for(var i = 0; i < this.children.length; i++) {
+          this.panel.remove( this.children[i] );
+        }
+        this.children.length = 0;
+      }
       
+      var sliderWidth = this.width / this.count;
       for(var i = 0; i < this.count; i++) {
         var slider = new Interface.Slider({
           x : this.x + i * sliderWidth,
@@ -1847,20 +2106,79 @@ Interface.MultiSlider = function() {
         this.panel.add( slider );
       }
     },
-  onvaluechange : function(id, value) {},
+    move : function() {
+      var sliderWidth = this.width / this.count;
+      
+      for(var i = 0; i < this.count; i++) {
+        var slider = this.children[i];
+        slider.x = this.x + i * sliderWidth;
+        slider.y = this.y;
+        slider.width = sliderWidth;
+        slider.height = this.height;
+      }
+    },
+    onvaluechange : function(id, value) {},
   })
   .init( arguments[0] );
+  
+  var x = this.x,
+      y = this.y,
+      width = this.width,
+      height = this.height,
+      bounds = [x,y,width,height],
+      count = this.count;
+  
+  delete this.bounds;
+
+  Object.defineProperties(this, {
+    x : {
+      get : function() { return x; },
+      set: function(_x) { x = _x; this.move(); }
+    },
+    y : {
+      get : function() { return y; },
+      set: function(_y) { y = _y; this.move(); }
+    },
+    width : {
+      get : function() { return width; },
+      set: function(_width) { width = _width; this.move(); }
+    },
+    height : {
+      get : function() { return height; },
+      set: function(_height) { height = _height; this.move(); }
+    },    
+    bounds : {
+      get : function() { return bounds; },
+      set : function(_bounds) { bounds = _bounds; x = bounds[0]; y = bounds[1]; width = bounds[2]; height = bounds[3]; this.move() }
+    },
+    count : {
+      get : function() { return count; },
+      set : function(_count) { count = _count; this.makeChildren(); },
+    }
+  })
 };
 Interface.MultiSlider.prototype = Interface.Widget;
 
 Interface.MultiButton = function() {
   Interface.extend(this, {
+    type : 'MultiButton',    
     mode:     'toggle',
+    serializeMe : ["mode", "rows", "columns", "requiresFocus"],
     children: [],
-    rows:     4,
-    columns:  4,
+    rows:     8,
+    columns:  8,
     
     _init     : function() {
+      this.makeChildren();
+    },
+    makeChildren : function() {
+      if(this.children.length > 0) {
+        for(var i = 0; i < this.children.length; i++) {
+          this.panel.remove( this.children[i] );
+        }
+        this.children.length = 0;
+      }
+      
       var childWidth  = this.width  / this.columns;
       var childHeight = this.height / this.rows;      
       
@@ -1889,10 +2207,68 @@ Interface.MultiButton = function() {
       }
     },
     draw : function() { for(var i = 0; i < this.children.length; i++) this.children[i].draw(); },
-    onvaluechange : function(row, column, value) { console.log("VALUE")},
+    onvaluechange : function(row, column, value) { },
+    move : function() {
+      var childWidth  = this.width  / this.columns;
+      var childHeight = this.height / this.rows;      
+      
+      for(var i = 0; i < this.rows; i++) {
+        for(var j = 0; j < this.columns; j++) {
+          var id = (i * this.columns) + j;
+          var child = this.children[ id ];
+          child.x = this.x + j * childWidth,
+          child.y = this.y + i * childHeight,
+          child.width  = childWidth;
+          child.height = childHeight;
+        }
+      }
+    },
   })
   .init( arguments[0] );
+  
   this.requiresFocus = false;
+  var x = this.x,
+      y = this.y,
+      width = this.width,
+      height = this.height,
+      bounds = [x,y,width,height]
+      rows = this.rows,
+      columns = this.columns;
+  
+  delete this.bounds;
+
+  Object.defineProperties(this, {
+    x : {
+      get : function() { return x; },
+      set: function(_x) { x = _x; this.move(); }
+    },
+    y : {
+      get : function() { return y; },
+      set: function(_y) { y = _y; this.move(); }
+    },
+    width : {
+      get : function() { return width; },
+      set: function(_width) { width = _width; this.move(); }
+    },
+    height : {
+      get : function() { return height; },
+      set: function(_height) { height = _height; this.move(); }
+    },    
+    bounds : {
+      get : function() { return bounds; },
+      set : function(_bounds) { bounds = _bounds; x = bounds[0]; y = bounds[1]; width = bounds[2]; height = bounds[3]; this.move() }
+    },
+    rows : {
+      get : function() { return rows; },
+      set : function(_rows) { rows = _rows; this.makeChildren(); },
+    },
+    columns : {
+      get : function() { return columns; },
+      set : function(_columns) { columns = _columns; this.makeChildren(); },
+    },
+  });
+  
+  Interface.defineChildProperties(this, ['mode', 'background', 'fill', 'stroke']);
 };
 Interface.MultiButton.prototype = Interface.Widget;
 
@@ -1901,7 +2277,9 @@ Interface.Accelerometer = function() {
       metersPerSecondSquared = 9.80665;
   
   Interface.extend(this, {
-    name:"Accelerometer",
+    type:"Accelerometer",
+    
+    serializeMe : ["delay"],
     delay : 100, // measured in ms
     min: 0,
     max: 1,
@@ -1943,6 +2321,8 @@ Interface.Orientation = function() {
   var _self = this;
   
   Interface.extend(this, {
+    type:"Orientation",
+    serializeMe : ["delay"],
     delay : 100, // measured in ms
     update : function(orientation) {
       _self.roll   = _self.min + ((90 + orientation.gamma)  /  180 ) * _self.max ;
@@ -1975,12 +2355,11 @@ Interface.Orientation.prototype = Interface.Widget;
 
 Interface.Range = function() {
   Interface.extend(this, {
-    isVertical: false,
+    type:"Range",
+    serializeMe : ["handleSize"],    
     handleSize: 20,
-    leftValue:0,
-    rightValue:1,
-    _leftValue:0,
-    _rightValue:1,
+    value:[0,1],
+    _value:[0,1],
     draw : function() {
       var x = this._x(),
           y = this._y(),
@@ -1990,27 +2369,20 @@ Interface.Range = function() {
       this.ctx.fillStyle = this._background();
       this.ctx.clearRect(x, y, width, height);    
         
-      if(this.isVertical) {
-    		if(this.prevValue > this.value) {
-    		  this.ctx.clearRect(x, (y + height) - (prevPercent * height) - 1, width, (prevPercent * height) - (percent * height) + 1);
-    		}
-        this.ctx.fillRect(x, (y + height) - (percent * height), width, percent * height);
-      }else{
-    		var rightHandlePos = x + (this._rightValue * width) - this.handleSize;
-    		var leftHandlePos  = x + this._leftValue  * width;
+  		var rightHandlePos = x + (this._value[1] * width) - this.handleSize;
+  		var leftHandlePos  = x + this._value[0]  * width;
 		    
-  	    this.ctx.fillStyle = this._background();
-        this.ctx.fillRect(x, y, width, height);
+	    this.ctx.fillStyle = this._background();
+      this.ctx.fillRect(x, y, width, height);
         
-  	    this.ctx.fillStyle = this._fill();
-        this.ctx.fillRect(leftHandlePos, y, rightHandlePos - leftHandlePos, height);
+	    this.ctx.fillStyle = this._fill();
+      this.ctx.fillRect(leftHandlePos, y, rightHandlePos - leftHandlePos, height);
 		
-  	    this.ctx.fillStyle = this._stroke();
-    		this.ctx.fillRect(leftHandlePos, y, this.handleSize, height);
+	    this.ctx.fillStyle = this._stroke();
+  		this.ctx.fillRect(leftHandlePos, y, this.handleSize, height);
 		
-  	    //this.ctx.fillStyle = "rgba(0,255,0,.25)";
-    		this.ctx.fillRect(rightHandlePos, y, this.handleSize, height);
-      }
+	    //this.ctx.fillStyle = "rgba(0,255,0,.25)";
+  		this.ctx.fillRect(rightHandlePos, y, this.handleSize, height);
       
       this.ctx.strokeStyle = this._stroke();
       this.ctx.strokeRect(x, y, width, height);    
@@ -2018,44 +2390,29 @@ Interface.Range = function() {
     changeValue : function( xOffset, yOffset ) {
       if(this.hasFocus || !this.requiresFocus) {
         var value = this.isVertical ? 1 - (yOffset / this._height()) : xOffset / this._width();
-      	//var value = 1 - ((this.x + this.width) - val) / (this.width);
+        
         if(value < 0) {
           value = 0;
-          // this.hasFocus = false;
         }else if(value > 1) {
           value = 1;
-          // this.hasFocus = false;
         }
-        
-        //console.log(value);
+
         var range = this.max - this.min
-      	if(Math.abs( value - this._leftValue) < Math.abs( value - this._rightValue)) {
-          this._leftValue = value;
-      		this.leftValue = this.min + range * value;
+      	if(Math.abs( value - this._value[0]) < Math.abs( value - this._value[1])) {
+          this._value[0] = value;
+      		this.value[0] = this.min + range * value;
       	}else{
-          this._rightValue = value;
-      		this.rightValue = this.min + range * value;
+          this._value[1] = value;
+      		this.value[1] = this.min + range * value;
       	}
         
         this.refresh();
-        //this._value = this.isVertical ? 1 - (yOffset / this.height) : xOffset / this.width;
-        //this.leftValue = this.isVertical ? 1 - (yOffset / this.height) : xOffset / this.width;
-        
-        // if(this._value < 0) {
-        //   this._value = 0;
-        //   // this.hasFocus = false;
-        // }else if(this._value > 1) {
-        //   this._value = 1;
-        //   // this.hasFocus = false;
-        // }
-        // 
-        // this.value = this.min + (this.max - this.min) * this._value;
-        // 
-        if(this.leftValue !== this.lastLeftValue || this.rightValue !== this.lastRightValue) {
+
+        if(this.value[0]!== this.lastLeftValue || this.value[1] !== this.lastRightValue) {
           if(this.onvaluechange) this.onvaluechange(this.leftValue, this.rightValue);
           this.refresh();
-          this.lastLeftValue = this.leftValue;
-          this.lastRightValue = this.rightValue;          
+          this.lastLeftValue = this.value[0];
+          this.lastRightValue = this.value[1];          
         }
       }     
     },
@@ -2071,3 +2428,21 @@ Interface.Range = function() {
   .init( arguments[0] );
 }
 Interface.Range.prototype = Interface.Widget;
+
+Interface.defineChildProperties = function(widget, properties) {
+  for(var j = 0; j < properties.length; j++) {
+    (function() {
+      var key = properties[j];
+      var val = widget[key]
+      Object.defineProperty(widget, key, {
+        get: function() { return val; },
+        set: function(_val) {
+          val = _val;
+          for(var i = 0; i < widget.children.length; i++) {
+            widget.children[i][key] = val;
+          }
+        }
+      });
+    })();
+  }
+};
