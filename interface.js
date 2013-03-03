@@ -2067,56 +2067,67 @@ Interface.MultiSlider = function() {
     type : 'MultiSlider',    
     isVertical : true,
     serializeMe : ["isVertical", "count", "values"],
-    children: [],
     values: [],
+    _values: [],
     count:16,
 
-    _init     : function() {
-      this.makeChildren();
+    draw : function() {
+      var x = this._x(),
+          y = this._y(),
+          width = this._width(),
+          height= this._height(),
+          sliderWidth = width / this.count;
+          
+      this.ctx.fillStyle = this._background();
+      this.ctx.fillRect( x, y, width, height );
+      
+      this.ctx.fillStyle = this._fill();
+      this.ctx.strokeStyle = this._stroke();
+            
+      for(var i = 0; i < this.count; i++) {
+        var sliderX = i * sliderWidth + x;
+
+        this.ctx.fillRect( sliderX, y + height - this._values[i] * height, sliderWidth, this._values[i] * height);
+        this.ctx.strokeRect( sliderX, y, sliderWidth, height );         
+      }      
     },
-    makeChildren: function() {
-      if(this.children.length > 0) {
-        for(var i = 0; i < this.children.length; i++) {
-          this.panel.remove( this.children[i] );
+
+    changeValue : function( xOffset, yOffset ) {
+      if(this.hasFocus || !this.requiresFocus) {
+        var width   = this._width(),
+            sliderWidth = width / this.count,
+            sliderHit = Math.floor( xOffset / sliderWidth )
+            _value = 0;
+        
+        _value = 1 - ( yOffset / this._height() );
+        
+        if(_value < 0) {
+          _value = 0;
+          // this.hasFocus = false;
+        }else if(_value > 1) {
+          _value = 1;
+          // this.hasFocus = false;
         }
-        this.children.length = 0;
-      }
-      
-      var sliderWidth = this.width / this.count;
-      for(var i = 0; i < this.count; i++) {
-        var slider = new Interface.Slider({
-          x : this.x + i * sliderWidth,
-          y : this.y,
-          width: sliderWidth,
-          height:this.height,
-          requiresFocus: false,
-          parent:this,
-          colors:[this.background, this.fill, this.stroke],
-          onvaluechange: (function() {
-            var sliderNum = i;
-                  
-            return function() {
-              this.parent.onvaluechange(sliderNum, this.value);
-            };
-          })(),
-        });
         
-        this.children.push( slider );
+        this.values[ sliderHit ] = this.min + (this.max - this.min) * _value;
+        this._values[ sliderHit ] = _value;
         
-        this.panel.add( slider );
-      }
+        //if(this.value !== this.lastValue) {
+        this.sendTargetMessage();
+        if(this.onvaluechange) this.onvaluechange();
+        this.refresh();
+          //this.lastValue = this.value;
+          //}
+      }     
     },
-    move : function() {
-      var sliderWidth = this.width / this.count;
-      
-      for(var i = 0; i < this.count; i++) {
-        var slider = this.children[i];
-        slider.x = this.x + i * sliderWidth;
-        slider.y = this.y;
-        slider.width = sliderWidth;
-        slider.height = this.height;
-      }
-    },
+    
+    mousedown : function(e, hit) { if(hit && Interface.mouseDown) this.changeValue( e.x - this._x(), e.y - this._y() ); },
+    mousemove : function(e, hit) { if(hit && Interface.mouseDown) this.changeValue( e.x - this._x(), e.y - this._y() ); },
+    mouseup   : function(e, hit) { if(hit && Interface.mouseDown) this.changeValue( e.x - this._x(), e.y - this._y() ); },    
+    
+    touchstart : function(e, hit) { if(hit) this.changeValue( e.x - this._x(), e.y - this._y() ); },
+    touchmove  : function(e, hit) { if(hit) this.changeValue( e.x - this._x(), e.y - this._y() ); },
+    touchend   : function(e, hit) { if(hit) this.changeValue( e.x - this._x(), e.y - this._y() ); },  
     onvaluechange : function(id, value) {},
   })
   .init( arguments[0] );
@@ -2133,27 +2144,27 @@ Interface.MultiSlider = function() {
   Object.defineProperties(this, {
     x : {
       get : function() { return x; },
-      set: function(_x) { x = _x; this.move(); }
+      set: function(_x) { x = _x; this.refresh(); }
     },
     y : {
       get : function() { return y; },
-      set: function(_y) { y = _y; this.move(); }
+      set: function(_y) { y = _y; this.refresh(); }
     },
     width : {
       get : function() { return width; },
-      set: function(_width) { width = _width; this.move(); }
+      set: function(_width) { width = _width; this.refresh(); }
     },
     height : {
       get : function() { return height; },
-      set: function(_height) { height = _height; this.move(); }
+      set: function(_height) { height = _height; this.refresh(); }
     },    
     bounds : {
       get : function() { return bounds; },
-      set : function(_bounds) { bounds = _bounds; x = bounds[0]; y = bounds[1]; width = bounds[2]; height = bounds[3]; this.move() }
+      set : function(_bounds) { bounds = _bounds; x = bounds[0]; y = bounds[1]; width = bounds[2]; height = bounds[3]; this.refresh(); }
     },
     count : {
       get : function() { return count; },
-      set : function(_count) { count = _count; this.makeChildren(); },
+      set : function(_count) { count = _count; this.refresh(); },
     }
   })
 };
