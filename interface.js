@@ -2114,7 +2114,7 @@ Interface.MultiSlider = function() {
         
         //if(this.value !== this.lastValue) {
         this.sendTargetMessage();
-        if(this.onvaluechange) this.onvaluechange();
+        if(this.onvaluechange) this.onvaluechange(sliderHit, this.values[ sliderHit ]);
         this.refresh();
           //this.lastValue = this.value;
           //}
@@ -2228,7 +2228,8 @@ Interface.MultiButton = function() {
                 
           if(this.values[ buttonHit ] !== this.lastValues[ buttonHit ] || this.mode === 'contact') {
             this.sendTargetMessage();
-            if(this.onvaluechange) this.onvaluechange();
+            if(this.onvaluechange) this.onvaluechange( rowHit, columnHit, this.values[ buttonHit ]);
+
             this.draw();
             this.lastValues[ buttonHit ] = this.values[ buttonHit ];
             
@@ -2394,8 +2395,8 @@ Interface.Range = function() {
     type:"Range",
     serializeMe : ["handleSize"],    
     handleSize: 20,
-    value:[0,1],
-    _value:[0,1],
+    values:[0,1],
+    _values:[0,1],
     draw : function() {
       var x = this._x(),
           y = this._y(),
@@ -2405,8 +2406,8 @@ Interface.Range = function() {
       this.ctx.fillStyle = this._background();
       this.ctx.clearRect(x, y, width, height);    
         
-  		var rightHandlePos = x + (this._value[1] * width) - this.handleSize;
-  		var leftHandlePos  = x + this._value[0]  * width;
+  		var rightHandlePos = x + (this._values[1] * width) - this.handleSize;
+  		var leftHandlePos  = x + this._values[0]  * width;
 		    
 	    this.ctx.fillStyle = this._background();
       this.ctx.fillRect(x, y, width, height);
@@ -2434,21 +2435,21 @@ Interface.Range = function() {
         }
 
         var range = this.max - this.min
-      	if(Math.abs( value - this._value[0]) < Math.abs( value - this._value[1])) {
-          this._value[0] = value;
-      		this.value[0] = this.min + range * value;
+      	if(Math.abs( value - this._values[0]) < Math.abs( value - this._values[1])) {
+          this._values[0] = value;
+      		this.values[0] = this.min + range * value;
       	}else{
-          this._value[1] = value;
-      		this.value[1] = this.min + range * value;
+          this._values[1] = value;
+      		this.values[1] = this.min + range * value;
       	}
         
         this.refresh();
-
-        if(this.value[0]!== this.lastLeftValue || this.value[1] !== this.lastRightValue) {
-          if(this.onvaluechange) this.onvaluechange(this.leftValue, this.rightValue);
+        
+        if(this.values[0] !== this.lastLeftValue || this.values[1] !== this.lastRightValue) {
+          if(this.onvaluechange) this.onvaluechange(this.values[0], this.values[1]);
           this.refresh();
-          this.lastLeftValue = this.value[0];
-          this.lastRightValue = this.value[1];          
+          this.lastLeftValue = this.values[0];
+          this.lastRightValue = this.values[1];          
         }
       }     
     },
