@@ -2173,67 +2173,94 @@ Interface.MultiSlider.prototype = Interface.Widget;
 Interface.MultiButton = function() {
   Interface.extend(this, {
     type : 'MultiButton',    
-    mode:     'toggle',
+    mode : 'toggle',
     serializeMe : ["mode", "rows", "columns", "requiresFocus"],
-    children: [],
     rows:     8,
+    values: [],
+    _values: [],
+    lastValues: [],
+    mouseOver : null,
     columns:  8,
     
-    _init     : function() {
-      this.makeChildren();
-    },
-    makeChildren : function() {
-      if(this.children.length > 0) {
-        for(var i = 0; i < this.children.length; i++) {
-          this.panel.remove( this.children[i] );
-        }
-        this.children.length = 0;
-      }
+    draw : function() { 
+      var x = this._x(),
+          y = this._y(),
+          width = this._width(),
+          height= this._height(),
+          childWidth  = width  / this.columns,
+          childHeight = height / this.rows;   
       
-      var childWidth  = this.width  / this.columns;
-      var childHeight = this.height / this.rows;      
-      
+      this.ctx.strokeStyle = this._stroke();
+        
       for(var i = 0; i < this.rows; i++) {
         for(var j = 0; j < this.columns; j++) {
-          var button = new Interface.Button({
-            x : this.x + j * childWidth,
-            y : this.y + i * childHeight,
-            width: childWidth,
-            height:childHeight,
-            parent:this,
-            requiresFocus: this.requiresFocus,
-            onvaluechange: (function() {
-              var row = i, col = j;
-                  
-              return function() {
-                this.parent.onvaluechange(row, col, this.value);
-              };
-            })(),
-          });
-        
-          this.children.push( button );
-        
-          this.panel.add( button );
+          var _x = x + j * childWidth,
+              _y = y + i * childHeight,
+              btn = i * this.columns + j;              
+ 
+          if(this._values[ btn ]) {
+            this.ctx.fillStyle = this._fill();
+          }else{
+            this.ctx.fillStyle = this._background();  
+          }
+          this.ctx.fillRect( _x, _y, childWidth, childHeight );
+          this.ctx.strokeRect( _x, _y, childWidth, childHeight );          
         }
       }
     },
-    draw : function() { for(var i = 0; i < this.children.length; i++) this.children[i].draw(); },
-    onvaluechange : function(row, column, value) { },
-    move : function() {
-      var childWidth  = this.width  / this.columns;
-      var childHeight = this.height / this.rows;      
-      
-      for(var i = 0; i < this.rows; i++) {
-        for(var j = 0; j < this.columns; j++) {
-          var id = (i * this.columns) + j;
-          var child = this.children[ id ];
-          child.x = this.x + j * childWidth,
-          child.y = this.y + i * childHeight,
-          child.width  = childWidth;
-          child.height = childHeight;
+    
+    changeValue : function( xOffset, yOffset ) {
+      if(this.hasFocus || !this.requiresFocus) {
+        var width   = this._width(),
+            height  = this._height(),
+            buttonWidth = width / this.columns,
+            columnHit = Math.floor( xOffset / buttonWidth ),
+            buttonHeight = height / this.rows,
+            rowHit = Math.floor( yOffset / buttonHeight),
+            buttonHit = (rowHit * this.columns) + columnHit,
+            _value = 0;
+        
+        
+        if( buttonHit !== this.mouseOver ) {
+          this._values[ buttonHit ] = !this._values[ buttonHit ];
+        
+          this.values[ buttonHit ] = this._values[ buttonHit ] ? this.max : this.min;
+                
+          if(this.values[ buttonHit ] !== this.lastValues[ buttonHit ] || this.mode === 'contact') {
+            this.sendTargetMessage();
+            if(this.onvaluechange) this.onvaluechange();
+            this.draw();
+            this.lastValues[ buttonHit ] = this.values[ buttonHit ];
+            
+            if(this.mode === 'contact') {
+              var self = this;
+              setTimeout( function() { self._values[ buttonHit ] = 0; self.draw(); }, 75);
+            }
+          }
+          
+          this.mouseOver = buttonHit;
         }
       }
     },
+    
+    mousedown : function(e, hit) { 
+      if(hit && Interface.mouseDown) { 
+        this.changeValue( e.x - this._x(), e.y - this._y() );
+      }
+    },
+    mousemove : function(e, hit) { 
+      if(hit && Interface.mouseDown) {  
+        this.changeValue( e.x - this._x(), e.y - this._y() );
+      }
+    },
+    mouseup   : function(e, hit) { 
+      if(hit && Interface.mouseDown) this.changeValue( e.x - this._x(), e.y - this._y() ); 
+      this.mouseOver = null;
+    },    
+    
+    touchstart : function(e, hit) { if(hit) this.changeValue( e.x - this._x(), e.y - this._y() ); },
+    touchmove  : function(e, hit) { if(hit) this.changeValue( e.x - this._x(), e.y - this._y() ); },
+    touchend   : function(e, hit) { if(hit) this.changeValue( e.x - this._x(), e.y - this._y() ); }, 
   })
   .init( arguments[0] );
   
@@ -2251,35 +2278,33 @@ Interface.MultiButton = function() {
   Object.defineProperties(this, {
     x : {
       get : function() { return x; },
-      set: function(_x) { x = _x; this.move(); }
+      set: function(_x) { x = _x; this.refresh(); }
     },
     y : {
       get : function() { return y; },
-      set: function(_y) { y = _y; this.move(); }
+      set: function(_y) { y = _y; this.refresh(); }
     },
     width : {
       get : function() { return width; },
-      set: function(_width) { width = _width; this.move(); }
+      set: function(_width) { width = _width; this.refresh(); }
     },
     height : {
       get : function() { return height; },
-      set: function(_height) { height = _height; this.move(); }
+      set: function(_height) { height = _height; this.refresh(); }
     },    
     bounds : {
       get : function() { return bounds; },
-      set : function(_bounds) { bounds = _bounds; x = bounds[0]; y = bounds[1]; width = bounds[2]; height = bounds[3]; this.move() }
+      set : function(_bounds) { bounds = _bounds; x = bounds[0]; y = bounds[1]; width = bounds[2]; height = bounds[3]; this.refresh(); }
     },
     rows : {
       get : function() { return rows; },
-      set : function(_rows) { rows = _rows; this.makeChildren(); },
+      set : function(_rows) { rows = _rows; this.refresh(); },
     },
     columns : {
       get : function() { return columns; },
-      set : function(_columns) { columns = _columns; this.makeChildren(); },
+      set : function(_columns) { columns = _columns; this.refresh(); },
     },
   });
-  
-  Interface.defineChildProperties(this, ['mode', 'background', 'fill', 'stroke']);
 };
 Interface.MultiButton.prototype = Interface.Widget;
 
