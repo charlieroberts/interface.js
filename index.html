@@ -555,9 +555,7 @@ var menu = new Interface.Menu({
   bounds:[.25,.45,.5,.1],
   stroke:"#666",
   options:['red','green','blue','pink','purple'],
-  onvaluechange : function(value) {
-    this.panel.setBackgroundColor(value);
-  }
+  target: a, key:'background',
 });
 
 a.background = 'black';
@@ -575,9 +573,7 @@ a.add(menu);
         bounds:[.25,.45,.5,.1],
         stroke:"#666",
         options:['red','green','blue','pink','purple'],
-        onvaluechange : function(value) {
-          this.panel.setBackgroundColor(value);
-        }
+        target: a, key:'background',
       });
 
       a.background = 'black';
