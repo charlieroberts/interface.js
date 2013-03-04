@@ -368,17 +368,14 @@ Interface.Panel = function() {
       
       if(typeof widget.children !== 'undefined' && widget.type !== "XY") {
         for(var i = 0; i < widget.children.length; i++) {
-          this.children.splice( this.children.indexOf(widget.children[i]) );
+          this.children.splice( this.children.indexOf(widget.children[i]), 1 );
         }
       }else{
-        console.log(this.children, this.children.indexOf( widget ) );
         if(this.children.indexOf( widget ) > -1) {
-          this.children.splice( this.children.indexOf( widget ) );
+          this.children.splice( this.children.indexOf( widget ), 1 );
           if(typeof widget.remove === 'function') widget.remove();
         }
-        console.log("DELETED", this.children.indexOf( widget ) )
       }
-      
     },
     
     /*setBackgroundColor : function(color) {
