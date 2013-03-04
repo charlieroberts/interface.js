@@ -371,20 +371,12 @@ Interface.Panel = function() {
           this.children.splice( this.children.indexOf(widget.children[i]) );
         }
       }else{
-        console.log(this.children, this.children.indexOf( widget ) );
         if(this.children.indexOf( widget ) > -1) {
           this.children.splice( this.children.indexOf( widget ) );
           if(typeof widget.remove === 'function') widget.remove();
         }
-        console.log("DELETED", this.children.indexOf( widget ) )
       }
-      
     },
-    
-    /*setBackgroundColor : function(color) {
-      this.backgroundColor = color;
-      $(this.container).css({ backgroundColor:color });
-    },*/
   });
   
   if(typeof arguments[0] !== 'undefined') Interface.extend(this, arguments[0]);
@@ -395,7 +387,7 @@ Interface.Panel = function() {
   this.timer = setInterval( function() { self.draw(); }, Math.round(1000 / this.fps) );
 
   var childBackground ='#000',
-      childFill = '#333',
+      childFill = '#666',
       childStroke = '#999',
       background = 'transparent',
       self = this,
