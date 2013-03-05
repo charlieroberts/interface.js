@@ -220,14 +220,16 @@ Interface.Panel = function() {
     canvas:  document.createElement('canvas'),
     
     touchEvent : function(event) {
+      //console.log("A TOUCH EVENT!!!! ", event);
       if(self.active) {
         for (var j = 0; j < event.changedTouches.length; j++){
-          var touch = event.changedTouches.item(j);		
+          var touch = event.changedTouches[j]; //event.changedTouches.item(j);		
         
           for(var i = 0; i < self.children.length; i++) {
             touch.x = touch.pageX - self.x;
             touch.y = touch.pageY - self.y;
             touch.type = event.type;
+            //console.log( touch );
             self.children[i].touchEvent(touch);
           }
       		//var breakCheck = this.events[event.type].call(this, touch);
@@ -371,12 +373,10 @@ Interface.Panel = function() {
           this.children.splice( this.children.indexOf(widget.children[i]) );
         }
       }else{
-        console.log(this.children, this.children.indexOf( widget ) );
         if(this.children.indexOf( widget ) > -1) {
           this.children.splice( this.children.indexOf( widget ) );
           if(typeof widget.remove === 'function') widget.remove();
         }
-        console.log("DELETED", this.children.indexOf( widget ) )
       }
       
     },
@@ -1749,9 +1749,9 @@ Interface.XY = function() {
       return touchFound.childID;
     },
     touchstart : function(touch) {
-      // if(this.hitTest(touch)) {
-      //   this.trackTouch(touch.x - this.x, touch.y - this.y, touch);
-      // }
+      if(this.hitTest(touch)) {
+         this.trackTouch(touch.x - this.x, touch.y - this.y, touch);
+      }
     },
     touchmove : function(touch) {
       for(var t = 0; t < this.children.length; t++) {

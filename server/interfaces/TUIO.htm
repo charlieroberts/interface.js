@@ -1,0 +1,60 @@
+<!-- this file provides an example of parsing the TUIO protocol for using Interface.js with large touchscreens -->
+<html>
+<head>
+  <script src='interface.js'></script>
+</head>
+<body>
+  <script>
+    panel = new Interface.Panel({ useRelativeSizesAndPositions: true });
+    
+    a = new Interface.XY({
+      numChildren: 5,
+      childWidth: 50,
+      bounds:[0,0,1,1],
+    })
+    panel.add( a );
+    
+    var touchNumbers = [];
+    Interface.OSC.receive = function(address, typetags, parameters) {
+      if(address === '/tuio/2Dcur') {
+        if(parameters[0] === 'alive') {
+          var kill = [];
+          var isAlive = false;
+          for(var i = touchNumbers.length - 1; i >= 0; i--) {
+            var idx = parameters.indexOf( touchNumbers[i] );
+            
+            if( idx === -1 ) {  // a touch is dead
+              var evt = document.createEvent('UIEvents');
+              evt.initEvent('touchend', true, true);
+
+              evt.changedTouches = [  { identifier: touchNumbers[i] } ];
+            
+              panel.touchEvent( evt );
+              
+              touchNumbers.splice(i, 1);
+            }
+          }          
+        }else if(parameters[0] === 'set') {
+          var evt = document.createEvent('UIEvents'),
+              touch  =  {
+                identifier: parameters[1],
+                pageX : parameters[2] * panel.width,
+                pageY : parameters[3] * panel.height,
+              };
+          
+          evt.changedTouches = [touch];
+          
+          if( touchNumbers.indexOf( parameters[1] ) === -1 ) {
+            touchNumbers.push( parameters[1] );
+            evt.initEvent('touchstart', true, true);
+          }else{
+            evt.initEvent('touchmove', true, true);
+          }
+          
+          panel.touchEvent( evt );
+        }
+      }
+    }
+  </script>
+</body>
+</html>
