@@ -370,15 +370,14 @@ Interface.Panel = function() {
       
       if(typeof widget.children !== 'undefined' && widget.type !== "XY") {
         for(var i = 0; i < widget.children.length; i++) {
-          this.children.splice( this.children.indexOf(widget.children[i]) );
+          this.children.splice( this.children.indexOf(widget.children[i]), 1 );
         }
       }else{
         if(this.children.indexOf( widget ) > -1) {
-          this.children.splice( this.children.indexOf( widget ) );
+          this.children.splice( this.children.indexOf( widget ), 1 );
           if(typeof widget.remove === 'function') widget.remove();
         }
       }
-      
     },
     
     /*setBackgroundColor : function(color) {
@@ -2067,56 +2066,67 @@ Interface.MultiSlider = function() {
     type : 'MultiSlider',    
     isVertical : true,
     serializeMe : ["isVertical", "count", "values"],
-    children: [],
     values: [],
+    _values: [],
     count:16,
 
-    _init     : function() {
-      this.makeChildren();
+    draw : function() {
+      var x = this._x(),
+          y = this._y(),
+          width = this._width(),
+          height= this._height(),
+          sliderWidth = width / this.count;
+          
+      this.ctx.fillStyle = this._background();
+      this.ctx.fillRect( x, y, width, height );
+      
+      this.ctx.fillStyle = this._fill();
+      this.ctx.strokeStyle = this._stroke();
+            
+      for(var i = 0; i < this.count; i++) {
+        var sliderX = i * sliderWidth + x;
+
+        this.ctx.fillRect( sliderX, y + height - this._values[i] * height, sliderWidth, this._values[i] * height);
+        this.ctx.strokeRect( sliderX, y, sliderWidth, height );         
+      }      
     },
-    makeChildren: function() {
-      if(this.children.length > 0) {
-        for(var i = 0; i < this.children.length; i++) {
-          this.panel.remove( this.children[i] );
+
+    changeValue : function( xOffset, yOffset ) {
+      if(this.hasFocus || !this.requiresFocus) {
+        var width   = this._width(),
+            sliderWidth = width / this.count,
+            sliderHit = Math.floor( xOffset / sliderWidth )
+            _value = 0;
+        
+        _value = 1 - ( yOffset / this._height() );
+        
+        if(_value < 0) {
+          _value = 0;
+          // this.hasFocus = false;
+        }else if(_value > 1) {
+          _value = 1;
+          // this.hasFocus = false;
         }
-        this.children.length = 0;
-      }
-      
-      var sliderWidth = this.width / this.count;
-      for(var i = 0; i < this.count; i++) {
-        var slider = new Interface.Slider({
-          x : this.x + i * sliderWidth,
-          y : this.y,
-          width: sliderWidth,
-          height:this.height,
-          requiresFocus: false,
-          parent:this,
-          colors:[this.background, this.fill, this.stroke],
-          onvaluechange: (function() {
-            var sliderNum = i;
-                  
-            return function() {
-              this.parent.onvaluechange(sliderNum, this.value);
-            };
-          })(),
-        });
         
-        this.children.push( slider );
+        this.values[ sliderHit ] = this.min + (this.max - this.min) * _value;
+        this._values[ sliderHit ] = _value;
         
-        this.panel.add( slider );
-      }
+        //if(this.value !== this.lastValue) {
+        this.sendTargetMessage();
+        if(this.onvaluechange) this.onvaluechange(sliderHit, this.values[ sliderHit ]);
+        this.refresh();
+          //this.lastValue = this.value;
+          //}
+      }     
     },
-    move : function() {
-      var sliderWidth = this.width / this.count;
-      
-      for(var i = 0; i < this.count; i++) {
-        var slider = this.children[i];
-        slider.x = this.x + i * sliderWidth;
-        slider.y = this.y;
-        slider.width = sliderWidth;
-        slider.height = this.height;
-      }
-    },
+    
+    mousedown : function(e, hit) { if(hit && Interface.mouseDown) this.changeValue( e.x - this._x(), e.y - this._y() ); },
+    mousemove : function(e, hit) { if(hit && Interface.mouseDown) this.changeValue( e.x - this._x(), e.y - this._y() ); },
+    mouseup   : function(e, hit) { if(hit && Interface.mouseDown) this.changeValue( e.x - this._x(), e.y - this._y() ); },    
+    
+    touchstart : function(e, hit) { if(hit) this.changeValue( e.x - this._x(), e.y - this._y() ); },
+    touchmove  : function(e, hit) { if(hit) this.changeValue( e.x - this._x(), e.y - this._y() ); },
+    touchend   : function(e, hit) { if(hit) this.changeValue( e.x - this._x(), e.y - this._y() ); },  
     onvaluechange : function(id, value) {},
   })
   .init( arguments[0] );
@@ -2133,27 +2143,27 @@ Interface.MultiSlider = function() {
   Object.defineProperties(this, {
     x : {
       get : function() { return x; },
-      set: function(_x) { x = _x; this.move(); }
+      set: function(_x) { x = _x; this.refresh(); }
     },
     y : {
       get : function() { return y; },
-      set: function(_y) { y = _y; this.move(); }
+      set: function(_y) { y = _y; this.refresh(); }
     },
     width : {
       get : function() { return width; },
-      set: function(_width) { width = _width; this.move(); }
+      set: function(_width) { width = _width; this.refresh(); }
     },
     height : {
       get : function() { return height; },
-      set: function(_height) { height = _height; this.move(); }
+      set: function(_height) { height = _height; this.refresh(); }
     },    
     bounds : {
       get : function() { return bounds; },
-      set : function(_bounds) { bounds = _bounds; x = bounds[0]; y = bounds[1]; width = bounds[2]; height = bounds[3]; this.move() }
+      set : function(_bounds) { bounds = _bounds; x = bounds[0]; y = bounds[1]; width = bounds[2]; height = bounds[3]; this.refresh(); }
     },
     count : {
       get : function() { return count; },
-      set : function(_count) { count = _count; this.makeChildren(); },
+      set : function(_count) { count = _count; this.refresh(); },
     }
   })
 };
@@ -2162,67 +2172,95 @@ Interface.MultiSlider.prototype = Interface.Widget;
 Interface.MultiButton = function() {
   Interface.extend(this, {
     type : 'MultiButton',    
-    mode:     'toggle',
+    mode : 'toggle',
     serializeMe : ["mode", "rows", "columns", "requiresFocus"],
-    children: [],
     rows:     8,
+    values: [],
+    _values: [],
+    lastValues: [],
+    mouseOver : null,
     columns:  8,
     
-    _init     : function() {
-      this.makeChildren();
-    },
-    makeChildren : function() {
-      if(this.children.length > 0) {
-        for(var i = 0; i < this.children.length; i++) {
-          this.panel.remove( this.children[i] );
-        }
-        this.children.length = 0;
-      }
+    draw : function() { 
+      var x = this._x(),
+          y = this._y(),
+          width = this._width(),
+          height= this._height(),
+          childWidth  = width  / this.columns,
+          childHeight = height / this.rows;   
       
-      var childWidth  = this.width  / this.columns;
-      var childHeight = this.height / this.rows;      
-      
+      this.ctx.strokeStyle = this._stroke();
+        
       for(var i = 0; i < this.rows; i++) {
         for(var j = 0; j < this.columns; j++) {
-          var button = new Interface.Button({
-            x : this.x + j * childWidth,
-            y : this.y + i * childHeight,
-            width: childWidth,
-            height:childHeight,
-            parent:this,
-            requiresFocus: this.requiresFocus,
-            onvaluechange: (function() {
-              var row = i, col = j;
-                  
-              return function() {
-                this.parent.onvaluechange(row, col, this.value);
-              };
-            })(),
-          });
-        
-          this.children.push( button );
-        
-          this.panel.add( button );
+          var _x = x + j * childWidth,
+              _y = y + i * childHeight,
+              btn = i * this.columns + j;              
+ 
+          if(this._values[ btn ]) {
+            this.ctx.fillStyle = this._fill();
+          }else{
+            this.ctx.fillStyle = this._background();  
+          }
+          this.ctx.fillRect( _x, _y, childWidth, childHeight );
+          this.ctx.strokeRect( _x, _y, childWidth, childHeight );          
         }
       }
     },
-    draw : function() { for(var i = 0; i < this.children.length; i++) this.children[i].draw(); },
-    onvaluechange : function(row, column, value) { },
-    move : function() {
-      var childWidth  = this.width  / this.columns;
-      var childHeight = this.height / this.rows;      
-      
-      for(var i = 0; i < this.rows; i++) {
-        for(var j = 0; j < this.columns; j++) {
-          var id = (i * this.columns) + j;
-          var child = this.children[ id ];
-          child.x = this.x + j * childWidth,
-          child.y = this.y + i * childHeight,
-          child.width  = childWidth;
-          child.height = childHeight;
+    
+    changeValue : function( xOffset, yOffset ) {
+      if(this.hasFocus || !this.requiresFocus) {
+        var width   = this._width(),
+            height  = this._height(),
+            buttonWidth = width / this.columns,
+            columnHit = Math.floor( xOffset / buttonWidth ),
+            buttonHeight = height / this.rows,
+            rowHit = Math.floor( yOffset / buttonHeight),
+            buttonHit = (rowHit * this.columns) + columnHit,
+            _value = 0;
+        
+        
+        if( buttonHit !== this.mouseOver ) {
+          this._values[ buttonHit ] = !this._values[ buttonHit ];
+        
+          this.values[ buttonHit ] = this._values[ buttonHit ] ? this.max : this.min;
+                
+          if(this.values[ buttonHit ] !== this.lastValues[ buttonHit ] || this.mode === 'contact') {
+            this.sendTargetMessage();
+            if(this.onvaluechange) this.onvaluechange( rowHit, columnHit, this.values[ buttonHit ]);
+
+            this.draw();
+            this.lastValues[ buttonHit ] = this.values[ buttonHit ];
+            
+            if(this.mode === 'contact') {
+              var self = this;
+              setTimeout( function() { self._values[ buttonHit ] = 0; self.draw(); }, 75);
+            }
+          }
+          
+          this.mouseOver = buttonHit;
         }
       }
     },
+    
+    mousedown : function(e, hit) { 
+      if(hit && Interface.mouseDown) { 
+        this.changeValue( e.x - this._x(), e.y - this._y() );
+      }
+    },
+    mousemove : function(e, hit) { 
+      if(hit && Interface.mouseDown) {  
+        this.changeValue( e.x - this._x(), e.y - this._y() );
+      }
+    },
+    mouseup   : function(e, hit) { 
+      if(hit && Interface.mouseDown) this.changeValue( e.x - this._x(), e.y - this._y() ); 
+      this.mouseOver = null;
+    },    
+    
+    touchstart : function(e, hit) { if(hit) this.changeValue( e.x - this._x(), e.y - this._y() ); },
+    touchmove  : function(e, hit) { if(hit) this.changeValue( e.x - this._x(), e.y - this._y() ); },
+    touchend   : function(e, hit) { if(hit) this.changeValue( e.x - this._x(), e.y - this._y() ); }, 
   })
   .init( arguments[0] );
   
@@ -2240,35 +2278,33 @@ Interface.MultiButton = function() {
   Object.defineProperties(this, {
     x : {
       get : function() { return x; },
-      set: function(_x) { x = _x; this.move(); }
+      set: function(_x) { x = _x; this.refresh(); }
     },
     y : {
       get : function() { return y; },
-      set: function(_y) { y = _y; this.move(); }
+      set: function(_y) { y = _y; this.refresh(); }
     },
     width : {
       get : function() { return width; },
-      set: function(_width) { width = _width; this.move(); }
+      set: function(_width) { width = _width; this.refresh(); }
     },
     height : {
       get : function() { return height; },
-      set: function(_height) { height = _height; this.move(); }
+      set: function(_height) { height = _height; this.refresh(); }
     },    
     bounds : {
       get : function() { return bounds; },
-      set : function(_bounds) { bounds = _bounds; x = bounds[0]; y = bounds[1]; width = bounds[2]; height = bounds[3]; this.move() }
+      set : function(_bounds) { bounds = _bounds; x = bounds[0]; y = bounds[1]; width = bounds[2]; height = bounds[3]; this.refresh(); }
     },
     rows : {
       get : function() { return rows; },
-      set : function(_rows) { rows = _rows; this.makeChildren(); },
+      set : function(_rows) { rows = _rows; this.refresh(); },
     },
     columns : {
       get : function() { return columns; },
-      set : function(_columns) { columns = _columns; this.makeChildren(); },
+      set : function(_columns) { columns = _columns; this.refresh(); },
     },
   });
-  
-  Interface.defineChildProperties(this, ['mode', 'background', 'fill', 'stroke']);
 };
 Interface.MultiButton.prototype = Interface.Widget;
 
@@ -2358,8 +2394,8 @@ Interface.Range = function() {
     type:"Range",
     serializeMe : ["handleSize"],    
     handleSize: 20,
-    value:[0,1],
-    _value:[0,1],
+    values:[0,1],
+    _values:[0,1],
     draw : function() {
       var x = this._x(),
           y = this._y(),
@@ -2369,8 +2405,8 @@ Interface.Range = function() {
       this.ctx.fillStyle = this._background();
       this.ctx.clearRect(x, y, width, height);    
         
-  		var rightHandlePos = x + (this._value[1] * width) - this.handleSize;
-  		var leftHandlePos  = x + this._value[0]  * width;
+  		var rightHandlePos = x + (this._values[1] * width) - this.handleSize;
+  		var leftHandlePos  = x + this._values[0]  * width;
 		    
 	    this.ctx.fillStyle = this._background();
       this.ctx.fillRect(x, y, width, height);
@@ -2398,21 +2434,21 @@ Interface.Range = function() {
         }
 
         var range = this.max - this.min
-      	if(Math.abs( value - this._value[0]) < Math.abs( value - this._value[1])) {
-          this._value[0] = value;
-      		this.value[0] = this.min + range * value;
+      	if(Math.abs( value - this._values[0]) < Math.abs( value - this._values[1])) {
+          this._values[0] = value;
+      		this.values[0] = this.min + range * value;
       	}else{
-          this._value[1] = value;
-      		this.value[1] = this.min + range * value;
+          this._values[1] = value;
+      		this.values[1] = this.min + range * value;
       	}
         
         this.refresh();
-
-        if(this.value[0]!== this.lastLeftValue || this.value[1] !== this.lastRightValue) {
-          if(this.onvaluechange) this.onvaluechange(this.leftValue, this.rightValue);
+        
+        if(this.values[0] !== this.lastLeftValue || this.values[1] !== this.lastRightValue) {
+          if(this.onvaluechange) this.onvaluechange(this.values[0], this.values[1]);
           this.refresh();
-          this.lastLeftValue = this.value[0];
-          this.lastRightValue = this.value[1];          
+          this.lastLeftValue = this.values[0];
+          this.lastRightValue = this.values[1];          
         }
       }     
     },
