@@ -1,58 +1,250 @@
-<!-- this file provides an example of parsing the TUIO protocol for using Interface.js with large touchscreens -->
 <html>
-<head>
-  <script src='interface.js'></script>
-</head>
-<body>
-  <script>
-    panel = new Interface.Panel({ useRelativeSizesAndPositions: true });
+  <head>
+    <script src='interface.js' type="text/javascript"></script>
+    <title></title>
+  </head>
+  <body>
+    <script type="text/javascript">
+    var touches = [];
+
+    panel = new Interface.Panel({ useRelativeSizesAndPositions: true, fps:60 });
+    panel.background = 'black';
+
+    
+    // disable mouse so we only respond to TUIO touches
+    // $(panel.container).off( 'mousedown', panel.mouseEvent );
+    // $(panel.container).off( 'mousemove', panel.mouseEvent );
+    // $(panel.container).off( 'mouseup',   panel.mouseEvent );
     
     a = new Interface.XY({
-      numChildren: 5,
-      childWidth: 50,
-      bounds:[0,0,1,1],
-    })
+      numChildren: 1,
+      childWidth: 30,
+      fill: "rgba(255,255,255, .2)",
+      bounds:[0,0,.8,1],
+      fps: 60,
+      friction: 1,
+      detectCollisions: false,
+      maxVelocity:30,
+      
+      onvaluechange : function( touchID, x, y ) { 
+        //var x = bounds.values[0].x + sizeSlider.value + x;
+        var azi = 0, dist = 0;
+        if(typeof touchID === 'number' && typeof x === 'number' && typeof y === 'number')
+          Interface.OSC.send( '/SES', 'ifff', [touchID, azi, 0, dist] );
+          
+        //console.log(a.children[0].vx, a.children[0].vy);
+        //if(!isNaN(x))console.log(x*panel.width, y*panel.height, a.children[0].lastPosition);
+      },
+      center: { x: null, y : null }, 
+    });
+    
+    //panel.ctx.fillStyle = 'white';
+    //panel.ctx.arc(a._width() / 2, a._height() / 2, a._width() / 2, 0, Math.PI*2, true); 
+    a.animate = function() {
+      var x       = this._x(),
+          y       = this._y(),
+          width   = this._width(),
+          height  = this._height(),
+          radius  = this.radius,
+          shouldrunvaluechange = false;
+      
+      for(var i = 0; i < this.children.length; i++) {
+        var moveX = moveY = false,
+            child = this.children[i],
+            currentX = child.x + child.vx,
+            currentY = child.y + child.vy,
+            currentDist = Math.sqrt(Math.pow(currentX-this.center.x, 2) + Math.pow(currentY-this.center.y, 2));
+            
+        if(currentDist <= radius) {
+          child.x += child.vx;
+          child.y += child.vy;
+        }
+        
+        if(child.x > this.center.x + this.radius / 2) {
+          child.x = this.center.x + this.radius / 2;
+          child.vx *= -1;
+        }else if(child.x < this.center.x - this.radius / 2) {
+          child.x = this.center.x - this.radius / 2;
+          child.vx *= -1;
+        }
+        
+        if(child.y > this.center.y + this.radius / 2) {
+          child.y = this.center.y + this.radius / 2;
+          child.vy *= -1;
+        }else if(child.y < this.center.y - this.radius / 2) {
+          child.y = this.center.y - this.radius / 2;
+          child.vy *= -1;
+        }
+
+        child.vx *= this.friction;
+        child.vy *= this.friction;
+        
+        var newValueX = child.x / width;
+        var newValueY = child.y / height;
+        
+        var range = this.max - this.min;
+        if(this.values[child.id].x !== newValueX || this.values[child.id].y !== newValueY) {
+          this.values[child.id].x = this.min + range * newValueX;
+          this.values[child.id].y = this.min + range * newValueY;
+          shouldrunvaluechange = true;
+        }
+        
+        if(this.detectCollisions) {
+          if(!child.collideFlag) {
+            this.collisionTest(child);
+          }else{
+            child.collideFlag = false;
+          }
+        }
+          
+        child.vx = Math.abs(child.vx) > this.maxVelocity ? this.maxVelocity * sign(child.vx) : child.vx;
+        child.vy = Math.abs(child.vy) > this.maxVelocity ? this.maxVelocity * sign(child.vy): child.vy;        
+      }
+      if(shouldrunvaluechange && this.onvaluechange) {
+        this.onvaluechange();
+      }
+    };
+    
     panel.add( a );
     
-    var touchNumbers = [];
-    Interface.OSC.receive = function(address, typetags, parameters) {
-      if(address === '/tuio/2Dcur') {
-        if(parameters[0] === 'alive') {
-          for(var i = touchNumbers.length - 1; i >= 0; i--) {
-            var idx = parameters.indexOf( touchNumbers[i] );
+    // must be done after adding to panel when the absolute widget width is determined
+    a.center = {x:.5 * a._width(), y:.5 * a._height() };
+    a.radius = a._width() / 4;
+
+    for(var i = 0; i < a.children.length; i++){
+      a.children[i].fill = 'rgba('+Math.round(Math.random()*255)+','+Math.round(Math.random()*255)+','+Math.round(Math.random()*255)+',.2)';
+    }
+    
+    sizeSlider = new Interface.Slider({
+      bounds:[.8,0,.05,.4],
+      label: 'radius',
+      min:0, max:10,
+      onvaluechange : function() {
+        a.radius = a._width() / (2 + (1 - (this.value / this.max)) * this.max); 
+      },
+    })    
+    
+    velocity = new Interface.Slider({
+      bounds:[.85,.0,.05,.4],
+      label: 'velocity',
+      onvaluechange : function() {
+        var val = this.value > .5 ? .05 : -.05;
+        for(var i = 0; i < a.children.length; i++) {
+          a.children[i].vx += a.children[i].vx * val;
+          a.children[i].vy += a.children[i].vy * val;          
+        }
+      },
+    })  
+    
+    elevationSlider = new Interface.Slider({
+      key:'/elevation',
+      min:-90, max:90,
+      bounds:[.9,0,.05,.4],
+      label: 'elevation',
+    })
+    
+    volumeSlider = new Interface.Slider({
+      bounds:[.95,0,.05,.4],
+      label: 'volume',
+    })
+    
+    addElement = new Interface.Button({
+      bounds:[.8,.4,.1,.2],
+      label: 'add element',
+      mode:'contact',      
+      onvaluechange : function() {
+        a.numChildren += 1;
+        var idx = a.children.length - 1;
+        var child = a.children[idx];
+        child.vx = Math.random() * 2 * ( Math.random() > .5 ? 1 : -1 );
+        child.vy = Math.random() * 2 * ( Math.random() > .5 ? 1 : -1 );
+        child.fill = 'rgba('+Math.round(Math.random()*255)+','+Math.round(Math.random()*255)+','+Math.round(Math.random()*255)+',.2)';
+        
+      }
+    })
+    
+    removeElement = new Interface.Button({
+      bounds:[.9,.4,.1,.2],
+      label: 'remove element',
+      mode:'contact',      
+      onvaluechange : function() {
+        a.numChildren -= 1;
+      }
+    })
+
+    positionXY = new Interface.XY({
+      bounds:[.8,.6,.2,.4],
+      numChildren:1,
+      usePhysics:false,
+      onvaluechange : function(touchID, x, y) {
+        if(typeof a !== 'undefined') {
+          a.center = { 'x': x * a._width(), 'y':y * a._height() }
+        }
+      },
+    });
+
+    panel.add( sizeSlider, positionXY, velocity, addElement, removeElement, volumeSlider, elevationSlider );
+    
+    positionXY.children[0].x = .5 * positionXY._width();
+    positionXY.children[0].y = .5 * positionXY._height();
+    positionXY.refresh();
+
+    /********* BEGIN OSC CALLBACK FOR TUIO ***********/
+    var find = function(arr, key, val) {
+      for(var i = 0; i < arr.length; i++) {
+        if(arr[i][key] === val) return i;
+      }
+      return -1;
+    }
+    //var touches = [];
+    Interface.OSC.receive = function( address, typetags, parameters ) {
+      if( address === '/tuio/2Dcur' ) {
+        if( parameters[0] === 'alive' ) {
+          for(var i = touches.length - 1; i >= 0; i--) {
+            var idx = parameters.indexOf( touches[i].identifier );
             
             if( idx === -1 ) {  // a touch is dead
               var evt = document.createEvent('UIEvents');
               evt.initEvent('touchend', true, true);
 
-              evt.changedTouches = [  { identifier: touchNumbers[i] } ];
+              evt.changedTouches = [  { identifier: touches[i].identifier } ];
             
               panel.touchEvent( evt );
-              
-              touchNumbers.splice(i, 1);
+              console.log("Touch Dead", i);
+              touches.splice(i, 1);
             }
           }          
-        }else if(parameters[0] === 'set') {
-          var evt = document.createEvent('UIEvents'),
-              touch  =  {
-                identifier: parameters[1],
-                pageX : parameters[2] * panel.width,
-                pageY : parameters[3] * panel.height,
-              };
-          
-          evt.changedTouches = [touch];
-          
-          if( touchNumbers.indexOf( parameters[1] ) === -1 ) {
-            touchNumbers.push( parameters[1] );
+        }else if( parameters[0] === 'set' ) {
+          var evt = document.createEvent('UIEvents');
+          var existingTouchID = find( touches, 'identifier', parameters[1] );
+          if( existingTouchID === -1 ) {
+            console.log("Touch Made");
+            var touch  =  {
+              identifier: parameters[1],
+              pageX : parameters[2] * panel.width,
+              pageY : parameters[3] * panel.height,
+            };
+            touches.push( touch );
+            
+            evt.changedTouches = [ touch ];
             evt.initEvent('touchstart', true, true);
           }else{
-            evt.initEvent('touchmove', true, true);
+            var foundTouch = touches[ existingTouchID ];
+            var x = parameters[2] * panel.width;
+            var y = parameters[3] * panel.height;
+      
+            if(foundTouch.pageX !== x || foundTouch.pageY !== y) {
+              foundTouch.pageX = x;
+              foundTouch.pageY = y;
+            
+              evt.changedTouches = [ foundTouch ];
+              evt.initEvent('touchmove', true, true);
+            }
           }
-          
           panel.touchEvent( evt );
         }
       }
     }
-  </script>
-</body>
+    </script>
+  </body>
 </html>

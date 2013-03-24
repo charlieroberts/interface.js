@@ -12,14 +12,14 @@
     a = new Interface.Button({
       bounds:[0,0,1,.5],
       mode:'contact',
-      target:Interface.OSC, key:'/button',
+      target:"OSC", key:'/button',
     })
     
     // send a message to the address '/slider'
     b = new Interface.Slider({
       bounds:[0,.5,1,.5],
       isVertical:false,
-      target:Interface.OSC, key:'/slider',
+      target:"OSC", key:'/slider',
     })
     panel.add( a, b );
     

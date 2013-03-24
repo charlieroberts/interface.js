@@ -1579,7 +1579,11 @@ Interface.XY = function() {
       for(var i = 0; i < this.children.length; i++) {
         var child = this.children[i];
         
-        this.ctx.fillStyle = this._fill();
+        if(child.fill) {
+          this.ctx.fillStyle = child.fill;
+        }else{
+          this.ctx.fillStyle = this._fill();
+        }
         
         this.ctx.beginPath();
 
@@ -1608,11 +1612,12 @@ Interface.XY = function() {
                 
         touch.y = yOffset;// - this.half;
         if(touch.y < 0) touch.y = 0;
-        if(touch.y > this._height()) touch.y = this._height();        
+        if(touch.y > this._height()) touch.y = this._height();
+            
         this.values[touch.id].x = xOffset / this._width();
         this.values[touch.id].y = yOffset / this._height();
                 
-        if(this.onvaluechange) this.onvaluechange();
+        if(this.onvaluechange) this.onvaluechange(touch.id, this.values[touch.id].x, this.values[touch.id].y);
         
         if(!this.usePhysics) {
           this.refresh();
@@ -1810,7 +1815,7 @@ Interface.XY = function() {
       }
       
       while(_numChildren < numChildren) {
-        this.chidren.pop();
+        this.children.pop();
         this.values.pop();
         numChildren--;
       }
