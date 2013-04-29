@@ -245,10 +245,10 @@ Interface.Panel = function() {
         }else if(e.type === 'mouseup') {
           Interface.mouseDown = false;
         }
-      
+              
         var event = {
-          x : e.offsetX,// - self.x,
-          y : e.offsetY,// - self.y,
+          x : e.offsetX || (e.pageX - self.x), // pageX and pageY is for firefox compatibility
+          y : e.offsetY || (e.pageY - self.y),
           type: e.type,
         }
         //console.log("MOUSE", event, self.y, e.pageY, e.layerY, e.clientY, e );
@@ -371,20 +371,12 @@ Interface.Panel = function() {
           this.children.splice( this.children.indexOf(widget.children[i]) );
         }
       }else{
-        console.log(this.children, this.children.indexOf( widget ) );
         if(this.children.indexOf( widget ) > -1) {
           this.children.splice( this.children.indexOf( widget ) );
           if(typeof widget.remove === 'function') widget.remove();
         }
-        console.log("DELETED", this.children.indexOf( widget ) )
       }
-      
     },
-    
-    /*setBackgroundColor : function(color) {
-      this.backgroundColor = color;
-      $(this.container).css({ backgroundColor:color });
-    },*/
   });
   
   if(typeof arguments[0] !== 'undefined') Interface.extend(this, arguments[0]);
@@ -395,7 +387,7 @@ Interface.Panel = function() {
   this.timer = setInterval( function() { self.draw(); }, Math.round(1000 / this.fps) );
 
   var childBackground ='#000',
-      childFill = '#333',
+      childFill = '#666',
       childStroke = '#999',
       background = 'transparent',
       self = this,
