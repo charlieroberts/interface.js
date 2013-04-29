@@ -245,10 +245,10 @@ Interface.Panel = function() {
         }else if(e.type === 'mouseup') {
           Interface.mouseDown = false;
         }
-      
+              
         var event = {
-          x : e.offsetX,// - self.x,
-          y : e.offsetY,// - self.y,
+          x : e.offsetX || (e.pageX - self.x), // pageX and pageY is for firefox compatibility
+          y : e.offsetY || (e.pageY - self.y),
           type: e.type,
         }
         //console.log("MOUSE", event, self.y, e.pageY, e.layerY, e.clientY, e );
