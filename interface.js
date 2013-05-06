@@ -352,6 +352,8 @@ Interface.Panel = function() {
         this.children.push( widget );
         if(widget._init && !widget.added) widget._init();
         
+        if(widget.oninit && !widget.added) widget.oninit();
+        
         widget.draw();
         widget.added = true;
         
@@ -1420,6 +1422,15 @@ Interface.XY = function() {
     timer             : null,
     fps               : 30,
     
+    rainbow: function() {
+      console.log("RAINBOW", this.children.length);
+      for(var i = 0; i < this.children.length; i++) {
+        var child = this.children[i];
+        child.fill = Interface.XY.colors[i % Interface.XY.colors.length]; //'rgba('+Math.round(Math.random()*255)+','+Math.round(Math.random()*255)+','+Math.round(Math.random()*255)+',.2)';
+        console.log("YUM", child.fill)
+      }
+      //this.refresh()
+    },
     remove: function() { this.stopAnimation(); },
     add : function() { if(this.usePhysics) this.startAnimation(); },
     startAnimation : function() { 
@@ -1572,7 +1583,7 @@ Interface.XY = function() {
       for(var i = 0; i < this.children.length; i++) {
         var child = this.children[i];
         
-        this.ctx.fillStyle = this._fill();
+        this.ctx.fillStyle = child.fill || this._fill();
         
         this.ctx.beginPath();
 
@@ -1812,8 +1823,16 @@ Interface.XY = function() {
     }
   });
 };
-Interface.XY.prototype = Interface.Widget;
 
+Interface.XY.prototype = Interface.Widget;
+Interface.XY.colors = [
+  'rgba(255,0,0,.35)',
+  'rgba(0,255,0,.35)',
+  'rgba(0,0,255,.35)',
+  'rgba(0,255,255,.35)',
+  'rgba(255,0,255,.35)',
+  'rgba(255,255,0,.35)',
+];
 /**#Interface.Menu - Widget
 A multi-option dropdown menu.
 ## Example Usage##

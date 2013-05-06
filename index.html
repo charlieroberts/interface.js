@@ -161,11 +161,13 @@ var a = new Interface.Panel({
 });
 var xy = new Interface.XY({
   childWidth: 25,
-  numChildren: 4,
+  numChildren: 6,
   background:"#111",
   fill: "rgba(127,127,127,.2)",
   bounds:[0,0,.6,1],
+  oninit: function() { this.rainbow() },  
 });
+xy.rainbow()
 var c = new Interface.Slider({ 
   bounds:[.65,0,.15,1], 
   min:.0, max:.25,
@@ -194,10 +196,11 @@ a.add(xy, c, d);
       var a = new Interface.Panel({  background:"#000", container:$("#xyPanel") });      
       var xy = new Interface.XY({
         childWidth: 25,
-        numChildren: 4,
+        numChildren: 6,
         background:"#111",
         fill: "rgba(127,127,127,.2)",
         bounds:[0,0,.6,1],
+        oninit: function() { this.rainbow() },
       });
       var c = new Interface.Slider({ 
         bounds:[.65,0,.15,1], 
