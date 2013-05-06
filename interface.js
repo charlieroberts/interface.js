@@ -249,8 +249,8 @@ Interface.Panel = function() {
         }
       
         var event = {
-          x : e.offsetX,// - self.x,
-          y : e.offsetY,// - self.y,
+          x : e.offsetX || (e.pageX - self.x),
+          y : e.offsetY || (e.pageY - self.y),
           type: e.type,
         }
         //console.log("MOUSE", event, self.y, e.pageY, e.layerY, e.clientY, e );
