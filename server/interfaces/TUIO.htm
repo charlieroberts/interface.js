@@ -9,7 +9,6 @@
 
     panel = new Interface.Panel({ useRelativeSizesAndPositions: true, fps:60 });
     panel.background = 'black';
-
     
     // disable mouse so we only respond to TUIO touches
     // $(panel.container).off( 'mousedown', panel.mouseEvent );
@@ -210,7 +209,6 @@
               evt.changedTouches = [  { identifier: touches[i].identifier } ];
             
               panel.touchEvent( evt );
-              console.log("Touch Dead", i);
               touches.splice(i, 1);
             }
           }          
@@ -218,7 +216,6 @@
           var evt = document.createEvent('UIEvents');
           var existingTouchID = find( touches, 'identifier', parameters[1] );
           if( existingTouchID === -1 ) {
-            console.log("Touch Made");
             var touch  =  {
               identifier: parameters[1],
               pageX : parameters[2] * panel.width,

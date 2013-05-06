@@ -15,8 +15,8 @@
     a = new Interface.Button({
       bounds:[0,0,1,.5],
       min:0, max:127, // limit range to 0..127 for MIDI
-      mode:'contact',
-      target:Interface.MIDI, key:['noteon', 0, 64],
+      mode:'momentary',
+      target:"MIDI", key:['noteon', 0, 64],
     })
     
     // send a cc message on channel 1 (they are zero-indexed in JavaScript) for cc number 64 using the value of the slider
@@ -24,7 +24,7 @@
       bounds:[0,.5,1,.5],
       min:0, max:127, // limit range to 0..127 for MIDI
       isVertical:false,
-      target:Interface.MIDI, key:['cc', 0, 64],
+      target:"MIDI", key:['cc', 0, 64],
     })
     panel.add( a, b );
     

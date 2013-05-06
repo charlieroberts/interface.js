@@ -256,7 +256,8 @@ Interface.Panel = function() {
         //console.log("MOUSE", event, self.y, e.pageY, e.layerY, e.clientY, e );
       
         for(var i = 0; i < self.children.length; i++) {
-          self.children[i].mouseEvent(event);
+          if(self.children[i].mouseEvent)
+            self.children[i].mouseEvent(event);
         }
       }
     },
@@ -354,7 +355,9 @@ Interface.Panel = function() {
         this.children.push( widget );
         if(widget._init && !widget.added) widget._init();
         
-        widget.draw();
+        if(widget.draw)
+          widget.draw();
+          
         widget.added = true;
         
         if(typeof widget.add === 'function') widget.add();
@@ -1427,6 +1430,12 @@ Interface.XY = function() {
     timer             : null,
     fps               : 30,
     
+    rainbow: function() { 
+      for(var i = 0; i < children.length; i++) {
+        var child = children[i];
+        child.fill = 'rgba('+Math.round(Math.random()*255)+','+Math.round(Math.random()*255)+','+Math.round(Math.random()*255)+',.2)';
+      }
+    },
     remove: function() { this.stopAnimation(); },
     add : function() { if(this.usePhysics) this.startAnimation(); },
     startAnimation : function() { 
@@ -1554,8 +1563,10 @@ Interface.XY = function() {
           
       if(this.usePhysics) this.animate();
       
+      //this.ctx.clearRect(x,y,width,height);
+      
       this.ctx.fillStyle = this._background();
-      //this.ctx.fillRect( this.x, this.y, this.width, this.height );
+      this.ctx.fillRect( this.x, this.y, this.width, this.height );
       
       this.ctx.strokeStyle = this._stroke();
       //this.ctx.strokeRect( this.x, this.y, this.width, this.height );
@@ -1563,7 +1574,7 @@ Interface.XY = function() {
       this.ctx.save();
       
       this.ctx.beginPath();
-      
+
       this.ctx.moveTo(x, y);
       this.ctx.lineTo(x + width, y);
       this.ctx.lineTo(x + width, y + height);

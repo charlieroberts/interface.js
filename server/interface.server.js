@@ -3,7 +3,7 @@ var fs                = require('fs'),
     url               = require('url'),
     connect           = require('connect'),
     omgosc            = require('omgosc'),
-    midi              = require('midi'),
+    //midi              = require('midi'),
     webServerPort     = 8080,
     socketPort        = 8081,
     oscOutPort        = 8082,
@@ -55,7 +55,7 @@ clients_in.on( 'connection', function (socket) {
   
   socket.on( 'message', function( obj ) {
     var args = JSON.parse( obj );
-
+    console.log( obj );
     if(args.type === 'osc') {
 			osc.send( args.address, args.typetags, args.parameters );
     }else if( args.type === 'midi' ) {

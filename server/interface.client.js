@@ -42,6 +42,7 @@ Interface.MIDI = {
       if(typeof value !== 'undefined') {
         obj.value = value;
       }
+      console.log( obj );
       this.socket.send( JSON.stringify( obj ) );
     }
   }
