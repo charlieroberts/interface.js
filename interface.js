@@ -220,16 +220,14 @@ Interface.Panel = function() {
     canvas:  document.createElement('canvas'),
     
     touchEvent : function(event) {
-      //console.log("A TOUCH EVENT!!!! ", event);
       if(self.active) {
         for (var j = 0; j < event.changedTouches.length; j++){
-          var touch = event.changedTouches[j]; //event.changedTouches.item(j);		
+          var touch = event.changedTouches.item(j);		
         
           for(var i = 0; i < self.children.length; i++) {
             touch.x = touch.pageX - self.x;
             touch.y = touch.pageY - self.y;
             touch.type = event.type;
-            //console.log( touch );
             self.children[i].touchEvent(touch);
           }
       		//var breakCheck = this.events[event.type].call(this, touch);
@@ -247,17 +245,16 @@ Interface.Panel = function() {
         }else if(e.type === 'mouseup') {
           Interface.mouseDown = false;
         }
-      
+              
         var event = {
-          x : e.offsetX || (e.pageX - self.x),
+          x : e.offsetX || (e.pageX - self.x), // pageX and pageY is for firefox compatibility
           y : e.offsetY || (e.pageY - self.y),
           type: e.type,
         }
         //console.log("MOUSE", event, self.y, e.pageY, e.layerY, e.clientY, e );
       
         for(var i = 0; i < self.children.length; i++) {
-          if(self.children[i].mouseEvent)
-            self.children[i].mouseEvent(event);
+          self.children[i].mouseEvent(event);
         }
       }
     },
@@ -355,9 +352,9 @@ Interface.Panel = function() {
         this.children.push( widget );
         if(widget._init && !widget.added) widget._init();
         
-        if(widget.draw)
-          widget.draw();
-          
+        if(widget.oninit && !widget.added) widget.oninit();
+        
+        widget.draw();
         widget.added = true;
         
         if(typeof widget.add === 'function') widget.add();
@@ -373,20 +370,15 @@ Interface.Panel = function() {
       
       if(typeof widget.children !== 'undefined' && widget.type !== "XY") {
         for(var i = 0; i < widget.children.length; i++) {
-          this.children.splice( this.children.indexOf(widget.children[i]), 1 );
+          this.children.splice( this.children.indexOf(widget.children[i]) );
         }
       }else{
         if(this.children.indexOf( widget ) > -1) {
-          this.children.splice( this.children.indexOf( widget ), 1 );
+          this.children.splice( this.children.indexOf( widget ) );
           if(typeof widget.remove === 'function') widget.remove();
         }
       }
     },
-    
-    /*setBackgroundColor : function(color) {
-      this.backgroundColor = color;
-      $(this.container).css({ backgroundColor:color });
-    },*/
   });
   
   if(typeof arguments[0] !== 'undefined') Interface.extend(this, arguments[0]);
@@ -397,7 +389,7 @@ Interface.Panel = function() {
   this.timer = setInterval( function() { self.draw(); }, Math.round(1000 / this.fps) );
 
   var childBackground ='#000',
-      childFill = '#333',
+      childFill = '#666',
       childStroke = '#999',
       background = 'transparent',
       self = this,
@@ -1430,11 +1422,14 @@ Interface.XY = function() {
     timer             : null,
     fps               : 30,
     
-    rainbow: function() { 
-      for(var i = 0; i < children.length; i++) {
-        var child = children[i];
-        child.fill = 'rgba('+Math.round(Math.random()*255)+','+Math.round(Math.random()*255)+','+Math.round(Math.random()*255)+',.2)';
+    rainbow: function() {
+      console.log("RAINBOW", this.children.length);
+      for(var i = 0; i < this.children.length; i++) {
+        var child = this.children[i];
+        child.fill = Interface.XY.colors[i % Interface.XY.colors.length]; //'rgba('+Math.round(Math.random()*255)+','+Math.round(Math.random()*255)+','+Math.round(Math.random()*255)+',.2)';
+        console.log("YUM", child.fill)
       }
+      //this.refresh()
     },
     remove: function() { this.stopAnimation(); },
     add : function() { if(this.usePhysics) this.startAnimation(); },
@@ -1563,10 +1558,8 @@ Interface.XY = function() {
           
       if(this.usePhysics) this.animate();
       
-      //this.ctx.clearRect(x,y,width,height);
-      
       this.ctx.fillStyle = this._background();
-      this.ctx.fillRect( this.x, this.y, this.width, this.height );
+      //this.ctx.fillRect( this.x, this.y, this.width, this.height );
       
       this.ctx.strokeStyle = this._stroke();
       //this.ctx.strokeRect( this.x, this.y, this.width, this.height );
@@ -1574,7 +1567,7 @@ Interface.XY = function() {
       this.ctx.save();
       
       this.ctx.beginPath();
-
+      
       this.ctx.moveTo(x, y);
       this.ctx.lineTo(x + width, y);
       this.ctx.lineTo(x + width, y + height);
@@ -1590,11 +1583,7 @@ Interface.XY = function() {
       for(var i = 0; i < this.children.length; i++) {
         var child = this.children[i];
         
-        if(child.fill) {
-          this.ctx.fillStyle = child.fill;
-        }else{
-          this.ctx.fillStyle = this._fill();
-        }
+        this.ctx.fillStyle = child.fill || this._fill();
         
         this.ctx.beginPath();
 
@@ -1623,12 +1612,11 @@ Interface.XY = function() {
                 
         touch.y = yOffset;// - this.half;
         if(touch.y < 0) touch.y = 0;
-        if(touch.y > this._height()) touch.y = this._height();
-            
+        if(touch.y > this._height()) touch.y = this._height();        
         this.values[touch.id].x = xOffset / this._width();
         this.values[touch.id].y = yOffset / this._height();
                 
-        if(this.onvaluechange) this.onvaluechange(touch.id, this.values[touch.id].x, this.values[touch.id].y);
+        if(this.onvaluechange) this.onvaluechange();
         
         if(!this.usePhysics) {
           this.refresh();
@@ -1764,9 +1752,9 @@ Interface.XY = function() {
       return touchFound.childID;
     },
     touchstart : function(touch) {
-      if(this.hitTest(touch)) {
-         this.trackTouch(touch.x - this.x, touch.y - this.y, touch);
-      }
+      // if(this.hitTest(touch)) {
+      //   this.trackTouch(touch.x - this.x, touch.y - this.y, touch);
+      // }
     },
     touchmove : function(touch) {
       for(var t = 0; t < this.children.length; t++) {
@@ -1826,7 +1814,7 @@ Interface.XY = function() {
       }
       
       while(_numChildren < numChildren) {
-        this.children.pop();
+        this.chidren.pop();
         this.values.pop();
         numChildren--;
       }
@@ -1835,8 +1823,16 @@ Interface.XY = function() {
     }
   });
 };
-Interface.XY.prototype = Interface.Widget;
 
+Interface.XY.prototype = Interface.Widget;
+Interface.XY.colors = [
+  'rgba(255,0,0,.35)',
+  'rgba(0,255,0,.35)',
+  'rgba(0,0,255,.35)',
+  'rgba(0,255,255,.35)',
+  'rgba(255,0,255,.35)',
+  'rgba(255,255,0,.35)',
+];
 /**#Interface.Menu - Widget
 A multi-option dropdown menu.
 ## Example Usage##
