@@ -231,7 +231,7 @@ Interface.Panel = function() {
             self.children[i].touchEvent(touch);
           }
       		//var breakCheck = this.events[event.type].call(this, touch);
-		
+
           //if(breakCheck) break;
       	}
         event.preventDefault(); // HTML Elements must simulate touch events in their touchEvent method
@@ -777,11 +777,15 @@ Interface.Widget = {
             var tt = typeof this.value === 'string' ? 's' : 'f';
             Interface.OSC.send(this.key, tt, [ this.value ] );
           }else{
-            var tt = '';
-            for(var i = 0; i < this.values.length; i++) {
-              tt += typeof this.value === 'string' ? 's' : 'f';
+            if(typeof this.sendValues === 'undefined') {
+              var tt = '';
+              for(var i = 0; i < this.values.length; i++) {
+                tt += typeof this.value === 'string' ? 's' : 'f';
+              }
+              Interface.OSC.send( this.key, tt, this.values );
+            }else{
+              this.sendValues();
             }
-            Interface.OSC.send( this.key, tt, this.values );
           }
         }
       }else if(this.target === "MIDI") {
@@ -1175,7 +1179,7 @@ Interface.Knob = function() {
           
       this.ctx.clearRect(x, y, radius * 2,radius * 2);
       this.ctx.strokeStyle = this._stroke();
-	
+
     	this.ctx.fillStyle = this._background(); // draw background of widget first
     
       var angle0 = Math.PI * .6;
@@ -1189,7 +1193,7 @@ Interface.Knob = function() {
       this.ctx.fill();
           
       this.ctx.fillStyle = this._fill();	// now draw foreground...
-	
+
       if(this.centerZero) {
           var angle3 = Math.PI * 1.5;
           var angle4;
@@ -1411,7 +1415,8 @@ Interface.XY = function() {
     childWidth        : 25,
     childHeight       : 25,
     children          : [],
-    values            : [],
+    values            : [], // objects containing x and y values
+    _values           : [], // serialized floats alternating between x and y
     numChildren       : 1,
     usePhysics        : true,
     friction          : .9,
@@ -1506,6 +1511,17 @@ Interface.XY = function() {
           this.onvaluechange();
         }
       }
+    },
+    
+    // MultiXY sends out all child values in serialized xy pairs
+    sendValues : function() {
+      var tt = '';
+      for(var i = 0; i < this.values.length; i++) {
+        tt += ss;
+        this._values.push( this.values[i].x );
+        this._values.push( this.values[i].y );        
+      }
+      Interface.OSC.send( this.key, tt, this._values );
     },
     
     collisionTest : function(c1) {
@@ -1748,7 +1764,7 @@ Interface.XY = function() {
       touchFound.vy = 0;
       touchFound.identifier = _touch.identifier;
       touchFound.childID = touchNum;
-	
+
       if(touchFound != null)
         this.changeValue(touchFound, xPos, yPos);
     
@@ -1765,7 +1781,7 @@ Interface.XY = function() {
         _t = this.children[t];
         if(touch.identifier == _t.identifier) {
           this.changeValue(_t, touch.x - this._x(), touch.y - this._y());
-			    
+
           var now = {x:touch.x - this._x(), y:touch.y - this._y()};
           
           if(_t.lastPosition !== null) {
@@ -2127,8 +2143,12 @@ Interface.MultiSlider = function() {
         this.values[ sliderHit ] = this.min + (this.max - this.min) * _value;
         this._values[ sliderHit ] = _value;
         
-        //if(this.value !== this.lastValue) {
-        this.sendTargetMessage();
+        if(this.target !== "OSC") {
+          this.sendTargetMessage();
+        }else{
+          if(Interface.OSC)
+            Interface.OSC.send( this.key, 'if', [ sliderHit, this.values[ sliderHit ] ] );
+        }
         if(this.onvaluechange) this.onvaluechange(sliderHit, this.values[ sliderHit ]);
         this.refresh();
           //this.lastValue = this.value;
@@ -2242,7 +2262,13 @@ Interface.MultiButton = function() {
           this.values[ buttonHit ] = this._values[ buttonHit ] ? this.max : this.min;
                 
           if(this.values[ buttonHit ] !== this.lastValues[ buttonHit ] || this.mode === 'contact') {
-            this.sendTargetMessage();
+            if(this.target !== "OSC") {
+              this.sendTargetMessage();
+            }else{
+              if(Interface.OSC)
+                Interface.OSC.send( this.key, 'iif', [ rowHit, columnHit, this.values[ buttonHit ] ] );
+            }
+
             if(this.onvaluechange) this.onvaluechange( rowHit, columnHit, this.values[ buttonHit ]);
 
             this.draw();
@@ -2427,16 +2453,16 @@ Interface.Range = function() {
         
   		var rightHandlePos = x + (this._values[1] * width) - this.handleSize;
   		var leftHandlePos  = x + this._values[0]  * width;
-		    
+
 	    this.ctx.fillStyle = this._background();
       this.ctx.fillRect(x, y, width, height);
         
 	    this.ctx.fillStyle = this._fill();
       this.ctx.fillRect(leftHandlePos, y, rightHandlePos - leftHandlePos, height);
-		
+
 	    this.ctx.fillStyle = this._stroke();
   		this.ctx.fillRect(leftHandlePos, y, this.handleSize, height);
-		
+
 	    //this.ctx.fillStyle = "rgba(0,255,0,.25)";
   		this.ctx.fillRect(rightHandlePos, y, this.handleSize, height);
       
