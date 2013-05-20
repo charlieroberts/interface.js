@@ -231,7 +231,7 @@ Interface.Panel = function() {
             self.children[i].touchEvent(touch);
           }
       		//var breakCheck = this.events[event.type].call(this, touch);
-		
+
           //if(breakCheck) break;
       	}
         event.preventDefault(); // HTML Elements must simulate touch events in their touchEvent method
@@ -785,14 +785,14 @@ Interface.Widget = {
           }
         }
       }else if(this.target === "MIDI") {
-        if(Interface.MIDI) {
+        if(Interface.MIDI && typeof this.values === 'undefined') {
           Interface.MIDI.send( this.key[0],this.key[1],this.key[2], this.value )
         }
       }else{
         if(typeof this.target[this.key] === 'function') {
-          this.target[this.key]( this.value );
+            this.target[this.key]( this.values || this.value );
         }else{
-          this.target[this.key] = this.value;
+          this.target[this.key] = this.values || this.value;
         }
       }
     }  
@@ -1175,7 +1175,7 @@ Interface.Knob = function() {
           
       this.ctx.clearRect(x, y, radius * 2,radius * 2);
       this.ctx.strokeStyle = this._stroke();
-	
+
     	this.ctx.fillStyle = this._background(); // draw background of widget first
     
       var angle0 = Math.PI * .6;
@@ -1189,7 +1189,7 @@ Interface.Knob = function() {
       this.ctx.fill();
           
       this.ctx.fillStyle = this._fill();	// now draw foreground...
-	
+
       if(this.centerZero) {
           var angle3 = Math.PI * 1.5;
           var angle4;
@@ -1423,11 +1423,11 @@ Interface.XY = function() {
     fps               : 30,
     
     rainbow: function() {
-      console.log("RAINBOW", this.children.length);
+      //console.log("RAINBOW", this.children.length);
       for(var i = 0; i < this.children.length; i++) {
         var child = this.children[i];
         child.fill = Interface.XY.colors[i % Interface.XY.colors.length]; //'rgba('+Math.round(Math.random()*255)+','+Math.round(Math.random()*255)+','+Math.round(Math.random()*255)+',.2)';
-        console.log("YUM", child.fill)
+        //console.log("YUM", child.fill)
       }
       //this.refresh()
     },
@@ -1499,8 +1499,12 @@ Interface.XY = function() {
         child.vx = Math.abs(child.vx) > this.maxVelocity ? this.maxVelocity * sign(child.vx) : child.vx;
         child.vy = Math.abs(child.vy) > this.maxVelocity ? this.maxVelocity * sign(child.vy): child.vy;        
       }
-      if(shouldrunvaluechange && this.onvaluechange) {
-        this.onvaluechange();
+      if(shouldrunvaluechange) {
+        this.sendTargetMessage();
+        
+        if(this.onvaluechange) {
+          this.onvaluechange();
+        }
       }
     },
     
@@ -1744,7 +1748,7 @@ Interface.XY = function() {
       touchFound.vy = 0;
       touchFound.identifier = _touch.identifier;
       touchFound.childID = touchNum;
-	
+
       if(touchFound != null)
         this.changeValue(touchFound, xPos, yPos);
     
@@ -1761,7 +1765,7 @@ Interface.XY = function() {
         _t = this.children[t];
         if(touch.identifier == _t.identifier) {
           this.changeValue(_t, touch.x - this._x(), touch.y - this._y());
-			    
+
           var now = {x:touch.x - this._x(), y:touch.y - this._y()};
           
           if(_t.lastPosition !== null) {
@@ -2331,16 +2335,19 @@ Interface.Accelerometer = function() {
     delay : 100, // measured in ms
     min: 0,
     max: 1,
+    values : [0,0,0],
 
     update : function(event) {
       var acceleration = event.acceleration;
-      self.x = self.min + ((((0 - self.hardwareMin) + acceleration.x) / self.hardwareRange ) * self.max);
-      self.y = self.min + ((((0 - self.hardwareMin) + acceleration.y) / self.hardwareRange ) * self.max);
-      self.z = self.min + ((((0 - self.hardwareMin) + acceleration.z) / self.hardwareRange ) * self.max);
+      self.x = self.values[0] = self.min + ((((0 - self.hardwareMin) + acceleration.x) / self.hardwareRange ) * self.max);
+      self.y = self.values[1] = self.min + ((((0 - self.hardwareMin) + acceleration.y) / self.hardwareRange ) * self.max);
+      self.z = self.values[2] = self.min + ((((0 - self.hardwareMin) + acceleration.z) / self.hardwareRange ) * self.max);
         
       if(typeof self.onvaluechange !== 'undefined') {
         self.onvaluechange(self.x, self.y, self.z);
       }
+      
+      self.sendTargetMessage();
     },
     start : function() {
       window.addEventListener('devicemotion', this.update, true);
@@ -2372,10 +2379,11 @@ Interface.Orientation = function() {
     type:"Orientation",
     serializeMe : ["delay"],
     delay : 100, // measured in ms
+    values : [0,0,0],
     update : function(orientation) {
-      _self.roll   = _self.min + ((90 + orientation.gamma)  /  180 ) * _self.max ;
-      _self.pitch  = _self.min + ((180 + orientation.beta) / 360 ) * _self.max ;
-      _self.yaw    = _self.min + (orientation.alpha / 360 ) * _self.max ;
+      _self.roll   = _self.values[0] = _self.min + ((90 + orientation.gamma)  /  180 ) * _self.max ;
+      _self.pitch  = _self.values[1] = _self.min + ((180 + orientation.beta) / 360 ) * _self.max ;
+      _self.yaw    = _self.values[2] = _self.min + (orientation.alpha / 360 ) * _self.max ;
       
       if( !isNaN(orientation.webkitCompassHeading) ) {
         _self.heading = _self.min + ((orientation.webkitCompassHeading  /  360 ) * _self.max );
@@ -2419,16 +2427,16 @@ Interface.Range = function() {
         
   		var rightHandlePos = x + (this._values[1] * width) - this.handleSize;
   		var leftHandlePos  = x + this._values[0]  * width;
-		    
+
 	    this.ctx.fillStyle = this._background();
       this.ctx.fillRect(x, y, width, height);
         
 	    this.ctx.fillStyle = this._fill();
       this.ctx.fillRect(leftHandlePos, y, rightHandlePos - leftHandlePos, height);
-		
+
 	    this.ctx.fillStyle = this._stroke();
   		this.ctx.fillRect(leftHandlePos, y, this.handleSize, height);
-		
+
 	    //this.ctx.fillStyle = "rgba(0,255,0,.25)";
   		this.ctx.fillRect(rightHandlePos, y, this.handleSize, height);
       
@@ -2460,7 +2468,8 @@ Interface.Range = function() {
           if(this.onvaluechange) this.onvaluechange(this.values[0], this.values[1]);
           this.refresh();
           this.lastLeftValue = this.values[0];
-          this.lastRightValue = this.values[1];          
+          this.lastRightValue = this.values[1];
+          this.sendTargetMessage();         
         }
       }     
     },
