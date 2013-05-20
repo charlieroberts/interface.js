@@ -777,11 +777,15 @@ Interface.Widget = {
             var tt = typeof this.value === 'string' ? 's' : 'f';
             Interface.OSC.send(this.key, tt, [ this.value ] );
           }else{
-            var tt = '';
-            for(var i = 0; i < this.values.length; i++) {
-              tt += typeof this.value === 'string' ? 's' : 'f';
+            if(typeof this.sendValues === 'undefined') {
+              var tt = '';
+              for(var i = 0; i < this.values.length; i++) {
+                tt += typeof this.value === 'string' ? 's' : 'f';
+              }
+              Interface.OSC.send( this.key, tt, this.values );
+            }else{
+              this.sendValues();
             }
-            Interface.OSC.send( this.key, tt, this.values );
           }
         }
       }else if(this.target === "MIDI") {
@@ -1411,7 +1415,8 @@ Interface.XY = function() {
     childWidth        : 25,
     childHeight       : 25,
     children          : [],
-    values            : [],
+    values            : [], // objects containing x and y values
+    _values           : [], // serialized floats alternating between x and y
     numChildren       : 1,
     usePhysics        : true,
     friction          : .9,
@@ -1506,6 +1511,17 @@ Interface.XY = function() {
           this.onvaluechange();
         }
       }
+    },
+    
+    // MultiXY sends out all child values in serialized xy pairs
+    sendValues : function() {
+      var tt = '';
+      for(var i = 0; i < this.values.length; i++) {
+        tt += ss;
+        this._values.push( this.values[i].x );
+        this._values.push( this.values[i].y );        
+      }
+      Interface.OSC.send( this.key, tt, this._values );
     },
     
     collisionTest : function(c1) {
@@ -2128,7 +2144,11 @@ Interface.MultiSlider = function() {
         this._values[ sliderHit ] = _value;
         
         //if(this.value !== this.lastValue) {
-        this.sendTargetMessage();
+        if(this.target !== "OSC") {
+          this.sendTargetMessage();
+        }else{
+          Interface.OSC.send( this.key, 'if', [ sliderHit, this.values[ sliderHit ] ] );
+        }
         if(this.onvaluechange) this.onvaluechange(sliderHit, this.values[ sliderHit ]);
         this.refresh();
           //this.lastValue = this.value;
@@ -2242,7 +2262,12 @@ Interface.MultiButton = function() {
           this.values[ buttonHit ] = this._values[ buttonHit ] ? this.max : this.min;
                 
           if(this.values[ buttonHit ] !== this.lastValues[ buttonHit ] || this.mode === 'contact') {
-            this.sendTargetMessage();
+            if(this.target !== "OSC") {
+              this.sendTargetMessage();
+            }else{
+              Interface.OSC.send( this.key, 'iif', [ rowHit, columnHit, this.values[ buttonHit ] ] );
+            }
+
             if(this.onvaluechange) this.onvaluechange( rowHit, columnHit, this.values[ buttonHit ]);
 
             this.draw();
