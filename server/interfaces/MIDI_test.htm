@@ -9,6 +9,9 @@
     
     // IMPORTANT: MAKE SURE YOU LIMIT THE OUTPUT RANGE OF NOTE AND CC MESSAGES TO BE BETWEEN 0 AND 127 using the min and max properties.
     
+    // You can manually send MIDI messages with the following syntax:
+    // Interface.MIDI.send('noteon', 0, 64, 127);
+    
     panel = new Interface.Panel({ useRelativeSizesAndPositions: true });
     
     // send a noteon message on channel 1 (they are zero-indexed in JavaScript) for note number 64.
@@ -16,7 +19,7 @@
       bounds:[0,0,1,.5],
       min:0, max:127, // limit range to 0..127 for MIDI
       mode:'contact',
-      target:Interface.MIDI, key:['noteon', 0, 64],
+      target:"MIDI", key:['noteon', 0, 64],
     })
     
     // send a cc message on channel 1 (they are zero-indexed in JavaScript) for cc number 64 using the value of the slider
@@ -24,7 +27,7 @@
       bounds:[0,.5,1,.5],
       min:0, max:127, // limit range to 0..127 for MIDI
       isVertical:false,
-      target:Interface.MIDI, key:['cc', 0, 64],
+      target:"MIDI", key:['cc', 0, 64],
     })
     panel.add( a, b );
     
