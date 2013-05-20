@@ -2143,11 +2143,11 @@ Interface.MultiSlider = function() {
         this.values[ sliderHit ] = this.min + (this.max - this.min) * _value;
         this._values[ sliderHit ] = _value;
         
-        //if(this.value !== this.lastValue) {
         if(this.target !== "OSC") {
           this.sendTargetMessage();
         }else{
-          Interface.OSC.send( this.key, 'if', [ sliderHit, this.values[ sliderHit ] ] );
+          if(Interface.OSC)
+            Interface.OSC.send( this.key, 'if', [ sliderHit, this.values[ sliderHit ] ] );
         }
         if(this.onvaluechange) this.onvaluechange(sliderHit, this.values[ sliderHit ]);
         this.refresh();
@@ -2265,7 +2265,8 @@ Interface.MultiButton = function() {
             if(this.target !== "OSC") {
               this.sendTargetMessage();
             }else{
-              Interface.OSC.send( this.key, 'iif', [ rowHit, columnHit, this.values[ buttonHit ] ] );
+              if(Interface.OSC)
+                Interface.OSC.send( this.key, 'iif', [ rowHit, columnHit, this.values[ buttonHit ] ] );
             }
 
             if(this.onvaluechange) this.onvaluechange( rowHit, columnHit, this.values[ buttonHit ]);
