@@ -2059,7 +2059,7 @@ Interface.Label = function() {
 Interface.Label.prototype = Interface.Widget;
 
 /**#Interface.TextField - Widget
-A single line text field for user input. This widget is not drawn with canvas, it is an HTML <input> tag.
+A single line text field for user input. This widget is not drawn with canvas, it is an HTML input tag.
 ## Example Usage##
 `a = new Interface.TextField({x:0, y:0, width:.5, height:.5, value:'starting value', onvaluechange: function() { alert( this.value ); } });    
 panel = new Interface.Panel();  
@@ -2143,15 +2143,15 @@ Multiple vertical sliders that share the same event handlers and colors. When a 
 number of the slide moved) and a float (representing the value of the slider moved). Any onvaluechange method attached to the MultiSlider widget should have a
 similar signature; see the example below.
 ## Example Usage##
-`b = new Interface.Label({ bounds:[.5,.5,.5,.5], size:12 });
-a = new Interface.MultiSlider({ 
-  bounds:[0,0,.5,.5], 
-  fill:'red', 
-  count:8,
-  onvaluechange : function( sliderNumber, sliderValue) { b.setValue('number : ' + sliderNumber + ', value : ' + sliderValue) },
+`b = new Interface.Label({ bounds:[.5,.5,.5,.5], size:12 });  
+a = new Interface.MultiSlider({   
+  bounds:[0,0,.5,.5],  
+  fill:'red',  
+  count:8,  
+  onvaluechange : function( sliderNumber, sliderValue) { b.setValue('number : ' + sliderNumber + ', value : ' + sliderValue) },  
 });    
 panel = new Interface.Panel();  
-panel.add(a,b);
+panel.add(a,b);  
 `  
 ## Constructor   
 **param** *properties*: Object. A dictionary of property values (see below) to set for the label on initialization.
@@ -2277,16 +2277,16 @@ Multiple buttons that share the same event handlers and colors. When a MultiButt
 pressed, the column of the button pressed, and the button's value. Any onvaluechange method attached to the MultiButton widget should have a
 similar signature; see the example below.
 ## Example Usage##
-`b = new Interface.Label({ bounds:[.5,.5,.5,.5], size:12 });
-a = new Interface.MultiButton({ 
-  bounds:[0,0,.5,.5], 
-  fill:'white',
-  rows: 4,
-  columns: 4,
-  onvaluechange : function( row, column, value) { b.setValue('row : ' + row + ', column : ' + column + ', value : ' + value) },
+`b = new Interface.Label({ bounds:[.5,.5,.5,.5], size:12 });  
+a = new Interface.MultiButton({  
+  bounds:[0,0,.5,.5],  
+  fill:'white',  
+  rows: 4,  
+  columns: 4,  
+  onvaluechange : function( row, column, value) { b.setValue('row : ' + row + ', column : ' + column + ', value : ' + value) },  
 });    
 panel = new Interface.Panel();  
-panel.add(a,b);
+panel.add(a,b);  
 `  
 ## Constructor   
 **param** *properties*: Object. A dictionary of property values (see below) to set for the label on initialization.
@@ -2470,7 +2470,6 @@ var z = new Interface.Slider({
   label: 'z',   
   bounds:[.45,.05,.2,.9]  
 });  
-  
 a.background = 'black';  
 a.add(x,y,z);  
 `  
@@ -2553,7 +2552,6 @@ Access to the device's Orientation. This is only found on mobile devices, with t
 
 ## Example Usage##
 `var a = new Interface.Panel()  
-  
 var orientation = new Interface.Orientation({  
   onvaluechange : function(_pitch, _roll, _yaw, _heading) {  
     pitch.setValue(_pitch);  
@@ -2573,9 +2571,8 @@ var yaw = new Interface.Slider({
   label: 'yaw',   
   bounds:[.45,.05,.2,.9]  
 });  
-  
-a.add(pitch, roll, yaw);
-`  
+a.add(pitch, roll, yaw);  
+`
 ## Constructor   
 **param** *properties*: Object. A dictionary of property values (see below) to set for the label on initialization.
 - - - -
