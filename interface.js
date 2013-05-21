@@ -1516,6 +1516,7 @@ Interface.XY = function() {
     // MultiXY sends out all child values in serialized xy pairs
     sendValues : function() {
       var tt = '';
+      this._values.length = 0;
       for(var i = 0; i < this.values.length; i++) {
         tt += ss;
         this._values.push( this.values[i].x );
@@ -1951,6 +1952,33 @@ Interface.Menu = function() {
 };
 Interface.Menu.prototype = Interface.Widget;
 
+/**#Interface.Label - Widget
+A single line of text
+## Example Usage##
+`a = new Interface.Label({x:0, y:0, width:.5, height:.5, value:'test label', size:14 });  
+b = new Interface.Slider({x:.5, y:.5, width:.2, height:.3, onvaluechange: function() { a.setValue( this.value; ) } });  
+panel = new Interface.Panel();  
+panel.add(a,b);
+`  
+## Constructor   
+**param** *properties*: Object. A dictionary of property values (see below) to set for the label on initialization.
+- - - -
+**/
+/**###Interface.Label.size : property
+Number. The size in pixels for the font
+**/
+/**###Interface.Label.style : property
+String. Text style. Maybe be 'normal', 'bold' or 'italics'.
+**/
+/**###Interface.Label.hAlign : property
+String. Horizontal alignment of text. Maybe be 'left', 'right' or 'center'.
+**/
+/**###Interface.Label.vAlign : property
+String. Vertical alignment of text. Maybe be 'top', 'bottom' or 'middle'.
+**/
+/**###Interface.Label.font : property
+String. The font to use for text. Examples include 'sans-serif', 'Courier', 'Helvetica'
+**/
 Interface.Label = function() {
   Interface.extend(this, {
     type : 'Label',    
@@ -2030,6 +2058,23 @@ Interface.Label = function() {
 };
 Interface.Label.prototype = Interface.Widget;
 
+/**#Interface.TextField - Widget
+A single line text field for user input. This widget is not drawn with canvas, it is an HTML <input> tag.
+## Example Usage##
+`a = new Interface.TextField({x:0, y:0, width:.5, height:.5, value:'starting value', onvaluechange: function() { alert( this.value ); } });    
+panel = new Interface.Panel();  
+panel.add(a);
+`  
+## Constructor   
+**param** *properties*: Object. A dictionary of property values (see below) to set for the label on initialization.
+- - - -
+**/
+/**###Interface.TextField.fontSize : property
+Number. The size in pixels for the font used in the text field
+**/
+/**###Interface.TextField.css : property
+Object. Extra css that you would like to apply to the input element
+**/
 Interface.TextField = function() {
   Interface.extend(this, {
     type : 'TextField',    
@@ -2093,6 +2138,28 @@ Interface.TextField = function() {
 };
 Interface.TextField.prototype = Interface.Widget;
 
+/**#Interface.MultiSlider - Widget
+Multiple vertical sliders that share the same event handlers and colors. When a MultiSlider sends OSC, it comes in the form of an integer (representing the
+number of the slide moved) and a float (representing the value of the slider moved). Any onvaluechange method attached to the MultiSlider widget should have a
+similar signature; see the example below.
+## Example Usage##
+`b = new Interface.Label({ bounds:[.5,.5,.5,.5], size:12 });
+a = new Interface.MultiSlider({ 
+  bounds:[0,0,.5,.5], 
+  fill:'red', 
+  count:8,
+  onvaluechange : function( sliderNumber, sliderValue) { b.setValue('number : ' + sliderNumber + ', value : ' + sliderValue) },
+});    
+panel = new Interface.Panel();  
+panel.add(a,b);
+`  
+## Constructor   
+**param** *properties*: Object. A dictionary of property values (see below) to set for the label on initialization.
+- - - -
+**/
+/**###Interface.MultiSlider.count : property
+Number. The number of sliders in the widget
+**/
 Interface.MultiSlider = function() {
   Interface.extend(this, {
     type : 'MultiSlider',    
@@ -2205,6 +2272,35 @@ Interface.MultiSlider = function() {
 };
 Interface.MultiSlider.prototype = Interface.Widget;
 
+/**#Interface.MultiButton - Widget
+Multiple buttons that share the same event handlers and colors. When a MultiButton sends OSC, it comes in the form of three integers representing the row of the button
+pressed, the column of the button pressed, and the button's value. Any onvaluechange method attached to the MultiButton widget should have a
+similar signature; see the example below.
+## Example Usage##
+`b = new Interface.Label({ bounds:[.5,.5,.5,.5], size:12 });
+a = new Interface.MultiButton({ 
+  bounds:[0,0,.5,.5], 
+  fill:'white',
+  rows: 4,
+  columns: 4,
+  onvaluechange : function( row, column, value) { b.setValue('row : ' + row + ', column : ' + column + ', value : ' + value) },
+});    
+panel = new Interface.Panel();  
+panel.add(a,b);
+`  
+## Constructor   
+**param** *properties*: Object. A dictionary of property values (see below) to set for the label on initialization.
+- - - -
+**/
+/**###Interface.MultiButton.rows : property
+Number. The number of rows of buttons in the widgets. When combined with the columns property this determines the overall number of buttons in the widget.
+**/
+/**###Interface.MultiButton.columns : property
+Number. The number of columns of buttons in the widgets. When combined with the rows property this determines the overall number of buttons in the widget.
+**/
+/**###Interface.MultiButton.mode : property
+String. Can be 'toggle', 'momentary' or 'contact'. In toggle mode, the button turns on when it is pressed and off when it is pressed again. In momentary mode, the button turns on when pressed and off when released. In contact mode, the button briefly flashes when pressed and sends its value.
+**/
 Interface.MultiButton = function() {
   Interface.extend(this, {
     type : 'MultiButton',    
@@ -2350,6 +2446,60 @@ Interface.MultiButton = function() {
 };
 Interface.MultiButton.prototype = Interface.Widget;
 
+/**#Interface.Accelerometer - Widget
+Access to the Accelerometer. Unlike the Orientation widget, this is only found on mobile devices.
+
+## Example Usage##
+`var a = new Interface.Panel();  
+var accelerometer = new Interface.Accelerometer({  
+  onvaluechange : function(_x,_y,_z) {  
+    x.setValue(_x);  
+    y.setValue(_y);  
+    z.setValue(_z);        
+  }  
+}).start();  
+var x = new Interface.Slider({  
+  label: 'x',  
+  bounds:[.05,.05,.2,.9]  
+});  
+var y = new Interface.Slider({  
+  label: 'y',  
+  bounds:[.25,.05,.2,.9]  
+});  
+var z = new Interface.Slider({  
+  label: 'z',   
+  bounds:[.45,.05,.2,.9]  
+});  
+  
+a.background = 'black';  
+a.add(x,y,z);  
+`  
+## Constructor   
+**param** *properties*: Object. A dictionary of property values (see below) to set for the label on initialization.
+- - - -
+**/
+/**###Interface.Accelerometer.x : property
+Number. A read-only property that gives the current accleration on the x-axis
+**/
+/**###Interface.Accelerometer.y : property
+Number. A read-only property that gives the current accleration on the y-axis
+**/
+/**###Interface.Accelerometer.z : property
+Number. A read-only property that gives the current accleration on the z-axis
+**/
+/**###Interface.Accelerometer.start : method
+Starts emitting values from the Orientation measurements
+**/
+/**###Interface.Accelerometer.stop : method
+Stop emitting values from the Orientation measurements
+**/
+/**###Interface.Accelerometer.onvaluechange : method
+The event handler fired whenever an orientation update is received
+  
+param **x** Number. The x-acceleration of the sensor
+param **y** Number. The y-acceleration of the sensor
+param **x** Number. The z-acceleration of the sensor
+**/
 Interface.Accelerometer = function() {
   var self = this,
       metersPerSecondSquared = 9.80665;
@@ -2398,6 +2548,61 @@ Interface.Accelerometer = function() {
 };
 Interface.Accelerometer.prototype = Interface.Widget;
 
+/**#Interface.Orientation - Widget
+Access to the device's Orientation. This is only found on mobile devices, with the exception of Google Chrome, which provides pitch and roll.
+
+## Example Usage##
+`var a = new Interface.Panel()  
+  
+var orientation = new Interface.Orientation({  
+  onvaluechange : function(_pitch, _roll, _yaw, _heading) {  
+    pitch.setValue(_pitch);  
+    roll.setValue(_roll);  
+    yaw.setValue(_yaw);        
+  }  
+});  
+var pitch = new Interface.Slider({  
+  label: 'pitch',  
+  bounds:[.05,.05,.2,.9]  
+});  
+var roll = new Interface.Slider({  
+  label: 'roll',  
+  bounds:[.25,.05,.2,.9]  
+});  
+var yaw = new Interface.Slider({  
+  label: 'yaw',   
+  bounds:[.45,.05,.2,.9]  
+});  
+  
+a.add(pitch, roll, yaw);
+`  
+## Constructor   
+**param** *properties*: Object. A dictionary of property values (see below) to set for the label on initialization.
+- - - -
+**/
+/**###Interface.Orientation.pitch : property
+Number. A read-only property that gives the current orientation on the x-axis
+**/
+/**###Interface.Orientation.roll : property
+Number. A read-only property that gives the current orientation on the y-axis
+**/
+/**###Interface.Orientation.yaw : property
+Number. A read-only property that gives the current orientation on the z-axis
+**/
+/**###Interface.Orientation.start : method
+Starts emitting values from the Orientation measurements
+**/
+/**###Interface.Orientation.stop : method
+Stop emitting values from the Orientation measurements
+**/
+/**###Interface.Orientation.onvaluechange : method
+The event handler fired whenever an orientation update is received
+  
+param **pitch** Number. The pitch of the sensor
+param **roll** Number. The roll of the sensor
+param **yaw** Number. The yaw of the sensor
+param **heading** Number. The heading of the sensor, this corresponds to the compass direction detected.
+**/
 Interface.Orientation = function() {
   var _self = this;
   
