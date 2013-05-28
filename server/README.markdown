@@ -6,18 +6,15 @@ The Interface.js Server has two purposes:
   1) it serves interfaces to any browser on the local network
   2) it translates network messages from your browser into OSC or MIDI messages.
   
-If you want to use the server, you'll need to have [node.js][nodejs] installed. Node.js will provide most of the functionality we need to serve web pages, but we'll also need to add a few utility libraries to send OSC and MIDI and carry out a few other specialized tasks. We can install these utilities using the Node Package Manager, or NPM, which is installed with Node.js. Open a terminal, cd into the directory where this README is located and run the following commands:
+If you want to use the server, you'll need to have [node.js][nodejs] installed. Node.js will provide most of the functionality we need to serve web pages, but we'll also need to add a few utility libraries to send OSC and MIDI and carry out a few other specialized tasks. We can install these utilities using the Node Package Manager, or NPM, which is installed with Node.js. Open a terminal, cd into the directory where this README is located and run the following command:
 
 ```
-npm install midi
-npm install omgosc
-npm install connect
-npm install ws
+npm install
 ```
 
 Once these libraries are installed execute the following command to start the server:
 
-```node interface.server.js```
+```node interface.simpleserver.js```
 
 This will start the web server running on port 8080.
 

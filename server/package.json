@@ -1,0 +1,25 @@
+{
+  "name": "interface.js",
+  "version": "1.0.0",
+  "description": "Interface.js is a GUI library designed to be device agnostic; it works with mouse, touch and motion events.",
+  "main": "interface.simpleserver.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/charlieroberts/interface.js/"
+  },
+  "keywords": [
+    "GUI"
+  ],
+  "author": "Charlie Roberts",
+  "license": "BSD",
+  "readmeFilename": "README.markdown",
+  "dependencies": {
+    "connect": "*",
+    "midi": "*",
+    "omgosc": "*",
+    "ws": "*"
+  }
+}
