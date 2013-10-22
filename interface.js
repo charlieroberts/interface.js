@@ -1628,27 +1628,31 @@ Interface.XY = function() {
     changeValue : function( touch, xOffset, yOffset ) {
       if(this.hasFocus || !this.requiresFocus) {
         touch.x = xOffset;
-        if(touch.x < 0 ) touch.x = 0;
-        if(touch.x > this._width()) touch.x = this._width();
+        if( touch.x < 0 ) touch.x = 0;
+        if( touch.x > this._width() ) touch.x = this._width();
                 
-        touch.y = yOffset;// - this.half;
-        if(touch.y < 0) touch.y = 0;
-        if(touch.y > this._height()) touch.y = this._height();        
-        this.values[touch.id].x = xOffset / this._width();
-        this.values[touch.id].y = yOffset / this._height();
-                
-        if(this.onvaluechange) this.onvaluechange();
+        touch.y = yOffset;
+        if( touch.y < 0 ) touch.y = 0;
+        if( touch.y > this._height() ) touch.y = this._height();
+        this.values[ touch.id ].x = xOffset / this._width();
+        this.values[ touch.id ].y = yOffset / this._height();
+
+        if( this.onvaluechange ) this.onvaluechange();
+        this.sendValues()
         
-        if(!this.usePhysics) {
+        if( !this.usePhysics ) {
           this.refresh();
         }
       }     
     },
     
     makeChildren : function() {
-      for(var i = 0; i < this.numChildren; i++) {
-        this.children.push({ id:i, x:Math.random() * this._width(), y:Math.random() * this._height(), vx:0, vy:0, collideFlag:false, isActive:false, lastPosition:null, });
-        this.values.push({ x:null, y:null });
+      for( var i = 0; i < this.numChildren; i++ ) {
+        var _x = Math.random() * this._width(), 
+            _y = Math.random() * this._height()
+            
+        this.children.push({ id:i, x:_x, y:_y, vx:0, vy:0, collideFlag:false, isActive:false, lastPosition:null, });
+        this.values.push({ x:_x / this._width(), y:_y / this._height() });
       }
     },
     
