@@ -1518,7 +1518,7 @@ Interface.XY = function() {
       var tt = '';
       this._values.length = 0;
       for(var i = 0; i < this.values.length; i++) {
-        tt += ss;
+        tt += 'ff';
         this._values.push( this.values[i].x );
         this._values.push( this.values[i].y );        
       }
