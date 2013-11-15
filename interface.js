@@ -1104,8 +1104,12 @@ Interface.Button = function() {
       }
     },
     mouseup   : function(e) {
-      if(this.mode === 'momentary')
-        this.changeValue();// e.x - this.x, e.y - this.y ); 
+      if(this.mode === 'momentary') {
+        if( this.requiresFocus || ( !this.requiresFocus && this.isMouseOver) ) {
+          this.isMouseOver = false;
+          this.changeValue();
+        }
+      }
     },
     
     touchstart : function(e, hit) {
@@ -1123,7 +1127,16 @@ Interface.Button = function() {
         this.isTouchOver = true;
         if(this.mode !== 'contact') {
           this.changeValue();// e.x - this.x, e.y - this.y );
-          
+        }else{
+          this._value = 1;
+          this.draw();
+          var self = this;
+          setTimeout( function() { self._value = 0; self.draw(); }, 75);
+        }
+      }else if(!hit && this.isTouchOver) {
+        this.isTouchOver = false;
+        if(this.mode !== 'contact') {
+          this.changeValue();// e.x - this.x, e.y - this.y );
         }else{
           this._value = 1;
           this.draw();
@@ -1136,8 +1149,10 @@ Interface.Button = function() {
     },
     touchend   : function(e) {
       this.isTouchOver = false;
-      if(this.mode === 'momentary')
-        this.changeValue();// e.x - this.x, e.y - this.y ); 
+      if( this.requiresFocus || ( !this.requiresFocus && this.isTouchOver) ) {
+        this.isTouchOver = false;
+        this.changeValue();
+      }
     },
   })
   .init( arguments[0] );
