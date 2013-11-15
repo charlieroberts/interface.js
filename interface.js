@@ -1093,6 +1093,14 @@ Interface.Button = function() {
         }
       }else if(!hit && this.isMouseOver) {
         this.isMouseOver = false;
+        if(this.mode !== 'contact') {
+          this.changeValue();// e.x - this.x, e.y - this.y ); 
+        }else{
+          this._value = 1;
+          this.draw();
+          var self = this;
+          setTimeout( function() { self._value = 0; self.draw(); }, 75);
+        }
       }
     },
     mouseup   : function(e) {
