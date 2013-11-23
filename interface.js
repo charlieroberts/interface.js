@@ -1138,7 +1138,7 @@ Interface.Button = function() {
 Interface.Button.prototype = Interface.Widget;
 
 
-/**#Interface.ButtonV - Widget
+/**#Interface.ButtonV - Widget - contributed by Jonathan Simozar
 A button with a customizable shape and variety of on/off modes
 
 ## Example Usage##
@@ -1381,7 +1381,7 @@ Interface.ButtonV = function() {
 };
 Interface.ButtonV.prototype = Interface.Widget;
 
-/**#Interface.Piano - Widget
+/**#Interface.Piano - Widget - contributed by Jonathan Simozar
 A piano with adjustable ranges of pitches 
 
 ## Example Usage##
@@ -1391,6 +1391,8 @@ A piano with adjustable ranges of pitches
    startoctave : 3,
    endletter : "C",
    endoctave : 5, 
+   target: synth,
+   onvaluechange : function() {this.target.note (this.frequency, this.value)},
 });
 panel = new Interface.Panel();
 panel.add(a);
@@ -1400,6 +1402,17 @@ panel.add(a);
 **param** *properties*: Object. A dictionary of property values (see below) to set for the piano on initialization.
 - - - -
 **/
+
+
+/**###Interface.Piano.onvaluechange : method
+The event handler fired whenever a piano update is received. Used to fire the the event handler for when a button update is recieved.
+**/
+
+
+/**###Interface.Piano.endoctave : property
+Number. A number corresponding to the ending octave of the last note in the desired range.
+**/
+
 /**###Interface.Piano.startletter : property
 String. A letter corresponding to the starting pitch for the desired range. To start on an accidental use sharps, not flats. For example, C#.
 **/
@@ -1416,6 +1429,11 @@ String. A letter corresponding to the ending pitch for the desired range. To end
 Number. A number corresponding to the ending octave of the last note in the desired range.
 **/
 
+/**###Interface.Piano.target : property
+Object. The instrument used to make sound on each key.
+**/
+
+
 
 Interface.Piano = function() {
   Interface.extend(this, {
@@ -1430,6 +1448,8 @@ Interface.Piano = function() {
     startoctave : 3,
     endletter : "C",
     endoctave : 5,
+    target : synth,
+    onvaluechange : function() {this.target.note (this.frequency, this.value)},
 
     _init : function() {
       var x = this._x(),
@@ -1458,13 +1478,14 @@ Interface.Piano = function() {
       //if (startnote == 2 || startote == 4 || startnote == 7 || startnote == 9 || startnote == 11)
       //  dist--;
       for (i = 0; i < notes-1; i++) {
-        if (startnote == 1 || startnote == 6) {
+        if (startnote == 1) {
           var pkeys = new Interface.ButtonV({ 
-              points: [{x:0,y:0},{x:.55,y:0},{x:.55,y:.625},{x:1,y:.625},{x:1,y:1},{x:0,y:1},{x:0,y:0}], //left
+              points: [{x:0,y:0},{x:.6,y:0},{x:.6,y:.625},{x:1,y:.625},{x:1,y:1},{x:0,y:1},{x:0,y:0}], //left
               textLocation : {x:.5, y:.75},
               background: "#999",
               stroke: "#111",
-              onvaluechange: function() {synth.note (this.frequency, this.value)},
+              target : this.target,
+              onvaluechange: this.onvaluechange,
               frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
               bounds:[j/dist*this.width + this.x,this.y,this.width/dist,this.height],  
               label:keylabel[startnote],
@@ -1472,11 +1493,56 @@ Interface.Piano = function() {
               mode:'momentary'
             });
           }
-        else if (startnote == 5 || startnote == 12) {
+          else if (startnote == 2) {
           var pkeys = new Interface.ButtonV({ 
-              points: [{x:1,y:0},{x:.45,y:0},{x:.45,y:.625},{x:0,y:.625},{x:0,y:1},{x:1,y:1},{x:1,y:0}], //right
+              points: [{x:.1,y:0},{x:.7,y:0},{x:.7,y:1},{x:.1,y:1},{x:.1,y:0}], //black
+              textLocation : {x:.3925, y:.5},
+              target : this.target,
+              onvaluechange: this.onvaluechange,
+              frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
+              bounds:[(j-.5)/dist *this.width + this.x, this.y,this.width/dist,.625*this.height],  
+              label:keylabel[startnote],
+              requiresFocus : false,
+              mode:'momentary'
+            });
+          j--;
+          }
+          else if (startnote == 3) {
+          var pkeys = new Interface.ButtonV({ 
+              points: [{x:.2,y:0},{x:.8,y:0},{x:.8,y:.625},{x:1,y:.625},{x:1,y:1},{x:0,y:1},{x:0,y:.625},{x:.2,y:.625},{x:.2,y:0}], //middle
               textLocation : {x:.5, y:.75},
-              onvaluechange: function() {synth.note (this.frequency, this.value)},
+              target : this.target,
+              onvaluechange: this.onvaluechange,
+              frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
+              background: "#999",
+              stroke: "#111",
+              bounds:[j/dist*this.width + this.x,this.y,this.width/dist,this.height],  
+              label:keylabel[startnote],
+              requiresFocus : false,
+              //value : 0,
+              mode:'momentary'
+            });
+          }
+        else if (startnote == 4) {
+          var pkeys = new Interface.ButtonV({ 
+              points: [{x:.3,y:0},{x:.9,y:0},{x:.9,y:1},{x:.3,y:1},{x:.3,y:0}], //black
+              textLocation : {x:.6075, y:.5},
+              target : this.target,
+              onvaluechange: this.onvaluechange,
+              frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
+              bounds:[(j-.5)/dist *this.width + this.x, this.y,this.width/dist,.625*this.height],  
+              label:keylabel[startnote],
+              requiresFocus : false,
+              mode:'momentary'
+            });
+          j--;
+        }
+        else if (startnote == 5) {
+          var pkeys = new Interface.ButtonV({ 
+              points: [{x:1,y:0},{x:.4,y:0},{x:.4,y:.625},{x:0,y:.625},{x:0,y:1},{x:1,y:1},{x:1,y:0}], //right
+              textLocation : {x:.5, y:.75},
+              target : this.target,
+              onvaluechange: this.onvaluechange,
               frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
               background: "#999",
               stroke: "#111",
@@ -1487,79 +1553,42 @@ Interface.Piano = function() {
               mode:'momentary',
             });
           }
-        else if (startnote == 2) {
+          else if (startnote == 6) {
           var pkeys = new Interface.ButtonV({ 
-              points: [{x:.05,y:0},{x:.765,y:0},{x:.765,y:1},{x:.05,y:1},{x:.05,y:0}], //black
-              textLocation : {x:.3925, y:.5},
-              onvaluechange: function() {synth.note (this.frequency, this.value)},
-              frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
-              bounds:[(j-.5)/dist *this.width + this.x, this.y,this.width/dist,.625*this.height],  
-              label:keylabel[startnote],
-              requiresFocus : false,
-              mode:'momentary'
-            });
-          j--;
-        }
-        else if (startnote == 4) {
-          var pkeys = new Interface.ButtonV({ 
-              points: [{x:.265,y:0},{x:.95,y:0},{x:.95,y:1},{x:.265,y:1},{x:.265,y:0}], //black
-              textLocation : {x:.6075, y:.5},
-              onvaluechange: function() {synth.note (this.frequency, this.value)},
-              frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
-              bounds:[(j-.5)/dist *this.width + this.x, this.y,this.width/dist,.625*this.height],  
-              label:keylabel[startnote],
-              requiresFocus : false,
-              mode:'momentary'
-            });
-          j--;
-        }
-        else if (startnote == 7) {
-          var pkeys = new Interface.ButtonV({ 
-              points: [{x:.05,y:0},{x:.765,y:0},{x:.765,y:1},{x:.05,y:1},{x:.05,y:0}], //black
-              textLocation : {x:.3925, y:.5},
-              onvaluechange: function() {synth.note (this.frequency, this.value)},
-              frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
-              bounds:[(j-.5)/dist*this.width + this.x, this.y,this.width/dist,.625*this.height],  
-              label:keylabel[startnote],
-              requiresFocus : false,
-              //value : 0,
-              mode:'momentary'
-            });
-          j--;
-        }
-        else if (startnote == 9) {
-          var pkeys = new Interface.ButtonV({ 
-            points: [{x:.175,y:0},{x:.825,y:0},{x:.825,y:1},{x:.175,y:1},{x:.175,y:0}], //black
-              onvaluechange: function() {synth.note (this.frequency, this.value)},
-              frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
-              bounds:[(j-.5)/dist*this.width + this.x, this.y,this.width/dist,.625*this.height],  
-              label:keylabel[startnote],
-              requiresFocus : false,
-              //value : 0,
-              mode:'momentary'
-            });
-          j--;
-        }
-        else if (startnote == 11) {
-          var pkeys = new Interface.ButtonV({ 
-              points: [{x:.265,y:0},{x:.95,y:0},{x:.95,y:1},{x:.265,y:1},{x:.265,y:0}], //black
-              textLocation : {x:.6075, y:.5},
-              onvaluechange: function() {synth.note (this.frequency, this.value)},
-              frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
-              bounds:[(j-.5)/dist*this.width + this.x, this.y,this.width/dist,.625*this.height],  
-              label:keylabel[startnote],
-              requiresFocus : false,
-              //value : 0,
-              mode:'momentary'
-            });
-          j--;
-        }
-         
-        else if (startnote == 3 || startnote == 8 || startnote == 10) {
-          var pkeys = new Interface.ButtonV({ 
-              points: [{x:.235,y:0},{x:.765,y:0},{x:.765,y:.625},{x:1,y:.625},{x:1,y:1},{x:0,y:1},{x:0,y:.625},{x:.235,y:.625},{x:.235,y:0}], //middle
+              points: [{x:0,y:0},{x:0.57142857,y:0},{x:0.57142857,y:.625},{x:1,y:.625},{x:1,y:1},{x:0,y:1},{x:0,y:0}], //left
               textLocation : {x:.5, y:.75},
-              onvaluechange: function() {synth.note (this.frequency, this.value)},
+              background: "#999",
+              stroke: "#111",
+              target : this.target,
+              onvaluechange: this.onvaluechange,
+              frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
+              bounds:[j/dist*this.width + this.x,this.y,this.width/dist,this.height],  
+              label:keylabel[startnote],
+              requiresFocus : false,
+              mode:'momentary'
+            });
+          }
+          else if (startnote == 7) {
+          var pkeys = new Interface.ButtonV({ 
+              points: [{x:0.07142857,y:0},{x:0.64285714,y:0},{x:0.64285714,y:1},{x:0.07142857,y:1},{x:0.07142857,y:0}], //black
+              textLocation : {x:.3925, y:.5},
+              target : this.target,
+              onvaluechange: this.onvaluechange,
+              frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
+              bounds:[(j-.5)/dist*this.width + this.x, this.y,this.width/dist,.625*this.height],  
+              label:keylabel[startnote],
+              requiresFocus : false,
+              //value : 0,
+              mode:'momentary'
+            });
+          j--;
+        }
+        else if (startnote == 8) {
+          var pkeys = new Interface.ButtonV({ 
+              points: [{x:0.14285714,y:0},{x:0.71428571,y:0},{x:0.71428571,y:.625},{x:1,y:.625},{x:1,y:1},{x:0,y:1},{x:0,y:.625},{x:0.14285714,y:.625},{x:0.14285714,y:0}], //middle
+              textLocation : {x:.5, y:.75},
+              target : this.target,
+              onvaluechange: this.onvaluechange,
               frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
               background: "#999",
               stroke: "#111",
@@ -1570,7 +1599,70 @@ Interface.Piano = function() {
               mode:'momentary'
             });
           }
-       
+            
+        
+        else if (startnote == 9) {
+          var pkeys = new Interface.ButtonV({ 
+            points: [{x:0.21428571,y:0},{x:0.78571428,y:0},{x:0.78571428,y:1},{x:0.21428571,y:1},{x:0.21428571,y:0}], //black
+              target : this.target,
+              onvaluechange: this.onvaluechange,
+              frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
+              bounds:[(j-.5)/dist*this.width + this.x, this.y,this.width/dist,.625*this.height],  
+              label:keylabel[startnote],
+              requiresFocus : false,
+              //value : 0,
+              mode:'momentary'
+            });
+          j--;
+        }
+        else if (startnote == 10) {
+          var pkeys = new Interface.ButtonV({ 
+              points: [{x:0.28571428,y:0},{x:0.85714285,y:0},{x:0.85714285,y:.625},{x:1,y:.625},{x:1,y:1},{x:0,y:1},{x:0,y:.625},{x:0.28571428,y:.625},{x:0.28571428,y:0}], //middle
+              textLocation : {x:.5, y:.75},
+              target : this.target,
+              onvaluechange: this.onvaluechange,
+              frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
+              background: "#999",
+              stroke: "#111",
+              bounds:[j/dist*this.width + this.x,this.y,this.width/dist,this.height],  
+              label:keylabel[startnote],
+              requiresFocus : false,
+              //value : 0,
+              mode:'momentary'
+            });
+          }
+        else if (startnote == 11) {
+          var pkeys = new Interface.ButtonV({ 
+              points: [{x:0.35714285,y:0},{x:0.92857142,y:0},{x:0.92857142,y:1},{x:0.35714285,y:1},{x:0.35714285,y:0}], //black
+              textLocation : {x:.6075, y:.5},
+              target : this.target,
+              onvaluechange: this.onvaluechange,
+              frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
+              bounds:[(j-.5)/dist*this.width + this.x, this.y,this.width/dist,.625*this.height],  
+              label:keylabel[startnote],
+              requiresFocus : false,
+              //value : 0,
+              mode:'momentary'
+            });
+          j--;
+        }
+         else if (startnote == 12) {
+          var pkeys = new Interface.ButtonV({ 
+              points: [{x:1,y:0},{x:0.42857142,y:0},{x:0.42857142,y:.625},{x:0,y:.625},{x:0,y:1},{x:1,y:1},{x:1,y:0}], //right
+              textLocation : {x:.5, y:.75},
+              target : this.target,
+              onvaluechange: this.onvaluechange,
+              frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
+              background: "#999",
+              stroke: "#111",
+              bounds:[j/dist*this.width+ this.x,this.y,this.width/dist,this.height],  
+              label:keylabel[startnote],
+              requiresFocus : false,
+              //value : 0,
+              mode:'momentary',
+            });
+          }
+        
         this.panel.add(pkeys);
         j++;
         startnote++;
@@ -1583,7 +1675,8 @@ Interface.Piano = function() {
       if (startnote == 2 || startnote == 4 || startnote == 7 || startnote == 9 || startnote == 11)
         var pkeys = new Interface.ButtonV({ 
             points: [{x:.166,y:0},{x:.5,y:0},{x:.5,y:1},{x:.166,y:1},{x:.166,y:0}], //black
-              onvaluechange: function() {synth.note (this.frequency, this.value)},
+              target : this.target,
+              onvaluechange: this.onvaluechange,
               frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
               bounds:[(j-.5)/dist*this.width + this.x, this.y,this.width/dist,.625*this.height],  
               label:keylabel[startnote],
@@ -1593,7 +1686,8 @@ Interface.Piano = function() {
       else if (startnote == 1 || startnote == 4)
         var pkeys = new Interface.ButtonV({ 
               textLocation : {x:.5, y:.75},
-              onvaluechange: function() {synth.note (this.frequency, this.value)},
+              target : this.target,
+              onvaluechange: this.onvaluechange,
               frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
               background: "#999",
               stroke: "#111",
@@ -1606,7 +1700,8 @@ Interface.Piano = function() {
         var pkeys = new Interface.ButtonV({ 
               points: [{x:1,y:0},{x:.33,y:0},{x:.33,y:.625},{x:0,y:.625},{x:0,y:1},{x:1,y:1},{x:1,y:0}], //right
               textLocation : {x:.5, y:.75},
-              onvaluechange: function() {synth.note (this.frequency, this.value)},
+              target : this.target,
+              onvaluechange: this.onvaluechange,
               frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
               background: "#999",
               stroke: "#111",
@@ -3071,13 +3166,13 @@ Number. A read-only property that gives the current accleration on the y-axis
 Number. A read-only property that gives the current accleration on the z-axis
 **/
 /**###Interface.Accelerometer.start : method
-Starts emitting values from the Orientation measurements
+Starts emitting values from the Accelerometer measurements
 **/
 /**###Interface.Accelerometer.stop : method
-Stop emitting values from the Orientation measurements
+Stop emitting values from the Accelerometer measurements
 **/
 /**###Interface.Accelerometer.onvaluechange : method
-The event handler fired whenever an orientation update is received
+The event handler fired whenever an accelerometer update is received
   
 param **x** Number. The x-acceleration of the sensor
 param **y** Number. The y-acceleration of the sensor
