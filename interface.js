@@ -2193,7 +2193,11 @@ Interface.MultiSlider = function() {
         this.ctx.strokeRect( sliderX, y, sliderWidth, height );         
       }      
     },
-
+    setValue : function( sliderNum, value ) {
+      this.values[ sliderNum ] = value
+      this._values[ sliderNum ] = value
+      this.refresh()
+    },
     changeValue : function( xOffset, yOffset ) {
       if(this.hasFocus || !this.requiresFocus) {
         var width   = this._width(),
