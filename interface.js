@@ -1146,18 +1146,22 @@ Interface.Button = function() {
 Interface.Button.prototype = Interface.Widget;
 
 
-/**#Interface.ButtonV - Widget - contributed by Jonathan Simozar
+/**#Interface.ButtonV - Widget
 A button with a customizable shape and variety of on/off modes
+
+*contributed by Jonathan Simozar
 
 ## Example Usage##
 `a = new Interface.ButtonV({
-  bounds:[.25,0,.125,.8],  
-  points: [{x:1,y:0},{x:.5,y:0},{x:.5,y:.5},{x:0,y:.5},{x:0,y:1},{x:1,y:1},{x:1,y:0}], //right
-  mode:'contact'
+  bounds:[.25,0,.125,.8], 
+  points: [{x:1,y:0},{x:.5,y:0},{x:.5,y:.5},{x:0,y:.5},{x:0,y:1},{x:1,y:1},{x:1,y:0}],
+  mode:'contact',
   label:'test',
   textLocation : {x:.5, y:.75},
 });
+
 panel = new Interface.Panel();
+
 panel.add(a);
 `
   
@@ -1213,15 +1217,20 @@ Interface.ButtonV = function() {
       }
 
       this.ctx.beginPath();
-      this.ctx.strokeStyle = this._stroke;
-      this.ctx.moveTo(x, y);      
+      this.ctx.strokeStyle = this._stroke();
 
+      
       for (i; i < this.points.length; i++) {
-        this.ctx.lineTo(x + this.points[i].x*width, y + this.points[i].y*height);  
+        if (i === 0) {
+          this.ctx.moveTo(x + this.points[i].x*width, y + this.points[i].y*height);      
+        }
+        else
+          this.ctx.lineTo(x + this.points[i].x*width, y + this.points[i].y*height);  
       }   //this.points[i].x is how to reference points.x
       this.ctx.lineTo(x + this.points[0].x*width, y + this.points[0].y*height);
       this.ctx.closePath();  
       this.ctx.fill();
+      this.ctx.stroke();
       
       
       if(this.label !== null) {
@@ -1389,8 +1398,12 @@ Interface.ButtonV = function() {
 };
 Interface.ButtonV.prototype = Interface.Widget;
 
-/**#Interface.Piano - Widget - contributed by Jonathan Simozar
+
+/**#Interface.Piano - Widget
 A piano with adjustable ranges of pitches 
+
+*contributed by Jonathan Simozar
+
 
 ## Example Usage##
 `var c = new Interface.Piano({ 
@@ -1398,7 +1411,8 @@ A piano with adjustable ranges of pitches
   startletter : "C",
    startoctave : 3,
    endletter : "C",
-   endoctave : 5, 
+   endoctave : 5,
+   noteLabels : true, 
    target: synth,
    onvaluechange : function() {this.target.note (this.frequency, this.value)},
 });
@@ -1437,6 +1451,10 @@ String. A letter corresponding to the ending pitch for the desired range. To end
 Number. A number corresponding to the ending octave of the last note in the desired range.
 **/
 
+/**###Interface.Piano.noteLabels : property
+Boolean. A boolean corresponding to showing the note labels when true and hiding the note labels when false.
+**/
+
 /**###Interface.Piano.target : property
 Object. The instrument used to make sound on each key.
 **/
@@ -1456,8 +1474,12 @@ Interface.Piano = function() {
     startoctave : 3,
     endletter : "C",
     endoctave : 5,
-    target : synth,
-    onvaluechange : function() {this.target.note (this.frequency, this.value)},
+    target : null,
+    noteLabels : false,
+    onvaluechange : function() {
+      this.values = [this.frequency,this.value]
+      this.sendTargetMessage()
+    },
 
     _init : function() {
       var x = this._x(),
@@ -1482,21 +1504,19 @@ Interface.Piano = function() {
       var j = 0;
       if (endnote == 2 || endnote == 4 || endnote == 7 || endnote == 9 || endnote == 11)
         dist--;
-      //figure out beginning
-      //if (startnote == 2 || startote == 4 || startnote == 7 || startnote == 9 || startnote == 11)
-      //  dist--;
-      for (i = 0; i < notes-1; i++) {
+     for (i = 0; i < notes-1; i++) {
         if (startnote == 1) {
           var pkeys = new Interface.ButtonV({ 
               points: [{x:0,y:0},{x:.6,y:0},{x:.6,y:.625},{x:1,y:.625},{x:1,y:1},{x:0,y:1},{x:0,y:0}], //left
               textLocation : {x:.5, y:.75},
-              background: "#999",
-              stroke: "#111",
+              background: this._fill(),
+              fill: this._background(),
+              stroke: this._stroke(),
               target : this.target,
               onvaluechange: this.onvaluechange,
               frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
               bounds:[j/dist*this.width + this.x,this.y,this.width/dist,this.height],  
-              label:keylabel[startnote],
+              label: this.noteLabels ? keylabel[startnote] + octave : null,
               requiresFocus : false,
               mode:'momentary'
             });
@@ -1505,11 +1525,13 @@ Interface.Piano = function() {
           var pkeys = new Interface.ButtonV({ 
               points: [{x:.1,y:0},{x:.7,y:0},{x:.7,y:1},{x:.1,y:1},{x:.1,y:0}], //black
               textLocation : {x:.3925, y:.5},
+              stroke: this._stroke(),
               target : this.target,
+              background: this._background(),
               onvaluechange: this.onvaluechange,
               frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
               bounds:[(j-.5)/dist *this.width + this.x, this.y,this.width/dist,.625*this.height],  
-              label:keylabel[startnote],
+              label: this.noteLabels ? keylabel[startnote] : null,
               requiresFocus : false,
               mode:'momentary'
             });
@@ -1522,10 +1544,11 @@ Interface.Piano = function() {
               target : this.target,
               onvaluechange: this.onvaluechange,
               frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
-              background: "#999",
-              stroke: "#111",
+              background: this._fill(),
+              fill: this._background(),
+              stroke: this._stroke(),
               bounds:[j/dist*this.width + this.x,this.y,this.width/dist,this.height],  
-              label:keylabel[startnote],
+              label: this.noteLabels ? keylabel[startnote] : null,
               requiresFocus : false,
               //value : 0,
               mode:'momentary'
@@ -1537,9 +1560,11 @@ Interface.Piano = function() {
               textLocation : {x:.6075, y:.5},
               target : this.target,
               onvaluechange: this.onvaluechange,
+background: this._background(),
+              stroke: this._stroke(),
               frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
               bounds:[(j-.5)/dist *this.width + this.x, this.y,this.width/dist,.625*this.height],  
-              label:keylabel[startnote],
+              label: this.noteLabels ? keylabel[startnote] : null,
               requiresFocus : false,
               mode:'momentary'
             });
@@ -1552,10 +1577,11 @@ Interface.Piano = function() {
               target : this.target,
               onvaluechange: this.onvaluechange,
               frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
-              background: "#999",
-              stroke: "#111",
+              background: this._fill(),
+              fill: this._background(),
+              stroke: this._stroke(),
               bounds:[j/dist*this.width+ this.x,this.y,this.width/dist,this.height],  
-              label:keylabel[startnote],
+              label: this.noteLabels ? keylabel[startnote] : null,
               requiresFocus : false,
               //value : 0,
               mode:'momentary',
@@ -1565,13 +1591,14 @@ Interface.Piano = function() {
           var pkeys = new Interface.ButtonV({ 
               points: [{x:0,y:0},{x:0.57142857,y:0},{x:0.57142857,y:.625},{x:1,y:.625},{x:1,y:1},{x:0,y:1},{x:0,y:0}], //left
               textLocation : {x:.5, y:.75},
-              background: "#999",
-              stroke: "#111",
+              background: this._fill(),
+              fill: this._background(),
+              stroke: this._stroke(),
               target : this.target,
               onvaluechange: this.onvaluechange,
               frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
               bounds:[j/dist*this.width + this.x,this.y,this.width/dist,this.height],  
-              label:keylabel[startnote],
+              label: this.noteLabels ? keylabel[startnote] : null,
               requiresFocus : false,
               mode:'momentary'
             });
@@ -1581,10 +1608,12 @@ Interface.Piano = function() {
               points: [{x:0.07142857,y:0},{x:0.64285714,y:0},{x:0.64285714,y:1},{x:0.07142857,y:1},{x:0.07142857,y:0}], //black
               textLocation : {x:.3925, y:.5},
               target : this.target,
+              stroke: this._stroke(),
+              background: this._background(),
               onvaluechange: this.onvaluechange,
               frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
               bounds:[(j-.5)/dist*this.width + this.x, this.y,this.width/dist,.625*this.height],  
-              label:keylabel[startnote],
+              label: this.noteLabels ? keylabel[startnote] : null,
               requiresFocus : false,
               //value : 0,
               mode:'momentary'
@@ -1598,10 +1627,11 @@ Interface.Piano = function() {
               target : this.target,
               onvaluechange: this.onvaluechange,
               frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
-              background: "#999",
-              stroke: "#111",
+              background: this._fill(),
+              fill: this._background(),
+              stroke: this._stroke(),
               bounds:[j/dist*this.width + this.x,this.y,this.width/dist,this.height],  
-              label:keylabel[startnote],
+              label: this.noteLabels ? keylabel[startnote] : null,
               requiresFocus : false,
               //value : 0,
               mode:'momentary'
@@ -1614,9 +1644,11 @@ Interface.Piano = function() {
             points: [{x:0.21428571,y:0},{x:0.78571428,y:0},{x:0.78571428,y:1},{x:0.21428571,y:1},{x:0.21428571,y:0}], //black
               target : this.target,
               onvaluechange: this.onvaluechange,
+              stroke: this._stroke(),
+              background: this._background(),
               frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
               bounds:[(j-.5)/dist*this.width + this.x, this.y,this.width/dist,.625*this.height],  
-              label:keylabel[startnote],
+              label: this.noteLabels ? keylabel[startnote] : null,
               requiresFocus : false,
               //value : 0,
               mode:'momentary'
@@ -1630,10 +1662,11 @@ Interface.Piano = function() {
               target : this.target,
               onvaluechange: this.onvaluechange,
               frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
-              background: "#999",
-              stroke: "#111",
+              background: this._fill(),
+              fill: this._background(),
+              stroke: this._stroke(),
               bounds:[j/dist*this.width + this.x,this.y,this.width/dist,this.height],  
-              label:keylabel[startnote],
+              label: this.noteLabels ? keylabel[startnote] : null,
               requiresFocus : false,
               //value : 0,
               mode:'momentary'
@@ -1645,9 +1678,11 @@ Interface.Piano = function() {
               textLocation : {x:.6075, y:.5},
               target : this.target,
               onvaluechange: this.onvaluechange,
+              background: this._background(),
+              stroke: this._stroke(),
               frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
               bounds:[(j-.5)/dist*this.width + this.x, this.y,this.width/dist,.625*this.height],  
-              label:keylabel[startnote],
+              label: this.noteLabels ? keylabel[startnote] : null,
               requiresFocus : false,
               //value : 0,
               mode:'momentary'
@@ -1661,10 +1696,11 @@ Interface.Piano = function() {
               target : this.target,
               onvaluechange: this.onvaluechange,
               frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
-              background: "#999",
-              stroke: "#111",
+              background: this._fill(),
+              fill: this._background(),
+              stroke: this._stroke(),
               bounds:[j/dist*this.width+ this.x,this.y,this.width/dist,this.height],  
-              label:keylabel[startnote],
+              label: this.noteLabels ? keylabel[startnote] : null,
               requiresFocus : false,
               //value : 0,
               mode:'momentary',
@@ -1685,22 +1721,39 @@ Interface.Piano = function() {
             points: [{x:.166,y:0},{x:.5,y:0},{x:.5,y:1},{x:.166,y:1},{x:.166,y:0}], //black
               target : this.target,
               onvaluechange: this.onvaluechange,
+              background: this._background(),
               frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
               bounds:[(j-.5)/dist*this.width + this.x, this.y,this.width/dist,.625*this.height],  
-              label:keylabel[startnote],
+              label: this.noteLabels ? keylabel[startnote] : null,
+              stroke: this._stroke(),
               requiresFocus : false,
               mode:'momentary'
             });
-      else if (startnote == 1 || startnote == 4)
+      else if (startnote == 1)
         var pkeys = new Interface.ButtonV({ 
               textLocation : {x:.5, y:.75},
               target : this.target,
               onvaluechange: this.onvaluechange,
               frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
-              background: "#999",
-              stroke: "#111",
+              background: this._fill(),
+              fill: this._background(),
+              stroke: this._stroke(),
               bounds:[j/dist*this.width + this.x,this.y,this.width/dist,this.height],  
-              label:keylabel[startnote],
+              label: this.noteLabels ? keylabel[startnote] + octave : null,
+              requiresFocus : false,
+              mode:'momentary'
+            });
+      else if (startnote == 4)
+        var pkeys = new Interface.ButtonV({ 
+              textLocation : {x:.5, y:.75},
+              target : this.target,
+              onvaluechange: this.onvaluechange,
+              frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
+              background: this._fill(),
+              fill: this._background(),
+              stroke: this._stroke(),
+              bounds:[j/dist*this.width + this.x,this.y,this.width/dist,this.height],  
+              label: this.noteLabels ? keylabel[startnote] : null,
               requiresFocus : false,
               mode:'momentary'
             });
@@ -1711,10 +1764,11 @@ Interface.Piano = function() {
               target : this.target,
               onvaluechange: this.onvaluechange,
               frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
-              background: "#999",
-              stroke: "#111",
+              background: this._fill(),
+              fill: this._background(),
+              stroke: this._stroke(),
               bounds:[j/dist*this.width + this.x,this.y,this.width/dist,this.height],  
-              label:keylabel[startnote],
+              label: this.noteLabels ? keylabel[startnote] : null,
               requiresFocus : false,
               mode:'momentary'
             });
@@ -1823,7 +1877,7 @@ Interface.Piano.prototype = Interface.Widget;
 
 
 /**#Interface.Knob - Widget
-A virtual knob. Great.
+A virtual knob.
 
 ## Example Usage##
 `a = new Interface.Knob({ x:.1, y:.1, radius:.3 });  
