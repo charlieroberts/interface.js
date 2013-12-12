@@ -121,6 +121,142 @@ a.add(b,c,d);
     </li>
     <li>
       <div class="interfaceCode">
+        <h3>ButtonV</h3>
+        
+        <pre><code data-language="javascript">
+var a = new Interface.Panel({  background:"#000", container:$("#buttonVPanel") });
+var b0 = new Interface.ButtonV({
+  bounds:[.2,.15,.2,.2], 
+  points: [{x:.2,y:0},{x:.8,y:0},{x:1,y:.5},{x:.8,y:1},{x:.2,y:1},{x:0,y:.5},{x:.2,y:0}],
+  mode:'toggle',
+  label:'Top',
+  textLocation : {x:.5, y:.5},
+});
+var b1 = new Interface.ButtonV({
+  bounds:[.04,.25,.2,.2], 
+  points: [{x:.2,y:0},{x:.8,y:0},{x:1,y:.5},{x:.8,y:1},{x:.2,y:1},{x:0,y:.5},{x:.2,y:0}],
+  mode:'toggle',
+  label:'Top Left',
+  textLocation : {x:.5, y:.5},
+});
+var b2 = new Interface.ButtonV({
+  bounds:[.36,.25,.2,.2], 
+  points: [{x:.2,y:0},{x:.8,y:0},{x:1,y:.5},{x:.8,y:1},{x:.2,y:1},{x:0,y:.5},{x:.2,y:0}],
+  mode:'toggle',
+  label:'Top Right',
+  textLocation : {x:.5, y:.5},
+});
+var b3 = new Interface.ButtonV({
+  bounds:[.2,.35,.2,.2], 
+  points: [{x:.2,y:0},{x:.8,y:0},{x:1,y:.5},{x:.8,y:1},{x:.2,y:1},{x:0,y:.5},{x:.2,y:0}],
+  mode:'toggle',
+  label:'Middle',
+  textLocation : {x:.5, y:.5},
+});
+var b4 = new Interface.ButtonV({
+  bounds:[.04,.45,.2,.2], 
+  points: [{x:.2,y:0},{x:.8,y:0},{x:1,y:.5},{x:.8,y:1},{x:.2,y:1},{x:0,y:.5},{x:.2,y:0}],
+  mode:'toggle',
+  label:'Bottom Left',
+  textLocation : {x:.5, y:.5},
+});
+var b5 = new Interface.ButtonV({
+  bounds:[.36,.45,.2,.2], 
+  points: [{x:.2,y:0},{x:.8,y:0},{x:1,y:.5},{x:.8,y:1},{x:.2,y:1},{x:0,y:.5},{x:.2,y:0}],
+  mode:'toggle',
+  label:'Bottom Right',
+  textLocation : {x:.5, y:.5},
+});
+var b6 = new Interface.ButtonV({
+  bounds:[.2,.55,.2,.2], 
+  points: [{x:.2,y:0},{x:.8,y:0},{x:1,y:.5},{x:.8,y:1},{x:.2,y:1},{x:0,y:.5},{x:.2,y:0}],
+  mode:'toggle',
+  label:'Bottom',
+  textLocation : {x:.5, y:.5},
+});
+var c = new Interface.ButtonV({ 
+  bounds:[.6,.05,.35,.9], 
+  points: [{x:0,y:0},{x:1,y:0},{x:1,y:1},{x:0,y:1},{x:0,y:.2},{x:.8,y:.2},{x:.8,y:.8},{x:.2,y:.8},{x:.2,y:.4},{x:.6,y:.4},
+          {x:.6,y:.5},{x:.3,y:.5},{x:.3,y:.5},{x:.3,y:.7},{x:.7,y:.7},{x:.7,y:.3},{x:.1,y:.3},{x:.1,y:.9},{x:.9,y:.9},{x:.9,y:.1},{x:0,y:.1},{x:0,y:0}],
+  mode:'momentary',
+  label:'Spiral',
+  textLocation : {x:.45, y:.45},
+});
+
+a.background = 'black';   
+a.add(b0,b1,b2,b3,b4,b5,b6,c);
+
+        </code></pre>
+      </div>
+      <div id='buttonVPanel' class='interfacePanel'>
+      </div>
+      <script>
+      var a = new Interface.Panel({  background:"#000", container:$("#buttonVPanel") });
+var b0 = new Interface.ButtonV({
+  bounds:[.2,.15,.2,.2], 
+  points: [{x:.2,y:0},{x:.8,y:0},{x:1,y:.5},{x:.8,y:1},{x:.2,y:1},{x:0,y:.5},{x:.2,y:0}],
+  mode:'toggle',
+  label:'Top',
+  textLocation : {x:.5, y:.5},
+});
+var b1 = new Interface.ButtonV({
+  bounds:[.04,.25,.2,.2], 
+  points: [{x:.2,y:0},{x:.8,y:0},{x:1,y:.5},{x:.8,y:1},{x:.2,y:1},{x:0,y:.5},{x:.2,y:0}],
+  mode:'toggle',
+  label:'Top Left',
+  textLocation : {x:.5, y:.5},
+});
+var b2 = new Interface.ButtonV({
+  bounds:[.36,.25,.2,.2], 
+  points: [{x:.2,y:0},{x:.8,y:0},{x:1,y:.5},{x:.8,y:1},{x:.2,y:1},{x:0,y:.5},{x:.2,y:0}],
+  mode:'toggle',
+  label:'Top Right',
+  textLocation : {x:.5, y:.5},
+});
+var b3 = new Interface.ButtonV({
+  bounds:[.2,.35,.2,.2], 
+  points: [{x:.2,y:0},{x:.8,y:0},{x:1,y:.5},{x:.8,y:1},{x:.2,y:1},{x:0,y:.5},{x:.2,y:0}],
+  mode:'toggle',
+  label:'Middle',
+  textLocation : {x:.5, y:.5},
+});
+var b4 = new Interface.ButtonV({
+  bounds:[.04,.45,.2,.2], 
+  points: [{x:.2,y:0},{x:.8,y:0},{x:1,y:.5},{x:.8,y:1},{x:.2,y:1},{x:0,y:.5},{x:.2,y:0}],
+  mode:'toggle',
+  label:'Bottom Left',
+  textLocation : {x:.5, y:.5},
+});
+var b5 = new Interface.ButtonV({
+  bounds:[.36,.45,.2,.2], 
+  points: [{x:.2,y:0},{x:.8,y:0},{x:1,y:.5},{x:.8,y:1},{x:.2,y:1},{x:0,y:.5},{x:.2,y:0}],
+  mode:'toggle',
+  label:'Bottom Right',
+  textLocation : {x:.5, y:.5},
+});
+var b6 = new Interface.ButtonV({
+  bounds:[.2,.55,.2,.2], 
+  points: [{x:.2,y:0},{x:.8,y:0},{x:1,y:.5},{x:.8,y:1},{x:.2,y:1},{x:0,y:.5},{x:.2,y:0}],
+  mode:'toggle',
+  label:'Bottom',
+  textLocation : {x:.5, y:.5},
+});
+var d = new Interface.ButtonV({ 
+  bounds:[.6,.05,.35,.9], 
+  points: [{x:0,y:0},{x:1,y:0},{x:1,y:1},{x:0,y:1},{x:0,y:.2},{x:.8,y:.2},{x:.8,y:.8},{x:.2,y:.8},{x:.2,y:.4},{x:.6,y:.4},
+          {x:.6,y:.5},{x:.3,y:.5},{x:.3,y:.5},{x:.3,y:.7},{x:.7,y:.7},{x:.7,y:.3},{x:.1,y:.3},{x:.1,y:.9},{x:.9,y:.9},{x:.9,y:.1},{x:0,y:.1},{x:0,y:0}],
+  mode:'momentary',
+  label:'Spiral',
+  textLocation : {x:.45, y:.45},
+});
+
+a.background = 'black';   
+a.add(b0,b1,b2,b3,b4,b5,b6,d);
+      </script>
+    </li>
+
+    <li>
+      <div class="interfaceCode">
         <h3>Slider</h3>
         <pre><code data-language="javascript">
 var a = new Interface.Panel({ 
@@ -498,6 +634,63 @@ for(var i = 0; i < multiButton.count; i++) {
       a.add(multiButton, multiButtonLabel);
       </script>
     </li>
+
+ <li>
+      <div class="interfaceCode">
+        <h3>Piano</h3>
+        
+        <pre><code data-language="javascript">
+var a = new Interface.Panel({ 
+  container:$("#pianoPanel") 
+});
+
+ var b = new Interface.Piano({ 
+  bounds:[0,0,1,.5],  
+  startletter : "C",
+   startoctave : 3,
+   endletter : "C",
+   endoctave : 5,
+   noteLabels:true,
+ });
+var c = new Interface.Piano({ 
+  bounds:[0,.5,1,.5],  
+  startletter : "F",
+   startoctave : 3,
+   endletter : "B",
+   endoctave : 4,
+  }); 
+
+a.background = 'black';
+a.add(b,c);
+
+        </code></pre>
+      </div>
+      <div id='pianoPanel' class='interfacePanel'>
+      </div>
+      <script>
+      var a = new Interface.Panel({  background:"#000", childFill: "#fff" , container:$("#pianoPanel") });
+     
+      var b = new Interface.Piano({ 
+  bounds:[0,0,1,.5],  
+  startletter : "C",
+   startoctave : 3,
+   endletter : "C",
+   endoctave : 5,
+   noteLabels:true,
+   
+ });
+var c = new Interface.Piano({ 
+  bounds:[0,.5,1,.5],  
+  startletter : "F",
+   startoctave : 3,
+   endletter : "B",
+   endoctave : 4,
+  }); 
+      a.background = 'black';
+      a.add(b,c);
+      </script>
+    </li>
+
     <li>
       <div class="interfaceCode">
         <h3>TextField</h3>
