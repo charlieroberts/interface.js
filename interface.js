@@ -42,6 +42,7 @@ var Interface = {
   panels : [],
   mouseDown : false,
   useTouch : 'ontouchstart' in document.documentElement,
+  widgets : [],
 };
 
 Interface.Presets = {
@@ -371,10 +372,12 @@ Interface.Panel = function() {
       if(typeof widget.children !== 'undefined' && widget.type !== "XY") {
         for(var i = 0; i < widget.children.length; i++) {
           this.children.splice( this.children.indexOf(widget.children[i]) );
+          Interface.widgets.splice( Interface.widgets.indexOf( widget.children[i] ), 1 );
         }
       }else{
         if(this.children.indexOf( widget ) > -1) {
           this.children.splice( this.children.indexOf( widget ) );
+          Interface.widgets.splice( Interface.widgets.indexOf( widget ), 1 );
           if(typeof widget.remove === 'function') widget.remove();
         }
       }
@@ -630,6 +633,7 @@ Interface.Widget = {
   init : function( options ) {
     this.added = false;
     Interface.extend( this, widgetDefaults);
+    if( typeof options === 'undefined' ) options = {}
     
     this.name = options.name || this.type + "_" + __widgetCount++;
     this.target = "OSC";
@@ -689,14 +693,18 @@ Interface.Widget = {
         set : function(val) { if(value !== val) { value = val; this.refresh(); } },
       },*/        
     });
+    
+    Interface.widgets.push( this );
   },
   
   clear : function() {
-    this.panel.ctx.clearRect( this._x(), this._y(), this._width(), this._height() );
+    if( this.panel ) { // must check in case widget is Acc or Gyro
+      this.panel.ctx.clearRect( this._x(), this._y(), this._width(), this._height() );
+    }
   },
   
   refresh : function() {
-    if(this.panel.shouldDraw.indexOf(this) === -1) {
+    if(this.panel && this.panel.shouldDraw.indexOf(this) === -1) {
       this.panel.shouldDraw.push(this);
     }
   },
@@ -2114,7 +2122,7 @@ Interface.XY = function() {
       }
       //this.refresh()
     },
-    remove: function() { this.stopAnimation(); },
+    remove: function() { this.stopAnimation(); Interface.widgets.splice( Interface.widgets.indexOf( this ), 1 ); },
     add : function() { if(this.usePhysics) this.startAnimation(); },
     startAnimation : function() { 
       if(this.timer === null) { 
