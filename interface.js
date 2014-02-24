@@ -3084,6 +3084,13 @@ Interface.MultiButton = function() {
       }
     },
     
+    setValue : function( row, col, value ) {
+      var btnNum = row * this.columns + col
+      
+      this._values[ btnNum ] = this.values[ btnNum ] = this.lastValues[ btnNum ] = value
+      this.draw()
+    },
+    
     changeValue : function( xOffset, yOffset ) {
       if(this.hasFocus || !this.requiresFocus) {
         var width   = this._width(),
