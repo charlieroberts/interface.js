@@ -2166,6 +2166,7 @@ Interface.XY = function() {
     touchCount        : 0,
     timer             : null,
     fps               : 30,
+    outputInitialValues: true,
     
     rainbow: function() {
       //console.log("RAINBOW", this.children.length);
@@ -2561,7 +2562,9 @@ Interface.XY = function() {
     
     _init : function() { 
       this.makeChildren();
-      this.sendTargetMessage();      
+      if( this.outputInitialValues ) {
+        this.sendTargetMessage(); 
+      }
      },
   })
   .init( arguments[0] );
