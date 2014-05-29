@@ -2166,6 +2166,7 @@ Interface.XY = function() {
     touchCount        : 0,
     timer             : null,
     fps               : 30,
+    outputInitialValues: true,
     
     rainbow: function() {
       //console.log("RAINBOW", this.children.length);
@@ -2258,7 +2259,7 @@ Interface.XY = function() {
       var tt = '';
       this._values.length = 0;
       for(var i = 0; i < this.values.length; i++) {
-        tt += 'ss';
+        tt += 'ff';
         this._values.push( this.values[i].x );
         this._values.push( this.values[i].y );        
       }
@@ -2384,6 +2385,7 @@ Interface.XY = function() {
         if(this.onvaluechange) this.onvaluechange();
         
         if(!this.usePhysics) {
+          this.sendTargetMessage();
           this.refresh();
         }
       }     
@@ -2560,6 +2562,9 @@ Interface.XY = function() {
     
     _init : function() { 
       this.makeChildren();
+      if( this.outputInitialValues ) {
+        this.sendTargetMessage(); 
+      }
      },
   })
   .init( arguments[0] );
