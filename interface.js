@@ -39,6 +39,8 @@ var Interface = {
     return ua.indexOf("android") > -1;
   })(),
   
+  keyCodeToChar : {8:"Backspace",9:"Tab",13:"Enter",16:"Shift",17:"Ctrl",18:"Alt",19:"Pause/Break",20:"Caps Lock",27:"Esc",32:"Space",33:"Page Up",34:"Page Down",35:"End",36:"Home",37:"Left",38:"Up",39:"Right",40:"Down",45:"Insert",46:"Delete",48:"0",49:"1",50:"2",51:"3",52:"4",53:"5",54:"6",55:"7",56:"8",57:"9",65:"A",66:"B",67:"C",68:"D",69:"E",70:"F",71:"G",72:"H",73:"I",74:"J",75:"K",76:"L",77:"M",78:"N",79:"O",80:"P",81:"Q",82:"R",83:"S",84:"T",85:"U",86:"V",87:"W",88:"X",89:"Y",90:"Z",91:"Windows",93:"Right Click",96:"Numpad 0",97:"Numpad 1",98:"Numpad 2",99:"Numpad 3",100:"Numpad 4",101:"Numpad 5",102:"Numpad 6",103:"Numpad 7",104:"Numpad 8",105:"Numpad 9",106:"Numpad *",107:"Numpad +",109:"Numpad -",110:"Numpad .",111:"Numpad /",112:"F1",113:"F2",114:"F3",115:"F4",116:"F5",117:"F6",118:"F7",119:"F8",120:"F9",121:"F10",122:"F11",123:"F12",144:"Num Lock",145:"Scroll Lock",182:"My Computer",183:"My Calculator",186:";",187:"=",188:",",189:"-",190:".",191:"/",192:"`",219:"[",220:"\\",221:"]",222:"'"},
+  
   panels : [],
   mouseDown : false,
   useTouch : 'ontouchstart' in document.documentElement,
@@ -222,6 +224,10 @@ Interface.Panel = function() {
     
     touchEvent : function(event) {
       if(self.active) {
+        console.log( event )
+        if( typeof event.changedTouches === 'undefined' && event.originalEvent ) {
+          event.changedTouches = event.originalEvent.changedTouches
+        }
         for (var j = 0; j < event.changedTouches.length; j++){
           var touch = event.changedTouches.item(j);		
         
@@ -291,6 +297,23 @@ Interface.Panel = function() {
         $(this.container).on( 'mousedown', this.mouseEvent );
         $(this.container).on( 'mousemove', this.mouseEvent );
         $(this.container).on( 'mouseup',   this.mouseEvent );                
+      }
+      
+      $( this.container ).css({ outline: 'none' })
+      $( this.container ).attr( 'tabindex', 5 )
+      $( this.container ).on( 'keydown', this.keydown.bind( this ) )
+      $( this.container ).on( 'keyup', this.keyup.bind( this ) )
+    },
+    
+    keydown: function(e) {
+      for( var i = 0; i < this.children.length; i++ ) {
+        if( this.children[i].onkeydown ) this.children[i].onkeydown(e)
+      }
+    },
+    
+    keyup: function(e) {
+      for( var i = 0; i < this.children.length; i++ ) {
+        if( this.children[i].onkeyup ) this.children[i].onkeyup(e)
       }
     },
     
@@ -371,12 +394,12 @@ Interface.Panel = function() {
       
       if(typeof widget.children !== 'undefined' && widget.type !== "XY") {
         for(var i = 0; i < widget.children.length; i++) {
-          this.children.splice( this.children.indexOf(widget.children[i]) );
+          this.children.splice( this.children.indexOf( widget.children[i] ), 1 );
           Interface.widgets.splice( Interface.widgets.indexOf( widget.children[i] ), 1 );
         }
       }else{
         if(this.children.indexOf( widget ) > -1) {
-          this.children.splice( this.children.indexOf( widget ) );
+          this.children.splice( this.children.indexOf( widget ), 1 );
           Interface.widgets.splice( Interface.widgets.indexOf( widget ), 1 );
           if(typeof widget.remove === 'function') widget.remove();
         }
@@ -627,6 +650,7 @@ var widgetDefaults = {
     ontouchmousemove : null,    
     ontouchmouseup : null,    
     onvaluechange : null,
+    onboundschange : null,  
   },
 }
 Interface.Widget = {
@@ -665,27 +689,30 @@ Interface.Widget = {
       bounds : {
         configurable: true,
         get : function() { return bounds; },
-        set : function(_bounds) { bounds = _bounds; this.x = bounds[0]; this.y = bounds[1]; this.width = bounds[2]; this.height = bounds[3]; }
+        set : function(_bounds) { 
+          bounds = _bounds; this.x = bounds[0]; this.y = bounds[1]; this.width = bounds[2]; this.height = bounds[3]; 
+          if( this.onboundschange ) this.onboundschange()
+        }
       },
       x : {
         configurable: true,        
         get : function() { return x; },
-        set : function(val) { this.clear(); x = val; this.refresh(); },
+        set : function(val) { this.clear(); x = val; if( this.onboundschange ) this.onboundschange(); this.refresh(); },
       },
       y : {
         configurable: true,        
         get : function() { return y; },
-        set : function(val) { this.clear(); y = val; this.refresh(); },
+        set : function(val) { this.clear(); y = val; if( this.onboundschange ) this.onboundschange(); this.refresh(); },
       },
       width : {
         configurable: true,        
         get : function() { return width; },
-        set : function(val) { this.clear(); width = val; this.refresh(); },
+        set : function(val) { this.clear(); width = val; if( this.onboundschange ) this.onboundschange(); this.refresh(); },
       },
       height : {
         configurable: true,        
         get : function() { return height; },
-        set : function(val) { this.clear(); height = val; this.refresh(); },
+        set : function(val) { this.clear(); height = val; if( this.onboundschange ) this.onboundschange(); this.refresh(); },
       },
       /*value : {
         configurable: true,        
@@ -802,7 +829,7 @@ Interface.Widget = {
         }
       }else{
         if(typeof this.target[this.key] === 'function') {
-            this.target[this.key]( this.values || this.value );
+          this.target[this.key]( this.values || this.value );
         }else{
           this.target[this.key] = this.values || this.value;
         }
@@ -1101,12 +1128,15 @@ Interface.Button = function() {
           setTimeout( function() { self._value = 0; self.draw(); }, 75);
         }
       }else if(!hit && this.isMouseOver) {
+        console.log( 'moved off!' )
         this.isMouseOver = false;
       }
     },
     mouseup   : function(e) {
-      if(this.mode === 'momentary')
+      if(this.mode === 'momentary') {
         this.changeValue();// e.x - this.x, e.y - this.y ); 
+        this.isMouseOver = false;
+      }
     },
     
     touchstart : function(e, hit) {
@@ -1248,7 +1278,7 @@ Interface.ButtonV = function() {
         this._value = !this._value;
         
         this.value = this._value ? this.max : this.min;
-                
+                        
         if(this.value !== this.lastValue || this.mode === 'contact') {
           this.sendTargetMessage();
           if(this.onvaluechange) this.onvaluechange();
@@ -1463,25 +1493,61 @@ Object. The instrument used to make sound on each key.
 
 Interface.Piano = function() {
   Interface.extend(this, {
-    type : 'Piano',    
+    type : 'Piano',     
     _value: 0,
-    serializeMe : ["mode", "label"],
+    serializeMe : ['mode', 'label'],
     mode : 'toggle',
     isMouseOver : false,
     isTouchOver : false,
     label : null,
-    startletter : "C",
+    startletter : 'C',
     startoctave : 3,
-    endletter : "C",
+    endletter : 'C',
     endoctave : 5,
     target : null,
     noteLabels : false,
-    onvaluechange : function() {
-      this.values = [this.frequency,this.value]
-      this.sendTargetMessage()
+    _initialized : false,
+    keyMap: [ 'Z','S','X','D','C','V','G','B','H','N','J','M',','],
+    children: [],
+    play: function( noteNum, duration ) {
+      if( isNaN(duration) ) { 
+        duration = 4410
+      }
+      if( typeof Gibber !== 'undefined' ) { duration = Gibber.Clock.time( duration ) }
+      
+      var child = this.children[ noteNum ]
+      if( child ) {
+        child.changeValue()
+        future( function() { if( child._value == 1 ) child.changeValue() }, duration )
+      } 
+    },
+    onkeyup: function( e ) { 
+      var c = Interface.keyCodeToChar[ e.keyCode ],
+          keyNum = this.keyMap.indexOf( c ),
+          child = this.children[ keyNum ]
+            
+      if( typeof child !== 'undefined' && child._value == 1 ) {
+        child.changeValue() 
+      }
+    },
+    onkeydown: function( e ) {
+      var c = Interface.keyCodeToChar[ e.keyCode ],
+          keyNum = this.keyMap.indexOf( c ),
+          child = this.children[ keyNum ]
+      
+      if( typeof child !== 'undefined' && child._value == 0 ) {
+        child.changeValue()
+      }
+    },
+    onvaluechange : function() { this.values = [this.frequency,this.value] },
+    onboundschange: function() { if( this._initialized) this.placeKeys() },
+    
+    draw : function() {
+      for( var i = 0; i < this.children.length; i++ ) { this.children[i].refresh() }
+      return this
     },
 
-    _init : function() {
+    placeKeys: function() {
       var x = this._x(),
           y = this._y(),
           width = this._width(),
@@ -1490,232 +1556,156 @@ Interface.Piano = function() {
           startnote = 0,
           endnote = 0,
           keylabel = ["0","C","C#/Db","D","D#/Eb","E","F","F#/Gb","G","G#/Ab","A","A#/Bb","B"],
-          keyid = ["0","C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
-          keynid = [0,  1,  2,  2, 3,  3,  4, 5,  5, 6,  6, 7,  7]
-     
-      for (var i = 1; i < 13; i++) {
-        if (this.startletter == keyid[i])
-          startnote = i;
-        if (this.endletter == keyid[i])
-          endnote = i;
+          keyid = ["0","C","C#","D","D#","E","F","F#","G","G#","A","A#","B"],
+          keynid = [0,  1,  2,  2, 3,  3,  4, 5,  5, 6,  6, 7,  7],
+          notes = ( endnote + this.endoctave * 12) - (startnote + this.startoctave * 12) + 1,
+          dist = ( keynid[ endnote ] + this.endoctave * 7 ) - ( keynid[ startnote ] + this.startoctave * 7 ) + 1,
+          j = 0;
+          
+      if( this._initialized ) {
+        this.clear()
+        for( var i = this.children.length - 1; i >= 0; i-- ) {
+          var key = this.children.pop()
+          this.panel.remove( key )
+        }
       }
-      var notes = (endnote + this.endoctave * 12) - (startnote + this.startoctave * 12) + 1;
-      var dist = (keynid[endnote] + this.endoctave * 7) - (keynid[startnote] + this.startoctave * 7) + 1;
-      var j = 0;
-      if (endnote == 2 || endnote == 4 || endnote == 7 || endnote == 9 || endnote == 11)
-        dist--;
-     for (i = 0; i < notes-1; i++) {
-        if (startnote == 1) {
-          var pkeys = new Interface.ButtonV({ 
-              points: [{x:0,y:0},{x:.6,y:0},{x:.6,y:.625},{x:1,y:.625},{x:1,y:1},{x:0,y:1},{x:0,y:0}], //left
-              textLocation : {x:.5, y:.75},
-              background: this._fill(),
-              fill: this._background(),
-              stroke: this._stroke(),
-              target : this.target,
-              onvaluechange: this.onvaluechange,
-              frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
-              bounds:[j/dist*this.width + this.x,this.y,this.width/dist,this.height],  
-              label: this.noteLabels ? keylabel[startnote] + octave : null,
-              requiresFocus : false,
-              mode:'momentary'
-            });
-          }
-          else if (startnote == 2) {
-          var pkeys = new Interface.ButtonV({ 
-              points: [{x:.1,y:0},{x:.7,y:0},{x:.7,y:1},{x:.1,y:1},{x:.1,y:0}], //black
-              textLocation : {x:.3925, y:.5},
-              stroke: this._stroke(),
-              target : this.target,
-              background: this._background(),
-              onvaluechange: this.onvaluechange,
-              frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
-              bounds:[(j-.5)/dist *this.width + this.x, this.y,this.width/dist,.625*this.height],  
-              label: this.noteLabels ? keylabel[startnote] : null,
-              requiresFocus : false,
-              mode:'momentary'
-            });
-          j--;
-          }
-          else if (startnote == 3) {
-          var pkeys = new Interface.ButtonV({ 
-              points: [{x:.2,y:0},{x:.8,y:0},{x:.8,y:.625},{x:1,y:.625},{x:1,y:1},{x:0,y:1},{x:0,y:.625},{x:.2,y:.625},{x:.2,y:0}], //middle
-              textLocation : {x:.5, y:.75},
-              target : this.target,
-              onvaluechange: this.onvaluechange,
-              frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
-              background: this._fill(),
-              fill: this._background(),
-              stroke: this._stroke(),
-              bounds:[j/dist*this.width + this.x,this.y,this.width/dist,this.height],  
-              label: this.noteLabels ? keylabel[startnote] : null,
-              requiresFocus : false,
-              //value : 0,
-              mode:'momentary'
-            });
-          }
-        else if (startnote == 4) {
-          var pkeys = new Interface.ButtonV({ 
-              points: [{x:.3,y:0},{x:.9,y:0},{x:.9,y:1},{x:.3,y:1},{x:.3,y:0}], //black
-              textLocation : {x:.6075, y:.5},
-              target : this.target,
-              onvaluechange: this.onvaluechange,
-background: this._background(),
-              stroke: this._stroke(),
-              frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
-              bounds:[(j-.5)/dist *this.width + this.x, this.y,this.width/dist,.625*this.height],  
-              label: this.noteLabels ? keylabel[startnote] : null,
-              requiresFocus : false,
-              mode:'momentary'
-            });
-          j--;
-        }
-        else if (startnote == 5) {
-          var pkeys = new Interface.ButtonV({ 
-              points: [{x:1,y:0},{x:.4,y:0},{x:.4,y:.625},{x:0,y:.625},{x:0,y:1},{x:1,y:1},{x:1,y:0}], //right
-              textLocation : {x:.5, y:.75},
-              target : this.target,
-              onvaluechange: this.onvaluechange,
-              frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
-              background: this._fill(),
-              fill: this._background(),
-              stroke: this._stroke(),
-              bounds:[j/dist*this.width+ this.x,this.y,this.width/dist,this.height],  
-              label: this.noteLabels ? keylabel[startnote] : null,
-              requiresFocus : false,
-              //value : 0,
-              mode:'momentary',
-            });
-          }
-          else if (startnote == 6) {
-          var pkeys = new Interface.ButtonV({ 
-              points: [{x:0,y:0},{x:0.57142857,y:0},{x:0.57142857,y:.625},{x:1,y:.625},{x:1,y:1},{x:0,y:1},{x:0,y:0}], //left
-              textLocation : {x:.5, y:.75},
-              background: this._fill(),
-              fill: this._background(),
-              stroke: this._stroke(),
-              target : this.target,
-              onvaluechange: this.onvaluechange,
-              frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
-              bounds:[j/dist*this.width + this.x,this.y,this.width/dist,this.height],  
-              label: this.noteLabels ? keylabel[startnote] : null,
-              requiresFocus : false,
-              mode:'momentary'
-            });
-          }
-          else if (startnote == 7) {
-          var pkeys = new Interface.ButtonV({ 
-              points: [{x:0.07142857,y:0},{x:0.64285714,y:0},{x:0.64285714,y:1},{x:0.07142857,y:1},{x:0.07142857,y:0}], //black
-              textLocation : {x:.3925, y:.5},
-              target : this.target,
-              stroke: this._stroke(),
-              background: this._background(),
-              onvaluechange: this.onvaluechange,
-              frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
-              bounds:[(j-.5)/dist*this.width + this.x, this.y,this.width/dist,.625*this.height],  
-              label: this.noteLabels ? keylabel[startnote] : null,
-              requiresFocus : false,
-              //value : 0,
-              mode:'momentary'
-            });
-          j--;
-        }
-        else if (startnote == 8) {
-          var pkeys = new Interface.ButtonV({ 
-              points: [{x:0.14285714,y:0},{x:0.71428571,y:0},{x:0.71428571,y:.625},{x:1,y:.625},{x:1,y:1},{x:0,y:1},{x:0,y:.625},{x:0.14285714,y:.625},{x:0.14285714,y:0}], //middle
-              textLocation : {x:.5, y:.75},
-              target : this.target,
-              onvaluechange: this.onvaluechange,
-              frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
-              background: this._fill(),
-              fill: this._background(),
-              stroke: this._stroke(),
-              bounds:[j/dist*this.width + this.x,this.y,this.width/dist,this.height],  
-              label: this.noteLabels ? keylabel[startnote] : null,
-              requiresFocus : false,
-              //value : 0,
-              mode:'momentary'
-            });
-          }
-            
+          
+      for (var i = 1; i < 13; i++) {
+        if ( this.startletter === keyid[ i ] )  startnote = i;
+        if ( this.endletter === keyid[ i ] )    endnote = i;
+      }
+
+      if ( [ 2,4,7,9,11 ].indexOf( endnote ) > -1 ) dist--;
+      
+      for (var i = 0; i < notes - 1; i++ ) {
+        var points, textLocation, bg, fg, bounds, label
         
-        else if (startnote == 9) {
-          var pkeys = new Interface.ButtonV({ 
-            points: [{x:0.21428571,y:0},{x:0.78571428,y:0},{x:0.78571428,y:1},{x:0.21428571,y:1},{x:0.21428571,y:0}], //black
-              target : this.target,
-              onvaluechange: this.onvaluechange,
-              stroke: this._stroke(),
-              background: this._background(),
-              frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
-              bounds:[(j-.5)/dist*this.width + this.x, this.y,this.width/dist,.625*this.height],  
-              label: this.noteLabels ? keylabel[startnote] : null,
-              requiresFocus : false,
-              //value : 0,
-              mode:'momentary'
-            });
-          j--;
+        switch( startnote ) {
+          case 1:
+            points = [{x:0,y:0},{x:.6,y:0},{x:.6,y:.625},{x:1,y:.625},{x:1,y:1},{x:0,y:1},{x:0,y:0}] // left
+            bg = this._fill()
+            textLocation = { x:.5, y:.75 }
+            fg = this._background()
+            bounds = [ j/dist*this.width + this.x, this.y, this.width/dist, this.height ]
+            label = this.noteLabels ? keylabel[startnote] + octave : null
+            break;
+          case 2:
+            points = [{x:.1,y:0},{x:.7,y:0},{x:.7,y:1},{x:.1,y:1},{x:.1,y:0}] //black
+            textLocation = { x:.3925, y:.5 }
+            bg = this._background()
+            fg = this._fill()
+            bounds = [(j-.5)/dist *this.width + this.x, this.y,this.width/dist,.625*this.height]
+            label = this.noteLabels ? keylabel[startnote] : null
+            break;
+          case 3:
+            points = [{x:.2,y:0},{x:.8,y:0},{x:.8,y:.625},{x:1,y:.625},{x:1,y:1},{x:0,y:1},{x:0,y:.625},{x:.2,y:.625},{x:.2,y:0}] // mid
+            textLocation = { x:.5, y:.75 }
+            bg = this._fill()
+            fg = this._background()
+            bounds = [j/dist*this.width + this.x,this.y,this.width/dist,this.height]
+            label = this.noteLabels ? keylabel[startnote] : null
+            break;
+          case 4:
+            points = [{x:.3,y:0},{x:.9,y:0},{x:.9,y:1},{x:.3,y:1},{x:.3,y:0}], //black
+            textLocation = {x:.6075, y:.5}
+            bg = this._background()
+            fg = this._fill()
+            bounds = [(j-.5)/dist *this.width + this.x, this.y,this.width/dist,.625*this.height]
+            label = this.noteLabels ? keylabel[startnote] : null
+            break;
+          case 5:
+            points = [{x:1,y:0},{x:.4,y:0},{x:.4,y:.625},{x:0,y:.625},{x:0,y:1},{x:1,y:1},{x:1,y:0}] //right
+            textLocation = {x:.5, y:.75}
+            bg = this._fill()
+            fg = this._background()
+            bounds = [j/dist*this.width+ this.x,this.y,this.width/dist,this.height]
+            label = this.noteLabels ? keylabel[startnote] : null
+            break;
+          case 6:
+            points = [{x:0,y:0},{x:0.57142857,y:0},{x:0.57142857,y:.625},{x:1,y:.625},{x:1,y:1},{x:0,y:1},{x:0,y:0}] //left
+            textLocation = {x:.5, y:.75}
+            bg = this._fill()
+            fg = this._background()
+            bounds = [j/dist*this.width+ this.x,this.y,this.width/dist,this.height]
+            label = this.noteLabels ? keylabel[startnote] : null
+            break;
+          case 7:
+            points = [{x:0.07142857,y:0},{x:0.64285714,y:0},{x:0.64285714,y:1},{x:0.07142857,y:1},{x:0.07142857,y:0}] //black
+            textLocation = {x:.3925, y:.5}
+            bg = this._background()
+            fg = this._fill()
+            bounds = [(j-.5)/dist*this.width + this.x, this.y,this.width/dist,.625*this.height]
+            label = this.noteLabels ? keylabel[startnote] : null
+            break;
+          case 8:
+            points = [{x:0.14285714,y:0},{x:0.71428571,y:0},{x:0.71428571,y:.625},{x:1,y:.625},{x:1,y:1},{x:0,y:1},{x:0,y:.625},{x:0.14285714,y:.625},{x:0.14285714,y:0}], //middle
+            textLocation = {x:.5, y:.75}
+            bg = this._fill()
+            fg = this._background()
+            bounds = [j/dist*this.width + this.x,this.y,this.width/dist,this.height]
+            label = this.noteLabels ? keylabel[startnote] : null
+            break; 
+          case 9:
+            points = [{x:0.21428571,y:0},{x:0.78571428,y:0},{x:0.78571428,y:1},{x:0.21428571,y:1},{x:0.21428571,y:0}] //black
+            bg = this._background()
+            fg = this._fill()
+            bounds = [(j-.5)/dist*this.width + this.x, this.y,this.width/dist,.625*this.height]
+            label = this.noteLabels ? keylabel[startnote] : null
+            break;
+          case 10:
+            points = [{x:0.28571428,y:0},{x:0.85714285,y:0},{x:0.85714285,y:.625},{x:1,y:.625},{x:1,y:1},{x:0,y:1},{x:0,y:.625},{x:0.28571428,y:.625},{x:0.28571428,y:0}], //middle
+            bg = this._fill()
+            fg = this._background()
+            textLocation = {x:.5, y:.75}
+            bounds = [j/dist*this.width + this.x,this.y,this.width/dist,this.height]  
+            label = this.noteLabels ? keylabel[startnote] : null
+            break;
+          case 11:
+            points = [{x:0.35714285,y:0},{x:0.92857142,y:0},{x:0.92857142,y:1},{x:0.35714285,y:1},{x:0.35714285,y:0}], //black
+            bg = this._background()
+            fg = this._fill()
+            textLocation = {x:.6075, y:.5}
+            bounds = [(j-.5)/dist*this.width + this.x, this.y,this.width/dist,.625*this.height]
+            label = this.noteLabels ? keylabel[startnote] : null
+            break; 
+          case 12:
+            points = [{x:1,y:0},{x:0.42857142,y:0},{x:0.42857142,y:.625},{x:0,y:.625},{x:0,y:1},{x:1,y:1},{x:1,y:0}] //right
+            bg = this._fill()
+            fg = this._background()
+            textLocation = {x:.5, y:.75}
+            bounds = [j/dist*this.width+ this.x,this.y,this.width/dist,this.height]
+            label = this.noteLabels ? keylabel[startnote] : null
+            break;                                                                    
         }
-        else if (startnote == 10) {
-          var pkeys = new Interface.ButtonV({ 
-              points: [{x:0.28571428,y:0},{x:0.85714285,y:0},{x:0.85714285,y:.625},{x:1,y:.625},{x:1,y:1},{x:0,y:1},{x:0,y:.625},{x:0.28571428,y:.625},{x:0.28571428,y:0}], //middle
-              textLocation : {x:.5, y:.75},
-              target : this.target,
-              onvaluechange: this.onvaluechange,
-              frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
-              background: this._fill(),
-              fill: this._background(),
-              stroke: this._stroke(),
-              bounds:[j/dist*this.width + this.x,this.y,this.width/dist,this.height],  
-              label: this.noteLabels ? keylabel[startnote] : null,
-              requiresFocus : false,
-              //value : 0,
-              mode:'momentary'
-            });
-          }
-        else if (startnote == 11) {
-          var pkeys = new Interface.ButtonV({ 
-              points: [{x:0.35714285,y:0},{x:0.92857142,y:0},{x:0.92857142,y:1},{x:0.35714285,y:1},{x:0.35714285,y:0}], //black
-              textLocation : {x:.6075, y:.5},
-              target : this.target,
-              onvaluechange: this.onvaluechange,
-              background: this._background(),
-              stroke: this._stroke(),
-              frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
-              bounds:[(j-.5)/dist*this.width + this.x, this.y,this.width/dist,.625*this.height],  
-              label: this.noteLabels ? keylabel[startnote] : null,
-              requiresFocus : false,
-              //value : 0,
-              mode:'momentary'
-            });
-          j--;
-        }
-         else if (startnote == 12) {
-          var pkeys = new Interface.ButtonV({ 
-              points: [{x:1,y:0},{x:0.42857142,y:0},{x:0.42857142,y:.625},{x:0,y:.625},{x:0,y:1},{x:1,y:1},{x:1,y:0}], //right
-              textLocation : {x:.5, y:.75},
-              target : this.target,
-              onvaluechange: this.onvaluechange,
-              frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
-              background: this._fill(),
-              fill: this._background(),
-              stroke: this._stroke(),
-              bounds:[j/dist*this.width+ this.x,this.y,this.width/dist,this.height],  
-              label: this.noteLabels ? keylabel[startnote] : null,
-              requiresFocus : false,
-              //value : 0,
-              mode:'momentary',
-            });
-          }
         
-        this.panel.add(pkeys);
-        j++;
+        
+        var _key = new Interface.ButtonV({ 
+          points: points,
+          textLocation : textLocation,
+          target : this.target,
+          onvaluechange: this.onvaluechange,
+          frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
+          background: bg,
+          fill: fg,
+          stroke: this._stroke(),
+          bounds: bounds,
+          label: label,
+          requiresFocus : false,
+          mode:'momentary',
+        });
+        
+        if ( [ 2,4,7,9,11 ].indexOf( startnote ) === -1 ) j++;
+        
+        this.children.push(_key)
+        this.panel.add(_key);
+
         startnote++;
+        
         if (startnote > 12) {
           startnote = 1;
           octave++;
         }
       }
-
       if (startnote == 2 || startnote == 4 || startnote == 7 || startnote == 9 || startnote == 11)
         var pkeys = new Interface.ButtonV({ 
             points: [{x:.166,y:0},{x:.5,y:0},{x:.5,y:1},{x:.166,y:1},{x:.166,y:0}], //black
@@ -1772,103 +1762,15 @@ background: this._background(),
               requiresFocus : false,
               mode:'momentary'
             });
-      this.panel.add(pkeys);
-        
+            
+      this.children.push(pkeys)      
+      this.panel.add(pkeys); 
+      
+      this._initialized = true
     },
-   
-     changeValue : function( xOffset, yOffset ) {
-      if(this.hasFocus || !this.requiresFocus) {
-        this._value = !this._value;
-        
-        this.value = this._value ? this.max : this.min;
-                
-        if(this.value !== this.lastValue || this.mode === 'contact') {
-          this.sendTargetMessage();
-          if(this.onvaluechange) this.onvaluechange();
-          this.draw();
-          this.lastValue = this.value;
-        }
-      }     
-    },
-  
-
-    setValue : function(value, doNotDraw) {
-      var r = this.max - this.min,
-          v = value;
-        
-      this.value = value;
-                
-      if(this.min !== 0 || this.max !== 1) {
-        v -= this.min;
-        this._value = v / r;
-      }else{
-        this._value = this.value;
-      }
-      this.lastValue = this.value;
-      if(!doNotDraw && this.mode !== 'contact') this.refresh();
-    },
-
-    mousedown : function(e, hit) {
-      if(hit && Interface.mouseDown) {
-        this.isMouseOver = true;
-        this.changeValue();
-        if(this.mode === 'contact') {
-          var self = this;
-          setTimeout( function() { self._value = 0; self.draw(); }, 75);
-        }
-      }
-    },
-    mousemove : function(e, hit) { 
-      if(!this.requiresFocus && hit && Interface.mouseDown && !this.isMouseOver) {
-        this.isMouseOver = true;
-        if(this.mode !== 'contact') {
-          this.changeValue();// e.x - this.x, e.y - this.y ); 
-        }else{
-          this._value = 1;
-          this.draw();
-          var self = this;
-          setTimeout( function() { self._value = 0; self.draw(); }, 75);
-        }
-      }else if(!hit && this.isMouseOver) {
-        this.isMouseOver = false;
-      }
-    },
-    mouseup   : function(e) {
-      if(this.mode === 'momentary')
-        this.changeValue();// e.x - this.x, e.y - this.y ); 
-    },
-    
-    touchstart : function(e, hit) {
-      if(hit) {
-        this.isTouchOver = true;
-        this.changeValue();
-        if(this.mode === 'contact') {
-          var self = this;
-          setTimeout( function() { self._value = 0; self.draw(); }, 75);
-        }
-      }
-    },
-    touchmove : function(e, hit) {
-      if(!this.requiresFocus && hit && !this.isTouchOver) {
-        this.isTouchOver = true;
-        if(this.mode !== 'contact') {
-          this.changeValue();// e.x - this.x, e.y - this.y );
-          
-        }else{
-          this._value = 1;
-          this.draw();
-          var self = this;
-          setTimeout( function() { self._value = 0; self.draw(); }, 75);
-        }
-      }else if(!hit && this.isTouchOver) {
-        this.isTouchOver = false;
-      }
-    },
-    touchend   : function(e) {
-      this.isTouchOver = false;
-      if(this.mode === 'momentary')
-        this.changeValue();// e.x - this.x, e.y - this.y ); 
-    },
+    _init : function() {
+      this.placeKeys()
+    }
   })
   .init( arguments[0] );
 };
@@ -2348,7 +2250,7 @@ Interface.XY = function() {
       
       for(var i = 0; i < this.children.length; i++) {
         var child = this.children[i];
-        
+        this.ctx.lineWidth = 2
         this.ctx.fillStyle = child.fill || this._fill();
         
         this.ctx.beginPath();
@@ -2363,6 +2265,7 @@ Interface.XY = function() {
         this.ctx.textBaseline = 'middle';
         this.ctx.textAlign = 'center';
         this.ctx.fillStyle = this._stroke();
+        this.ctx.font = this._font();
         this.ctx.fillText(child.id, x + child.x, y + child.y);
       }
       
@@ -2393,7 +2296,10 @@ Interface.XY = function() {
     
     makeChildren : function() {
       for(var i = 0; i < this.numChildren; i++) {
-        this.children.push({ id:i, x:Math.random() * this._width(), y:Math.random() * this._height(), vx:0, vy:0, collideFlag:false, isActive:false, lastPosition:null, });
+        var x = Math.random() * this._width(),
+            y = Math.random() * this._height()
+            
+        this.children.push({ id:i, x:x, y:y, vx:0, vy:0, collideFlag:false, isActive:false, lastPosition:null, });
         this.values.push({ x:null, y:null });
       }
     },
@@ -2429,13 +2335,14 @@ Interface.XY = function() {
     },
     
     trackMouse : function(xPos, yPos, id) {
-      var closestDiff = 10000;
-      var touchFound = null;
-      var touchNum = null;
+      var closestDiff = 10000,
+          touchFound = null,
+          touchNum = null;
+
       for(var i = 0; i < this.children.length; i++) {
-        var touch = this.children[i];
-        var xdiff = Math.abs(touch.x - xPos);
-        var ydiff = Math.abs(touch.y - yPos);
+        var touch = this.children[i],
+            xdiff = Math.abs(touch.x - xPos),
+            ydiff = Math.abs(touch.y - yPos);
         
         if(xdiff + ydiff < closestDiff) {
           closestDiff = xdiff + ydiff;
@@ -3476,6 +3383,286 @@ Interface.Range = function() {
   .init( arguments[0] );
 }
 Interface.Range.prototype = Interface.Widget;
+
+Interface.Paint = function() {
+  Interface.extend( this, {
+    lines: [],
+    startTime: 0,
+    isAnimating: false,
+    animationPoint: 0,
+    timer: null,
+    shouldLoop: true,
+    prevTimestamp:null,
+    values:[0,0],
+    draw : function() {
+      var x = this._x(),
+          y = this._y(),
+          width = this._width(),
+          height= this._height();
+          
+      this.ctx.fillStyle = this._background();
+      //this.ctx.fillRect( this.x, this.y, this.width, this.height );
+      
+      this.ctx.strokeStyle = this._stroke();
+      //this.ctx.strokeRect( this.x, this.y, this.width, this.height );
+      
+      this.ctx.save();
+      
+      this.ctx.beginPath();
+      
+      this.ctx.moveTo(x, y);
+      this.ctx.lineTo(x + width, y);
+      this.ctx.lineTo(x + width, y + height);
+      this.ctx.lineTo(x, y + height);
+      this.ctx.lineTo(x, y);
+      this.ctx.fill();
+      this.ctx.stroke();
+      
+      this.ctx.clip();
+      
+      this.ctx.fillStyle = this._fill();
+      
+      if( this.lines.length >= 1 ) {
+        this.ctx.lineWidth = 8
+        for( var i = 0; i < this.lines.length; i++ ) {
+          var points = this.lines[ i ]
+        
+          if( points.length >= 2 ) { 
+            this.ctx.moveTo( points[0].x * width, points[0].y * height )
+            
+            this.ctx.beginPath()
+        
+            for ( var j = 1; j < points.length - 2; j++ ) {
+               var xc = ( points[ j ].x + points[ j + 1 ].x ) / 2
+               var yc = ( points[ j ].y + points[ j + 1 ].y ) / 2
+               this.ctx.quadraticCurveTo( points[ j ].x * width, points[ j ].y * height, xc * width, yc * height )
+            }
+      
+            this.ctx.stroke()
+            //this.ctx.closePath();
+          }
+        }
+      }
+      
+      this.ctx.restore();
+    },
+    
+    /*
+    touchEvent : function(touch) {
+      var isHit = this.hitTest(touch);
+      var touchMouseName = convertTouchEvent(touch.type);
+      
+      if(isHit) {
+        if(touch.type === 'touchstart') {
+          this.hasFocus = true;
+          this.touchCount++;
+          this.trackTouch(touch.x - this._x(), touch.y - this._y(), touch);
+        }else{
+          if(this[touch.type])
+            this[touch.type](touch, isHit, touch.childID);  // normal event
+        }
+        
+        if(this['on'+touch.type]) this['on'+touch.type](touch, isHit, touch.childId); // user defined event
+        if(this['on'+touchMouseName]) this['on'+touchMouseName](touch, isHit);  // user defined event
+        
+      }else if(touch.type === 'touchend'){
+        this.touchCount--;
+        if(this.touchCount === 0) {        
+          this.hasFocus = false;
+        }else if(this.touchCount < 0 ) {
+          this.touchCount = 0;
+        }
+        this.touchend(touch)
+        if(this['on'+touch.type]) this['on'+touch.type](touch, isHit, touch.childId); // user defined event
+        if(this['on'+touchMouseName]) this['on'+touchMouseName](touch, isHit);  // user defined event
+      }
+    },
+    
+    trackMouse : function(xPos, yPos, id) {},
+    */
+    animate : function(co) {
+      var me = this; 
+      
+      if( this.isAnimating === false ) return
+      //console.log( this.lineNo, this._lines.length, this.speedMod )
+      var line = this.lines[ 0 ]
+      
+      // if( typeof this.line === 'undefined' ) {
+      //   this.context.fillStyle = '#fff'
+      //   this.context.fillRect( 0, 0, this.canvas[0].width, this.canvas[0].height )      
+      //   this.lineNo = this.pointNo = this.lines.length = 0
+      //   if( this.shouldLoop ) setTimeout( function() { me.drawBackground(); me.animate() }, this.endTime )
+      //   return
+      // }
+      var point = line[ this.animationPoint ],
+          nextPoint = line[ this.animationPoint + 1 ]
+            
+      //console.log( point, nextPoint )
+      
+      if( this.animationPoint >= line.length - 1 ) {
+        if( this.shouldLoop ) {
+          this.animationPoint = 0
+          this.draw()
+          //var time = this.shouldLoop ? this.endTime :  (this.point.timestamp - this.prevTimestamp)
+          this.timeout = setTimeout( function() { me.animate() }, 5 )
+          return
+        }else{
+          this.ctx.fillStyle = this._background()
+          this.ctx.fillRect( 0, 0, this._width(), this._height() )
+          if( this.speedMod !== 0 ) return
+        }
+      }
+      
+      this.ctx.save();
+      this.ctx.strokeStyle = '#f00'
+      this.ctx.lineWidth = 8
+      
+      this.ctx.beginPath()
+      
+      this.ctx.moveTo( point.x * this._width(), point.y * this._height() )
+      // var xc = ( point.x + nextPoint.x ) / 2
+      // var yc = ( point.y + nextPoint.y ) / 2
+      // this.ctx.quadraticCurveTo( nextPoint.x * this._width(), nextPoint.y * this._height(), xc * this._width(), yc * this._height() )
+      this.ctx.lineTo( nextPoint.x * this._width(), nextPoint.y * this._height() )
+      
+      this.ctx.stroke()
+      this.ctx.restore()
+      
+      this.timeout = setTimeout( function() { me.animate() }, point.timestamp - this.prevTimestamp )
+      this.prevTimestamp = point.timestamp
+      
+      this.animationPoint++ 
+      
+      this.values = [ point.x, point.y ]
+      this.sendTargetMessage()
+    },
+    
+    startAnimation: function() {
+      var self = this
+      
+      this.animate()
+    },
+    stopAnimation: function() {
+      if( this.timer ) {
+        clearInterval( this.timer )
+      }
+    },
+    mousedown : function(e) {
+      if(this.hitTest(e)) {
+        
+        this.lines = []
+        this.animationPoint = 0
+        
+        if( this.lines.length === 0 ) {
+          this.startTime = Date.now()
+        }else{
+          // if( this.lines[ this.lines.length - 1 ].length < 2 ) {
+          //   this.lines.pop()
+          // }
+        }
+
+        this.lines.push( [] )
+        this.isDrawing = true;
+        this.isAnimating = false;
+      }
+    },
+    mousemove : function(e) { 
+      if(this.hitTest(e) && this.activeTouch !== null) {
+        //ctx.fillStyle = '#000'
+  
+        //if( e.pageX > canvas.width ) isDrawing = false
+        if( this.isDrawing ) {
+          var points = this.lines[ this.lines.length - 1 ]
+          if( points ) {
+            points.push({ x:e.x / this._width(), y:e.y / this._height(), timestamp: Date.now() - this.startTime })
+            this.draw()
+          }
+        }  
+      }
+    },
+    mouseup   : function(e) {
+      this.isDrawing = false
+      if( this.lines.length > 0 ) {
+        this.isAnimating = true;
+        this.animate()
+      }
+    },
+    /*
+    trackTouch : function(xPos, yPos, _touch) {
+      var closestDiff = 10000;
+      var touchFound = null;
+      var touchNum = null;
+      
+      for(var i = 0; i < this.children.length; i++) {
+        var touch = this.children[i];
+        var xdiff = Math.abs(touch.x - xPos);
+        var ydiff = Math.abs(touch.y - yPos);
+
+        if(xdiff + ydiff < closestDiff && !touch.isActive) {
+          closestDiff = xdiff + ydiff;
+          touchFound = touch;
+          touchNum = i;
+        }
+      }
+      
+      touchFound.isActive = true;
+      touchFound.vx = 0;
+      touchFound.vy = 0;
+      touchFound.identifier = _touch.identifier;
+      touchFound.childID = touchNum;
+
+      if(touchFound != null)
+        this.changeValue(touchFound, xPos, yPos);
+    
+      this.lastTouched = touchFound;
+      return touchFound.childID;
+    },
+    touchstart : function(touch) {
+      // if(this.hitTest(touch)) {
+      //   this.trackTouch(touch.x - this.x, touch.y - this.y, touch);
+      // }
+    },
+    touchmove : function(touch) {
+      for(var t = 0; t < this.children.length; t++) {
+        _t = this.children[t];
+        if(touch.identifier == _t.identifier) {
+          this.changeValue(_t, touch.x - this._x(), touch.y - this._y());
+
+          var now = {x:touch.x - this._x(), y:touch.y - this._y()};
+          
+          if(_t.lastPosition !== null) {
+            _t.velocity = {x:now.x - _t.lastPosition.x, y:now.y - _t.lastPosition.y };
+          }
+          _t.lastPosition = now;
+        }
+      }
+    },
+    touchend : function(touch) {
+      var found = false;
+      var tu = null;
+      for(var t = 0; t < this.children.length; t++) {
+        var _t = this.children[t];
+        
+        if(touch.identifier === _t.identifier) {
+          _t.vx = _t.velocity.x;
+          _t.vy = _t.velocity.y;
+          
+          _t.lastPosition = null;
+          _t.isActive = false;
+          
+
+          found = true;
+          tu = t.childID;
+        }
+      }
+      if(found) { this.touchUp = tu; }
+      //if(!found) console.log("NOT FOUND", touch.identifier);
+    },
+    */
+  })
+  .init( arguments[0] );
+}
+Interface.Paint.prototype = Interface.Widget;
 
 Interface.defineChildProperties = function(widget, properties) {
   for(var j = 0; j < properties.length; j++) {
