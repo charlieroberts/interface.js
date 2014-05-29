@@ -2262,7 +2262,11 @@ Interface.XY = function() {
         this._values.push( this.values[i].x );
         this._values.push( this.values[i].y );        
       }
-      Interface.OSC.send( this.key, tt, this._values );
+      if(this.target === "OSC") {
+        if(Interface.OSC) {
+          Interface.OSC.send( this.key, tt, this._values );
+        }
+      }
     },
     
     collisionTest : function(c1) {
