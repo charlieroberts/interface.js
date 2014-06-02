@@ -3587,78 +3587,42 @@ Interface.Paint = function() {
         this.animate()
       }
     },
-    /*
-    trackTouch : function(xPos, yPos, _touch) {
-      var closestDiff = 10000;
-      var touchFound = null;
-      var touchNum = null;
-      
-      for(var i = 0; i < this.children.length; i++) {
-        var touch = this.children[i];
-        var xdiff = Math.abs(touch.x - xPos);
-        var ydiff = Math.abs(touch.y - yPos);
-
-        if(xdiff + ydiff < closestDiff && !touch.isActive) {
-          closestDiff = xdiff + ydiff;
-          touchFound = touch;
-          touchNum = i;
-        }
-      }
-      
-      touchFound.isActive = true;
-      touchFound.vx = 0;
-      touchFound.vy = 0;
-      touchFound.identifier = _touch.identifier;
-      touchFound.childID = touchNum;
-
-      if(touchFound != null)
-        this.changeValue(touchFound, xPos, yPos);
-    
-      this.lastTouched = touchFound;
-      return touchFound.childID;
-    },
     touchstart : function(touch) {
-      // if(this.hitTest(touch)) {
-      //   this.trackTouch(touch.x - this.x, touch.y - this.y, touch);
-      // }
-    },
-    touchmove : function(touch) {
-      for(var t = 0; t < this.children.length; t++) {
-        _t = this.children[t];
-        if(touch.identifier == _t.identifier) {
-          this.changeValue(_t, touch.x - this._x(), touch.y - this._y());
-
-          var now = {x:touch.x - this._x(), y:touch.y - this._y()};
-          
-          if(_t.lastPosition !== null) {
-            _t.velocity = {x:now.x - _t.lastPosition.x, y:now.y - _t.lastPosition.y };
-          }
-          _t.lastPosition = now;
-        }
-      }
-    },
-    touchend : function(touch) {
-      var found = false;
-      var tu = null;
-      for(var t = 0; t < this.children.length; t++) {
-        var _t = this.children[t];
+      if(this.hitTest(touch)) {
+        this.lines = []
+        this.animationPoint = 0
         
-        if(touch.identifier === _t.identifier) {
-          _t.vx = _t.velocity.x;
-          _t.vy = _t.velocity.y;
-          
-          _t.lastPosition = null;
-          _t.isActive = false;
-          
-
-          found = true;
-          tu = t.childID;
+        if( this.lines.length === 0 ) {
+          this.startTime = Date.now()
         }
+
+        this.lines.push( [] )
+        this.isDrawing = true;
+        this.isAnimating = false;
       }
-      if(found) { this.touchUp = tu; }
-      //if(!found) console.log("NOT FOUND", touch.identifier);
+      
+      this.activeTouch = touch
     },
-    */
+    
+    touchmove : function(touch) {
+      if(this.hitTest(touch) && this.activeTouch !== null) {
+        if( this.isDrawing ) {
+          var points = this.lines[ this.lines.length - 1 ]
+          if( points ) {
+            points.push({ x:touch.x / this._width(), y:touch.y / this._height(), timestamp: Date.now() - this.startTime })
+            this.draw()
+          }
+        }  
+      }
+    },
+    
+    touchend : function(touch) {
+      this.isDrawing = false
+      if( this.lines.length > 0 ) {
+        this.isAnimating = true;
+        this.animate()
+      }
+    },
   })
   .init( arguments[0] );
 }
