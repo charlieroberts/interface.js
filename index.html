@@ -859,6 +859,70 @@ a.add(label, label2, label3, label4, label5);
     </li>
     <li>
       <div class="interfaceCode">
+        <h3>Patchbay</h3>
+        
+        <pre><code data-language="javascript">
+var a = new Interface.Panel({ 
+  container:$("#patchbayPanel") 
+});
+
+var b = new Interface.Patchbay({ 
+  bounds:[0,0,1,.75],
+  points:[ 
+    {name:0},{name:1},{name:2},{name:3}, 
+    {name:4, name2:'blargh' },{ name:5, name2:'blargh5' },{name:6}, {name:7}
+  ],
+  onconnection: function( start, end ) {
+    c.setValue( start.name + ' connected to ' + end.name )
+  },
+  ondisconnection: function( start, end ) {
+    c.setValue( start.name + ' disconnected from ' + end.name )
+  },
+});
+
+var c = new Interface.Label({
+  bounds:[0,.75,1,.25],
+  vAlign:'middle',
+  value:'Drag a cable between patch points',
+})
+
+a.background = 'black';   
+a.add(b);
+        </code></pre>
+      </div>
+      <div id='patchbayPanel' class='interfacePanel'>
+      </div>
+      <script>
+      var a = new Interface.Panel({ 
+        container:$("#patchbayPanel") 
+      });
+
+      var b = new Interface.Patchbay({ 
+        bounds:[0,0,1,.75],
+        points:[ 
+          {name:0},{name:1},{name:2},{name:3}, 
+          {name:4, name2:'blargh' },{ name:5, name2:'blargh5' },{name:6}, {name:7}
+        ],
+        onconnection: function( start, end ) {
+          c.setValue( start.name + ' connected to ' + end.name )
+        },
+        ondisconnection: function( start, end ) {
+          c.setValue( start.name + ' disconnected from ' + end.name )
+        },
+      });
+
+      var c = new Interface.Label({
+        bounds:[0,.75,1,.25],
+        vAlign:'middle',
+        value:'Drag a cable between patch points',
+      })
+
+      a.background = 'black';   
+      a.add(b,c);
+      </script>
+    </li>
+    <li>
+      <div class="interfaceCode">
         <h3>Orientation (mobile + Chrome only)</h3>
         <pre><code data-language="javascript">
 var a = new Interface.Panel({ 
