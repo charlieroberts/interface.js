@@ -224,7 +224,6 @@ Interface.Panel = function() {
     
     touchEvent : function(event) {
       if(self.active) {
-        console.log( event )
         if( typeof event.changedTouches === 'undefined' && event.originalEvent ) {
           event.changedTouches = event.originalEvent.changedTouches
         }
@@ -1215,9 +1214,6 @@ String. A text label to print at the textLocation coordinates of the button.
 Set. A set of x and y coordinates which position the the label within the bounds.
 **/
 
-
-
-
 Interface.ButtonV = function() {
   Interface.extend(this, {
     type : 'ButtonV',    
@@ -1417,11 +1413,10 @@ Interface.ButtonV = function() {
       }
     },
     touchend   : function(e) {
-      this.isTouchOver = false;
-      if( this.requiresFocus || ( !this.requiresFocus && this.isTouchOver) ) {
-        this.isTouchOver = false;
+      if( this.momentary && this.requiresFocus || ( !this.requiresFocus && this.isTouchOver) ) {
         this.changeValue();
       }
+      this.isTouchOver = false;
     },
   })
   .init( arguments[0] );
@@ -1432,8 +1427,7 @@ Interface.ButtonV.prototype = Interface.Widget;
 /**#Interface.Piano - Widget
 A piano with adjustable ranges of pitches 
 
-*contributed by Jonathan Simozar
-
+*contributed by Jonathan Simozar, with modifications by thecharlie
 
 ## Example Usage##
 `var c = new Interface.Piano({ 
@@ -2433,7 +2427,7 @@ Interface.XY = function() {
     touchmove : function(touch) {
       for(var t = 0; t < this.children.length; t++) {
         _t = this.children[t];
-        if(touch.identifier == _t.identifier) {
+        if(touch.identifier === _t.identifier) {
           this.changeValue(_t, touch.x - this._x(), touch.y - this._y());
 
           var now = {x:touch.x - this._x(), y:touch.y - this._y()};
@@ -2452,8 +2446,10 @@ Interface.XY = function() {
         var _t = this.children[t];
         
         if(touch.identifier === _t.identifier) {
-          _t.vx = _t.velocity.x;
-          _t.vy = _t.velocity.y;
+          if( _t.velocity ) {
+            _t.vx = _t.velocity.x;
+            _t.vy = _t.velocity.y;
+          }
           
           _t.lastPosition = null;
           _t.isActive = false;
