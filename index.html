@@ -32,7 +32,7 @@
   code,pre{
     margin:0;
     padding:0;
-    font-size:.8em;
+    font-size:.9em;
     overflow:scroll;
     height: 275px;
     background-color:#efefef;
@@ -1047,7 +1047,74 @@ a.add(x,y,z);
       a.background = 'black';
       a.add(x,y,z);
       </script>
-    </li>    
+    </li>
+    <li>
+      <div class="interfaceCode">
+        <h3>HBox, VBox</h3>
+        
+        <pre><code data-language="javascript">
+var a = new Interface.Panel({ 
+  container:$("#hboxPanel") 
+});
+
+var hbox = new Interface.HBox({ 
+  bounds:[0,0,1,.45]
+})
+
+var b = new Interface.Button({ 
+  bounds:[.05,.05,.3,.9],  
+  label:'toggle'  
+});
+var c = new Interface.Button({ 
+  bounds:[.35,.05,.3,.9],
+  label:'momentary',
+  mode:'momentary'  
+});
+var d = new Interface.Button({ 
+  bounds:[.65,.05,.3,.9],
+  label:'contact',
+   mode:'contact'  
+});
+
+var vbox = new Interface.VBox({ bounds:[ 0,.55,1,.45 ] })
+
+var e = new Interface.Range();
+var f = new Interface.Range();
+var g = new Interface.Range();
+
+a.add( hbox,vbox );
+
+hbox.add( a,b,c )
+vbox.add( e,f,g )
+
+a.background = 'black';   
+        </code></pre>
+      </div>
+      <div id='hboxPanel' class='interfacePanel'>
+      </div>
+      <script>
+      var a = new Interface.Panel({ container:$("#hboxPanel") });
+
+      var hbox = new Interface.HBox({ bounds:[0,0,1,.45] })
+      
+      var b = new Interface.Button();
+      var c = new Interface.Crossfader();
+      var d = new Interface.Slider();
+      
+      var vbox = new Interface.VBox({ bounds:[ 0,.55,1,.45 ] })
+      
+      var e = new Interface.Range();
+      var f = new Interface.Range();
+      var g = new Interface.Range();
+      
+      a.add( vbox, hbox );
+      
+      hbox.add( c,b,d )
+      vbox.add( e,f,g )
+      
+      a.background = 'black';   
+      </script>
+    </li>   
   </ul>
   </div>
 </body>

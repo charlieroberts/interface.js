@@ -323,6 +323,7 @@ Interface.Panel = function() {
         }
         this.shouldDraw.length = 0;
       }
+      $.publish('/draw')
     },
     
     getWidgetWithName: function( name ) {
@@ -858,6 +859,208 @@ Interface.Widget = {
     "ontouchstart", "ontouchmove", "ontouchend", "onvaluechange", "name", "type", "target", "key"
   ],
 };
+
+
+Interface.HBox = function() {
+  var me = this
+  Interface.extend(this, {
+    type : 'HBox',    
+    
+    children: [],
+    proxyPanel : { active:true, x:0, y:0, width:1, height:1, shouldDraw:[], useRelativeSizesAndPositions:true }, // needed for absolute widths / heights which are set in _init call
+    
+    add: function() {
+      for( var i = 0; i < arguments.length; i++ ) {
+        var child = arguments[ i ]
+        if( this.children.indexOf( child ) === -1 ) this.children.push( child )
+        child.panel = this.proxyPanel
+        child.ctx = this.panel.ctx
+      }
+      
+      this.layout()
+      this.draw()
+    },
+    
+    layout : function() {
+      var w = (this.width / this.children.length) / this.width,
+          _widthUsed = 0;
+      
+      for( var i = 0; i < this.children.length; i++ ) {
+        var child = this.children[ i ]
+        
+        child.x = _widthUsed + this.x
+        child.y = this.y
+        
+        //child.x = this.x
+        //child.y = _heightUsed + this.height * 2
+        
+        child.width = w 
+        child.height = 1
+        
+        _widthUsed += w
+      }
+      
+    },
+    
+    draw: function() {
+      this.proxyPanel.width = this._width()
+      this.proxyPanel.height = this._height()
+      
+      for( var i = 0; i < this.children.length; i++ ) {
+        this.children[ i ].draw()
+      }
+    },
+    
+    refresh: function() {      
+      for( var i = 0; i < this.proxyPanel.shouldDraw.length; i++ ) {
+        this.proxyPanel.shouldDraw[ i ].draw()
+      }
+      this.proxyPanel.shouldDraw.length = 0
+    },
+    
+    mouseEvent: function(e){
+      // e.x -= this._x()
+      // e.y -= this._y()
+      for( var i = 0; i < this.children.length; i++ ) { 
+        var child = this.children[ i ]
+        
+        this.children[ i ].mouseEvent( e ) 
+      } 
+    },
+    
+    touchEvent: function(e){
+      // e.x -= this._x()
+      // e.y -= this._y()
+      for( var i = 0; i < this.children.length; i++ ) { 
+        var child = this.children[ i ]
+        
+        this.children[ i ].touchEvent( e ) 
+      } 
+    },
+
+    _init: function() {
+      this.useRelativeSizesAndPositions = this.panel.useRelativeSizesAndPositions
+      this.proxyPanel.width = this._width()
+      this.proxyPanel.height = this._height()
+      this.proxyPanel.__proto__ = this.panel
+      
+      $.subscribe('/draw', this.refresh.bind( this ) )
+      
+      Object.defineProperties(this, {
+        bounds : {
+          configurable: true,
+          get : function() { return bounds; },
+          set : function(_bounds) { 
+            bounds = _bounds; this.x = bounds[0]; this.y = bounds[1]; this.width = bounds[2]; this.height = bounds[3]; 
+            this.layout()
+            this.draw()
+          }
+        },
+      })
+    }
+  })
+  .init( arguments[0] )
+};
+Interface.HBox.prototype = Interface.Widget;
+
+Interface.VBox = function() {
+  Interface.extend(this, {
+    type : 'VBox',    
+    
+    children: [],
+    proxyPanel : { active:true, x:0, y:0, width:1, height:1, shouldDraw:[], useRelativeSizesAndPositions:true }, // needed for absolute widths / heights which are set in _init call
+    
+    add: function() {
+      for( var i = 0; i < arguments.length; i++ ) {
+        var child = arguments[ i ]
+        this.children.push( child )
+        child.panel = this.proxyPanel
+        child.ctx = this.panel.ctx
+      }
+      
+      this.layout()
+      this.draw()
+    },
+    
+    layout : function() {
+      var h = (this.height  / this.children.length ) / this.height,
+          _heightUsed = 0;
+      
+      for( var i = 0; i < this.children.length; i++ ) {
+        var child = this.children[ i ]
+        
+        child.x = this.x
+        child.y = _heightUsed + this.y / this.height
+        
+        child.width = 1
+        child.height = h
+        
+        _heightUsed += h
+      }
+      
+    },
+    
+    draw: function() {
+      this.proxyPanel.width = this._width()
+      this.proxyPanel.height = this._height()
+      
+      for( var i = 0; i < this.children.length; i++ ) {
+        this.children[ i ].draw()
+      }
+    },
+    
+    refresh: function() {      
+      for( var i = 0; i < this.proxyPanel.shouldDraw.length; i++ ) {
+        this.proxyPanel.shouldDraw[ i ].draw()
+      }
+      this.proxyPanel.shouldDraw.length = 0
+    },
+    
+    mouseEvent: function(e){
+      // e.x -= this._x()
+      // e.y -= this._y()
+      for( var i = 0; i < this.children.length; i++ ) { 
+        var child = this.children[ i ]
+        
+        this.children[ i ].mouseEvent( e ) 
+      } 
+    },
+    
+    touchEvent: function(e){
+      e.x -= this._x()
+      e.y -= this._y()
+      for( var i = 0; i < this.children.length; i++ ) { 
+        var child = this.children[ i ]
+        
+        this.children[ i ].touchEvent( e ) 
+      } 
+    },
+
+    _init: function() {
+      this.useRelativeSizesAndPositions = this.panel.useRelativeSizesAndPositions
+      this.proxyPanel.width = this._width()
+      this.proxyPanel.height = this._height()
+      this.proxyPanel.__proto__ = this.panel
+      
+      $.subscribe('/draw', this.refresh.bind( this ) )
+      
+      Object.defineProperties(this, {
+        bounds : {
+          configurable: true,
+          get : function() { return bounds; },
+          set : function(_bounds) { 
+            bounds = _bounds; this.x = bounds[0]; this.y = bounds[1]; this.width = bounds[2]; this.height = bounds[3]; 
+            this.layout()
+            this.draw()
+          }
+        },
+      })
+    }
+  })
+  .init( arguments[0] )
+};
+Interface.VBox.prototype = Interface.Widget;
+
 
 /**#Interface.Slider - Widget
 A vertical or horizontal slider.
@@ -3946,3 +4149,34 @@ Interface.defineChildProperties = function(widget, properties) {
     })();
   }
 };
+
+// pub/sub for jquery && zepto, see https://github.com/martinjuhasz/pubsub-zepto/blob/master/pubsub.js
+(function ($) {
+	var cache = {};
+
+	$.publish = function(/* String */topic, /* Array? */args){
+		if(typeof cache[topic] === 'object') {	
+			cache[topic].forEach(function(property){
+				property.apply($, args || []);
+			});
+		}
+	};
+
+	$.subscribe = function(/* String */topic, /* Function */callback){
+		if(!cache[topic]){
+			cache[topic] = [];
+		}
+		cache[topic].push(callback);
+		return [topic, callback]; // Array
+	};
+
+	$.unsubscribe = function(/* Array */handle){
+		var t = handle[0];
+		cache[t] && $.each(cache[t], function(idx){
+			if(this == handle[1]){
+				cache[t].splice(idx, 1);
+			}
+		});
+	};
+
+})(window.Zepto);
