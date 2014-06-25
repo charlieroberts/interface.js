@@ -889,17 +889,14 @@ Interface.HBox = function() {
         var child = this.children[ i ]
         
         child.x = _widthUsed + this.x
-        child.y = this.y
-        
-        //child.x = this.x
-        //child.y = _heightUsed + this.height * 2
+        child.y = this.y * (1 / this.height)
         
         child.width = w 
         child.height = 1
         
         _widthUsed += w
       }
-      
+      return this
     },
     
     draw: function() {
@@ -983,21 +980,22 @@ Interface.VBox = function() {
     },
     
     layout : function() {
-      var h = (this.height  / this.children.length ) / this.height,
+      var h = this.height  / this.children.length,
           _heightUsed = 0;
       
       for( var i = 0; i < this.children.length; i++ ) {
         var child = this.children[ i ]
         
         child.x = this.x
-        child.y = _heightUsed + this.y / this.height
-        
+        child.y = (this.y + _heightUsed ) * (1 / this.height)
+        //
         child.width = 1
-        child.height = h
+        child.height = h * ( 1/this.height)
         
         _heightUsed += h
       }
       
+      return this
     },
     
     draw: function() {
@@ -4018,7 +4016,9 @@ Interface.Patchbay = function() {
       if( end.output !== false ) {
         this.connections.push( connection )
       
-        if( this.onconnection ) this.onconnection( start, end ) 
+        if( this.onconnection ) { 
+          this.onconnection( start, end ) 
+        }
       }
     },
     

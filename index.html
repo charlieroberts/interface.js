@@ -110,13 +110,15 @@ a.add(b,c,d);
       <div id='buttonPanel' class='interfacePanel'>
       </div>
       <script>
-      var a = new Interface.Panel({  background:"#000", container:$("#buttonPanel") });
-      var b = new Interface.Button({ bounds:[.05,.05,.3,.9],  label:'toggle'  });
-      var c = new Interface.Button({ bounds:[.35,.05,.3,.9],  label:'momentary', mode:'momentary'  });
-      var d = new Interface.Button({ bounds:[.65,.05,.3,.9],  label:'contact', mode:'contact'  });
+      !function() {
+        var a = new Interface.Panel({  background:"#000", container:$("#buttonPanel") });
+        var b = new Interface.Button({ bounds:[.05,.05,.3,.9],  label:'toggle'  });
+        var c = new Interface.Button({ bounds:[.35,.05,.3,.9],  label:'momentary', mode:'momentary'  });
+        var d = new Interface.Button({ bounds:[.65,.05,.3,.9],  label:'contact', mode:'contact'  });
       
-      a.background = 'black';
-      a.add(b,c,d);
+        a.background = 'black';
+        a.add(b,c,d);
+      }()
       </script>
     </li>
     <li>
@@ -191,67 +193,69 @@ a.add(b0,b1,b2,b3,b4,b5,b6,c);
       <div id='buttonVPanel' class='interfacePanel'>
       </div>
       <script>
-      var a = new Interface.Panel({  background:"#000", container:$("#buttonVPanel") });
-var b0 = new Interface.ButtonV({
-  bounds:[.2,.15,.2,.2], 
-  points: [{x:.2,y:0},{x:.8,y:0},{x:1,y:.5},{x:.8,y:1},{x:.2,y:1},{x:0,y:.5},{x:.2,y:0}],
-  mode:'toggle',
-  label:'Top',
-  textLocation : {x:.5, y:.5},
-});
-var b1 = new Interface.ButtonV({
-  bounds:[.04,.25,.2,.2], 
-  points: [{x:.2,y:0},{x:.8,y:0},{x:1,y:.5},{x:.8,y:1},{x:.2,y:1},{x:0,y:.5},{x:.2,y:0}],
-  mode:'toggle',
-  label:'Top Left',
-  textLocation : {x:.5, y:.5},
-});
-var b2 = new Interface.ButtonV({
-  bounds:[.36,.25,.2,.2], 
-  points: [{x:.2,y:0},{x:.8,y:0},{x:1,y:.5},{x:.8,y:1},{x:.2,y:1},{x:0,y:.5},{x:.2,y:0}],
-  mode:'toggle',
-  label:'Top Right',
-  textLocation : {x:.5, y:.5},
-});
-var b3 = new Interface.ButtonV({
-  bounds:[.2,.35,.2,.2], 
-  points: [{x:.2,y:0},{x:.8,y:0},{x:1,y:.5},{x:.8,y:1},{x:.2,y:1},{x:0,y:.5},{x:.2,y:0}],
-  mode:'toggle',
-  label:'Middle',
-  textLocation : {x:.5, y:.5},
-});
-var b4 = new Interface.ButtonV({
-  bounds:[.04,.45,.2,.2], 
-  points: [{x:.2,y:0},{x:.8,y:0},{x:1,y:.5},{x:.8,y:1},{x:.2,y:1},{x:0,y:.5},{x:.2,y:0}],
-  mode:'toggle',
-  label:'Bottom Left',
-  textLocation : {x:.5, y:.5},
-});
-var b5 = new Interface.ButtonV({
-  bounds:[.36,.45,.2,.2], 
-  points: [{x:.2,y:0},{x:.8,y:0},{x:1,y:.5},{x:.8,y:1},{x:.2,y:1},{x:0,y:.5},{x:.2,y:0}],
-  mode:'toggle',
-  label:'Bottom Right',
-  textLocation : {x:.5, y:.5},
-});
-var b6 = new Interface.ButtonV({
-  bounds:[.2,.55,.2,.2], 
-  points: [{x:.2,y:0},{x:.8,y:0},{x:1,y:.5},{x:.8,y:1},{x:.2,y:1},{x:0,y:.5},{x:.2,y:0}],
-  mode:'toggle',
-  label:'Bottom',
-  textLocation : {x:.5, y:.5},
-});
-var d = new Interface.ButtonV({ 
-  bounds:[.6,.05,.35,.9], 
-  points: [{x:0,y:0},{x:1,y:0},{x:1,y:1},{x:0,y:1},{x:0,y:.2},{x:.8,y:.2},{x:.8,y:.8},{x:.2,y:.8},{x:.2,y:.4},{x:.6,y:.4},
-          {x:.6,y:.5},{x:.3,y:.5},{x:.3,y:.5},{x:.3,y:.7},{x:.7,y:.7},{x:.7,y:.3},{x:.1,y:.3},{x:.1,y:.9},{x:.9,y:.9},{x:.9,y:.1},{x:0,y:.1},{x:0,y:0}],
-  mode:'momentary',
-  label:'Spiral',
-  textLocation : {x:.45, y:.45},
-});
+      !function() {
+        var a = new Interface.Panel({  background:"#000", container:$("#buttonVPanel") });
+        var b0 = new Interface.ButtonV({
+          bounds:[.2,.15,.2,.2], 
+          points: [{x:.2,y:0},{x:.8,y:0},{x:1,y:.5},{x:.8,y:1},{x:.2,y:1},{x:0,y:.5},{x:.2,y:0}],
+          mode:'toggle',
+          label:'Top',
+          textLocation : {x:.5, y:.5},
+        });
+        var b1 = new Interface.ButtonV({
+          bounds:[.04,.25,.2,.2], 
+          points: [{x:.2,y:0},{x:.8,y:0},{x:1,y:.5},{x:.8,y:1},{x:.2,y:1},{x:0,y:.5},{x:.2,y:0}],
+          mode:'toggle',
+          label:'Top Left',
+          textLocation : {x:.5, y:.5},
+        });
+        var b2 = new Interface.ButtonV({
+          bounds:[.36,.25,.2,.2], 
+          points: [{x:.2,y:0},{x:.8,y:0},{x:1,y:.5},{x:.8,y:1},{x:.2,y:1},{x:0,y:.5},{x:.2,y:0}],
+          mode:'toggle',
+          label:'Top Right',
+          textLocation : {x:.5, y:.5},
+        });
+        var b3 = new Interface.ButtonV({
+          bounds:[.2,.35,.2,.2], 
+          points: [{x:.2,y:0},{x:.8,y:0},{x:1,y:.5},{x:.8,y:1},{x:.2,y:1},{x:0,y:.5},{x:.2,y:0}],
+          mode:'toggle',
+          label:'Middle',
+          textLocation : {x:.5, y:.5},
+        });
+        var b4 = new Interface.ButtonV({
+          bounds:[.04,.45,.2,.2], 
+          points: [{x:.2,y:0},{x:.8,y:0},{x:1,y:.5},{x:.8,y:1},{x:.2,y:1},{x:0,y:.5},{x:.2,y:0}],
+          mode:'toggle',
+          label:'Bottom Left',
+          textLocation : {x:.5, y:.5},
+        });
+        var b5 = new Interface.ButtonV({
+          bounds:[.36,.45,.2,.2], 
+          points: [{x:.2,y:0},{x:.8,y:0},{x:1,y:.5},{x:.8,y:1},{x:.2,y:1},{x:0,y:.5},{x:.2,y:0}],
+          mode:'toggle',
+          label:'Bottom Right',
+          textLocation : {x:.5, y:.5},
+        });
+        var b6 = new Interface.ButtonV({
+          bounds:[.2,.55,.2,.2], 
+          points: [{x:.2,y:0},{x:.8,y:0},{x:1,y:.5},{x:.8,y:1},{x:.2,y:1},{x:0,y:.5},{x:.2,y:0}],
+          mode:'toggle',
+          label:'Bottom',
+          textLocation : {x:.5, y:.5},
+        });
+        var d = new Interface.ButtonV({ 
+          bounds:[.6,.05,.35,.9], 
+          points: [{x:0,y:0},{x:1,y:0},{x:1,y:1},{x:0,y:1},{x:0,y:.2},{x:.8,y:.2},{x:.8,y:.8},{x:.2,y:.8},{x:.2,y:.4},{x:.6,y:.4},
+                  {x:.6,y:.5},{x:.3,y:.5},{x:.3,y:.5},{x:.3,y:.7},{x:.7,y:.7},{x:.7,y:.3},{x:.1,y:.3},{x:.1,y:.9},{x:.9,y:.9},{x:.9,y:.1},{x:0,y:.1},{x:0,y:0}],
+          mode:'momentary',
+          label:'Spiral',
+          textLocation : {x:.45, y:.45},
+        });
 
-a.background = 'black';   
-a.add(b0,b1,b2,b3,b4,b5,b6,d);
+        a.background = 'black';   
+        a.add(b0,b1,b2,b3,b4,b5,b6,d);
+      }()
       </script>
     </li>
 
@@ -280,12 +284,14 @@ a.add(b,c);
       <div id='sliderPanel' class='interfacePanel'>
       </div>
       <script>
-      var a = new Interface.Panel({  background:"#000", container:$("#sliderPanel") });      
-      var b = new Interface.Slider({ bounds:[.05,.05,.3,.9], label: 'vertical slider' });
-      var c = new Interface.Slider({ bounds:[.4,.35,.55,.3], label: 'horizontal slider', isVertical:false, value:.5 });
+      !function() {
+        var a = new Interface.Panel({  background:"#000", container:$("#sliderPanel") });      
+        var b = new Interface.Slider({ bounds:[.05,.05,.3,.9], label: 'vertical slider' });
+        var c = new Interface.Slider({ bounds:[.4,.35,.55,.3], label: 'horizontal slider', isVertical:false, value:.5 });
 
-      a.background = 'black';
-      a.add(b,c)
+        a.background = 'black';
+        a.add(b,c)
+      }()
       </script>
     </li>
     <li>
@@ -329,34 +335,36 @@ a.add(xy, c, d);
       <div id='xyPanel' class='interfacePanel'>
       </div>
       <script>
-      var a = new Interface.Panel({  background:"#000", container:$("#xyPanel") });      
-      var xy = new Interface.XY({
-        childWidth: 25,
-        numChildren: 6,
-        background:"#111",
-        fill: "rgba(127,127,127,.2)",
-        bounds:[0,0,.6,1],
-        oninit: function() { this.rainbow() },
-      });
-      var c = new Interface.Slider({ 
-        bounds:[.65,0,.15,1], 
-        min:.0, max:.25,
-        value:.125,
-        fill:'#333', background:'#111',
-        onvaluechange: function() { xy.friction = 1 - this.value; },
-        label:'friction',
-      });
-      var d = new Interface.Slider({ 
-        bounds:[.825,0,.15,1],
-        target:xy, key:'maxVelocity',
-        min:.5, max:20,
-        value:15,
-        fill:'#333', background:'#111',       
-        label:'velocity',
-      });
-      
-      a.background = 'black';
-      a.add(xy, c, d);
+      !function() {
+        var a = new Interface.Panel({  background:"#000", container:$("#xyPanel") });      
+        var xy = new Interface.XY({
+          childWidth: 25,
+          numChildren: 6,
+          background:"#111",
+          fill: "rgba(127,127,127,.2)",
+          bounds:[0,0,.6,1],
+          oninit: function() { this.rainbow() },
+        });
+        var c = new Interface.Slider({ 
+          bounds:[.65,0,.15,1], 
+          min:.0, max:.25,
+          value:.125,
+          fill:'#333', background:'#111',
+          onvaluechange: function() { xy.friction = 1 - this.value; },
+          label:'friction',
+        });
+        var d = new Interface.Slider({ 
+          bounds:[.825,0,.15,1],
+          target:xy, key:'maxVelocity',
+          min:.5, max:20,
+          value:15,
+          fill:'#333', background:'#111',       
+          label:'velocity',
+        });
+    
+        a.background = 'black';
+        a.add(xy, c, d);
+      }()
       </script>
     </li>
     <li>
@@ -405,43 +413,45 @@ a.add(k1, k2, k3, k4, m, n)
       <div id='knobPanel' class='interfacePanel'>
       </div>
       <script>
-      var a = new Interface.Panel({  background:"#000", container:$("#knobPanel") });      
-      var k1 = new Interface.Knob({ 
-        bounds:[.05,0,.25],
-        value:.25,
-        usesRotation:true,
-        centerZero: true,
-      });
-      var k2 = new Interface.Knob({ 
-        bounds:[.35,0,.25],
-        value:.75,
-        usesRotation:true,
-        centerZero: false,
-      });
-      var k3 = new Interface.Knob({ 
-        bounds:[.05,.5,.25],
-        value:.1,
-        usesRotation:false,
-        centerZero: true,
-      });  
-      var k4 = new Interface.Knob({ 
-        bounds:[.35,.5,.25],
-        value:.9,
-        usesRotation:false,
-        centerZero: false,
-      });
-      var m = new Interface.Label({ 
-        bounds:[.7,.2,.25,.5],
-        value:"uses rotation gesture",
-        hAlign:'right',
-      });
-      var n = new Interface.Label({ 
-        bounds:[.7, .7, .25, .5],
-        value:"uses vertical gesture",
-        hAlign:'right',
-      });
-      a.background = 'black';
-      a.add(k1, k2, k3, k4, m, n)
+      !function() {      
+        var a = new Interface.Panel({  background:"#000", container:$("#knobPanel") });      
+        var k1 = new Interface.Knob({ 
+          bounds:[.05,0,.25],
+          value:.25,
+          usesRotation:true,
+          centerZero: true,
+        });
+        var k2 = new Interface.Knob({ 
+          bounds:[.35,0,.25],
+          value:.75,
+          usesRotation:true,
+          centerZero: false,
+        });
+        var k3 = new Interface.Knob({ 
+          bounds:[.05,.5,.25],
+          value:.1,
+          usesRotation:false,
+          centerZero: true,
+        });  
+        var k4 = new Interface.Knob({ 
+          bounds:[.35,.5,.25],
+          value:.9,
+          usesRotation:false,
+          centerZero: false,
+        });
+        var m = new Interface.Label({ 
+          bounds:[.7,.2,.25,.5],
+          value:"uses rotation gesture",
+          hAlign:'right',
+        });
+        var n = new Interface.Label({ 
+          bounds:[.7, .7, .25, .5],
+          value:"uses vertical gesture",
+          hAlign:'right',
+        });
+        a.background = 'black';
+        a.add(k1, k2, k3, k4, m, n)
+      }()
       </script>
     </li>
     <li>
@@ -468,17 +478,19 @@ a.add(crossfaderLabel, crossfader);
       <div id='crossfaderPanel' class='interfacePanel'>
       </div>
       <script>
-      var a = new Interface.Panel({  background:"#000", container:$("#crossfaderPanel") }); 
-      var crossfaderLabel = new Interface.Label({ bounds:[.3,.2, .4, .2], hAlign:'center', value:0 });     
-      var crossfader = new Interface.Crossfader({
-        bounds:[.1,.35,.8,.3],
-        min:-1, max:1,
-        crossfaderWidth:30,
-        target: crossfaderLabel, key:'setValue',
-      });
+      !function() {      
+        var a = new Interface.Panel({  background:"#000", container:$("#crossfaderPanel") }); 
+        var crossfaderLabel = new Interface.Label({ bounds:[.3,.2, .4, .2], hAlign:'center', value:0 });     
+        var crossfader = new Interface.Crossfader({
+          bounds:[.1,.35,.8,.3],
+          min:-1, max:1,
+          crossfaderWidth:30,
+          target: crossfaderLabel, key:'setValue',
+        });
       
-      a.background = 'black';
-      a.add(crossfaderLabel, crossfader);
+        a.background = 'black';
+        a.add(crossfaderLabel, crossfader);
+      }()
       </script>
     </li>
     <li>
@@ -508,23 +520,25 @@ a.add(rangeLabel, range);
       <div id='rangePanel' class='interfacePanel'>
       </div>
       <script>
-      var a = new Interface.Panel({  background:"#000", container:$("#rangePanel") }); 
-      var rangeLabel = new Interface.Label({ 
-        bounds:[0, .2, 1, .2],
-        hAlign:'center',
-        value:'min : -1, max : 1',
-      });     
-      var range = new Interface.Range({
-        bounds:[.1,.35,.8,.3],
-        min:-1, max:1,
-        crossfaderWidth:30,
-        onvaluechange : function(min, max) { 
-          rangeLabel.setValue('min : ' + min + ', max : ' + max);
-        }
-      });
+      !function() {      
+        var a = new Interface.Panel({  background:"#000", container:$("#rangePanel") }); 
+        var rangeLabel = new Interface.Label({ 
+          bounds:[0, .2, 1, .2],
+          hAlign:'center',
+          value:'min : -1, max : 1',
+        });     
+        var range = new Interface.Range({
+          bounds:[.1,.35,.8,.3],
+          min:-1, max:1,
+          crossfaderWidth:30,
+          onvaluechange : function(min, max) { 
+            rangeLabel.setValue('min : ' + min + ', max : ' + max);
+          }
+        });
 
-      a.background = 'black';
-      a.add(rangeLabel, range);
+        a.background = 'black';
+        a.add(rangeLabel, range);
+      }()
       </script>
     </li>
     <li>
@@ -557,26 +571,28 @@ for(var i = 0; i &lt; multiSlider.count; i++) {
       <div id='multiSliderPanel' class='interfacePanel'>
       </div>
       <script>
-      var a = new Interface.Panel({  background:"#000", container:$("#multiSliderPanel") });            
-      var multiSlider = new Interface.MultiSlider({ 
-        count:15,
-        bounds:[.05,.05,.9,.8],
-        onvaluechange : function(number, value) {
-          multiSliderLabel.setValue( 'num : ' + number + ' , value : ' + value);
+      !function() {
+        var a = new Interface.Panel({  background:"#000", container:$("#multiSliderPanel") });            
+        var multiSlider = new Interface.MultiSlider({ 
+          count:15,
+          bounds:[.05,.05,.9,.8],
+          onvaluechange : function(number, value) {
+            multiSliderLabel.setValue( 'num : ' + number + ' , value : ' + value);
+          }
+        });
+        var multiSliderLabel = new Interface.Label({ 
+          bounds:[.05,.9, .9, .1],
+          hAlign:"left",
+          value:"",
+        });
+        a.background = 'black';
+      
+        for(var i = 0; i < multiSlider.count; i++) {
+          multiSlider._values[i] = Math.random();
         }
-      });
-      var multiSliderLabel = new Interface.Label({ 
-        bounds:[.05,.9, .9, .1],
-        hAlign:"left",
-        value:"",
-      });
-      a.background = 'black';
       
-      for(var i = 0; i < multiSlider.count; i++) {
-        multiSlider._values[i] = Math.random();
-      }
-      
-      a.add(multiSlider, multiSliderLabel);
+        a.add(multiSlider, multiSliderLabel);
+      }()
       </script>
     </li>
     <li>
@@ -609,29 +625,31 @@ for(var i = 0; i < multiButton.count; i++) {
       <div id='multiButtonPanel' class='interfacePanel'>
       </div>
       <script>
-      var a = new Interface.Panel({  background:"#000", container:$("#multiButtonPanel") });            
-      var multiButton = new Interface.MultiButton({ 
-        row:4,
-        columns:8,
-        bounds:[.05,.05,.9,.8],
-        onvaluechange : function(row, col, value) {
-          multiButtonLabel.setValue( 'row : ' + row + ' , col : ' + col + ' , value : ' + value);
+      !function() {
+        var a = new Interface.Panel({  background:"#000", container:$("#multiButtonPanel") });            
+        var multiButton = new Interface.MultiButton({ 
+          row:4,
+          columns:8,
+          bounds:[.05,.05,.9,.8],
+          onvaluechange : function(row, col, value) {
+            multiButtonLabel.setValue( 'row : ' + row + ' , col : ' + col + ' , value : ' + value);
+          }
+        });
+
+        var multiButtonLabel = new Interface.Label({ 
+          bounds:[.05,.9, .9, .1],
+          hAlign:"left",
+          value: "row : , col : , value : ",
+        });
+
+        a.background = 'black';
+      
+        for(var i = 0; i < multiButton._values.length; i++) {
+          multiButton._values[i] = Math.random() > .5 ;
         }
-      });
-
-      var multiButtonLabel = new Interface.Label({ 
-        bounds:[.05,.9, .9, .1],
-        hAlign:"left",
-        value: "row : , col : , value : ",
-      });
-
-      a.background = 'black';
       
-      for(var i = 0; i < multiButton._values.length; i++) {
-        multiButton._values[i] = Math.random() > .5 ;
-      }
-      
-      a.add(multiButton, multiButtonLabel);
+        a.add(multiButton, multiButtonLabel);
+      }()
       </script>
     </li>
 
@@ -668,26 +686,27 @@ a.add(b,c);
       <div id='pianoPanel' class='interfacePanel'>
       </div>
       <script>
-      var a = new Interface.Panel({  background:"#000", childFill: "#fff" , container:$("#pianoPanel") });
+      !function() {
+        var a = new Interface.Panel({  background:"#000", childFill: "#fff" , container:$("#pianoPanel") });
      
-      var b = new Interface.Piano({ 
-  bounds:[0,0,1,.5],  
-  startletter : "C",
-   startoctave : 3,
-   endletter : "C",
-   endoctave : 5,
-   noteLabels:true,
-   
- });
-var c = new Interface.Piano({ 
-  bounds:[0,.5,1,.5],  
-  startletter : "F",
-   startoctave : 3,
-   endletter : "B",
-   endoctave : 4,
-  }); 
-      a.background = 'black';
-      a.add(b,c);
+        var b = new Interface.Piano({ 
+          bounds:[0,0,1,.5],  
+          startletter : "C",
+           startoctave : 3,
+           endletter : "C",
+           endoctave : 5,
+           noteLabels:true,
+        });
+        var c = new Interface.Piano({ 
+          bounds:[0,.5,1,.5],  
+          startletter : "F",
+          startoctave : 3,
+          endletter : "B",
+          endoctave : 4,
+        }); 
+        a.background = 'black';
+        a.add(b,c);
+      }()
       </script>
     </li>
 
@@ -719,28 +738,30 @@ a.add(textField, textFieldLabel);
       <div id='textFieldPanel' class='interfacePanel'>
       </div>
       <script>
-      var a = new Interface.Panel({  
-        background:"#000",
-        container:$("#textFieldPanel") 
-      });
-      var textField = new Interface.TextField({ 
-        bounds:[.05,.05,.5,.2],
-        onvaluechange : function(value, oldValue) {
-          textFieldLabel.setValue( "new value : " + value );
-        },
-        value: " TEST ",
-        fill:"#fff",
-      });
+      !function() {
+        var a = new Interface.Panel({  
+          background:"#000",
+          container:$("#textFieldPanel") 
+        });
+        var textField = new Interface.TextField({ 
+          bounds:[.05,.05,.5,.2],
+          onvaluechange : function(value, oldValue) {
+            textFieldLabel.setValue( "new value : " + value );
+          },
+          value: " TEST ",
+          fill:"#fff",
+        });
 
-      var textFieldLabel = new Interface.Label({ 
-        bounds:[.05,.5, .9, .2],
-        size: 20,
-        hAlign:"left",
-        value:"Enter text in the field above and hit return"
-      });
+        var textFieldLabel = new Interface.Label({ 
+          bounds:[.05,.5, .9, .2],
+          size: 20,
+          hAlign:"left",
+          value:"Enter text in the field above and hit return"
+        });
       
-      a.background = 'black';
-      a.add(textField, textFieldLabel);
+        a.background = 'black';
+        a.add(textField, textFieldLabel);
+      }()
       </script>
     </li>
     <li>
@@ -762,20 +783,21 @@ a.add(menu);
       <div id='menuPanel' class='interfacePanel'>
       </div>
       <script>
-      var a = new Interface.Panel({  
-        background:"#000",
-        container:$("#menuPanel") 
-      });
-      var menu = new Interface.Menu({ 
-        bounds:[.25,.45,.5,.1],
-        stroke:"#666",
-        options:['red','green','blue','pink','purple'],
-        target: a, key:'background',
-      });
+      !function() {
+        var a = new Interface.Panel({  
+          background:"#000",
+          container:$("#menuPanel") 
+        });
+        var menu = new Interface.Menu({ 
+          bounds:[.25,.45,.5,.1],
+          stroke:"#666",
+          options:['red','green','blue','pink','purple'],
+          target: a, key:'background',
+        });
 
-      a.background = 'black';
-      a.add(menu);
-      
+        a.background = 'black';
+        a.add(menu);
+      }()
       </script>
     </li>
     <li>
@@ -821,40 +843,42 @@ a.add(label, label2, label3, label4, label5);
       <div id='labelPanel' class='interfacePanel'>
       </div>
       <script>
-      var a = new Interface.Panel({ container:$("#labelPanel") });
-      var label = new Interface.Label({
-        value:"center aligned",
-        size: 25,
-        bounds:[0, .15, 1, .1],
-      });
-      var label2 = new Interface.Label({
-        value:"left aligned",
-        hAlign:'left',
-        size: 25,
-        bounds:[.5,.25,.5,.1],
-      });
-      var label3 = new Interface.Label({
-        value:"right aligned",
-        hAlign:'right',
-        size: 25,
-        bounds:[0, .35, .5,.1],
-      });
-      var label4 = new Interface.Label({
-        value:'bold',
-        style:'bold',
-        size: 25,
-        bounds:[0,.45,1,.1],
-      });
-      var label5 = new Interface.Label({
-        value:'Times Italic Big',
-        style:'italic',
-        font:'Times',
-        size: 45,
-        bounds:[0,.55,1,.25],
-      });
+      !function() {
+        var a = new Interface.Panel({ container:$("#labelPanel") });
+        var label = new Interface.Label({
+          value:"center aligned",
+          size: 25,
+          bounds:[0, .15, 1, .1],
+        });
+        var label2 = new Interface.Label({
+          value:"left aligned",
+          hAlign:'left',
+          size: 25,
+          bounds:[.5,.25,.5,.1],
+        });
+        var label3 = new Interface.Label({
+          value:"right aligned",
+          hAlign:'right',
+          size: 25,
+          bounds:[0, .35, .5,.1],
+        });
+        var label4 = new Interface.Label({
+          value:'bold',
+          style:'bold',
+          size: 25,
+          bounds:[0,.45,1,.1],
+        });
+        var label5 = new Interface.Label({
+          value:'Times Italic Big',
+          style:'italic',
+          font:'Times',
+          size: 45,
+          bounds:[0,.55,1,.25],
+        });
 
-      a.background = 'black';
-      a.add(label, label2, label3, label4, label5);
+        a.background = 'black';
+        a.add(label, label2, label3, label4, label5);
+      }()
       </script>
     </li>
     <li>
@@ -893,32 +917,36 @@ a.add(b);
       <div id='patchbayPanel' class='interfacePanel'>
       </div>
       <script>
-      var a = new Interface.Panel({ 
-        container:$("#patchbayPanel") 
-      });
+      !function() {
+        var a = new Interface.Panel({ 
+          container:$("#patchbayPanel") 
+        });
 
-      var b = new Interface.Patchbay({ 
-        bounds:[0,0,1,.75],
-        points:[ 
-          {name:0},{name:1},{name:2},{name:3}, 
-          {name:4, name2:'blargh' },{ name:5, name2:'blargh5' },{name:6}, {name:7}
-        ],
-        onconnection: function( start, end ) {
-          c.setValue( start.name + ' connected to ' + end.name )
-        },
-        ondisconnection: function( start, end ) {
-          c.setValue( start.name + ' disconnected from ' + end.name )
-        },
-      });
+        var b = new Interface.Patchbay({ 
+          bounds:[0,0,1,.75],
+          points:[ 
+            {name:0},{name:1},{name:2},{name:3}, 
+            {name:4, name2:'blargh' },{ name:5, name2:'blargh5' },{name:6}, {name:7}
+          ],
+          onconnection: function( start, end ) {
+            c.setValue( start.name + ' connected to ' + end.name )
+            console.log("CONNECTION 2", start, end )
+          
+          },
+          ondisconnection: function( start, end ) {
+            c.setValue( start.name + ' disconnected from ' + end.name )
+          },
+        });
 
-      var c = new Interface.Label({
-        bounds:[0,.75,1,.25],
-        vAlign:'middle',
-        value:'Drag a cable between patch points',
-      })
+        var c = new Interface.Label({
+          bounds:[0,.75,1,.25],
+          vAlign:'middle',
+          value:'Drag a cable between patch points',
+        })
 
-      a.background = 'black';   
-      a.add(b,c);
+        a.background = 'black';   
+        a.add(b,c);
+      }()
       </script>
     </li>
     <li>
@@ -955,36 +983,38 @@ a.add(pitch, roll, yaw);
       <div id='orientationPanel' class='interfacePanel'>
       </div>
       <script>
-      var a = new Interface.Panel({ 
-        container:$("#orientationPanel") 
-      });
-      var orientation = new Interface.Orientation({
-        onvaluechange : function(_pitch, _roll, _yaw, _heading) {
-          pitch.setValue(_pitch);
-          roll.setValue(_roll);
-          yaw.setValue(_yaw); 
-          heading.setValue( 'heading : ' + _heading);        
-        }
-      }).start();
-      var pitch = new Interface.Slider({
-        label: 'pitch',  
-        bounds:[.05,.05,.2,.9] 
-      });
-      var roll = new Interface.Slider({
-        label: 'roll',  
-        bounds:[.25,.05,.2,.9] 
-      });
-      var yaw = new Interface.Slider({
-        label: 'yaw',  
-        bounds:[.45,.05,.2,.9] 
-      });
-      var heading = new Interface.Label({
-        label: 'heading : ',  
-        bounds:[.82,.5],
-      });
+      !function() {
+        var a = new Interface.Panel({ 
+          container:$("#orientationPanel") 
+        });
+        var orientation = new Interface.Orientation({
+          onvaluechange : function(_pitch, _roll, _yaw, _heading) {
+            pitch.setValue(_pitch);
+            roll.setValue(_roll);
+            yaw.setValue(_yaw); 
+            heading.setValue( 'heading : ' + _heading);        
+          }
+        }).start();
+        var pitch = new Interface.Slider({
+          label: 'pitch',  
+          bounds:[.05,.05,.2,.9] 
+        });
+        var roll = new Interface.Slider({
+          label: 'roll',  
+          bounds:[.25,.05,.2,.9] 
+        });
+        var yaw = new Interface.Slider({
+          label: 'yaw',  
+          bounds:[.45,.05,.2,.9] 
+        });
+        var heading = new Interface.Label({
+          label: 'heading : ',  
+          bounds:[.82,.5],
+        });
       
-      a.background = 'black';
-      a.add(pitch, roll, yaw, heading);
+        a.background = 'black';
+        a.add(pitch, roll, yaw, heading);
+      }()
       </script>
     </li>
     <li>
@@ -1021,31 +1051,33 @@ a.add(x,y,z);
       <div id='accelerometerPanel' class='interfacePanel'>
       </div>
       <script>
-      var a = new Interface.Panel({ 
-        container:$("#accelerometerPanel") 
-      });
-      var accelerometer = new Interface.Accelerometer({
-        onvaluechange : function(_x,_y,_z) {
-          x.setValue(_x);
-          y.setValue(_y);
-          z.setValue(_z);        
-        }
-      }).start();
-      var x = new Interface.Slider({
-        label: 'x',  
-        bounds:[.05,.05,.2,.9] 
-      });
-      var y = new Interface.Slider({
-        label: 'y',  
-        bounds:[.25,.05,.2,.9] 
-      });
-      var z = new Interface.Slider({
-        label: 'z',  
-        bounds:[.45,.05,.2,.9] 
-      });
+      !function() {
+        var a = new Interface.Panel({ 
+          container:$("#accelerometerPanel") 
+        });
+        var accelerometer = new Interface.Accelerometer({
+          onvaluechange : function(_x,_y,_z) {
+            x.setValue(_x);
+            y.setValue(_y);
+            z.setValue(_z);        
+          }
+        }).start();
+        var x = new Interface.Slider({
+          label: 'x',  
+          bounds:[.05,.05,.2,.9] 
+        });
+        var y = new Interface.Slider({
+          label: 'y',  
+          bounds:[.25,.05,.2,.9] 
+        });
+        var z = new Interface.Slider({
+          label: 'z',  
+          bounds:[.45,.05,.2,.9] 
+        });
 
-      a.background = 'black';
-      a.add(x,y,z);
+        a.background = 'black';
+        a.add(x,y,z);
+      }()
       </script>
     </li>
     <li>
@@ -1061,20 +1093,9 @@ var hbox = new Interface.HBox({
   bounds:[0,0,1,.45]
 })
 
-var b = new Interface.Button({ 
-  bounds:[.05,.05,.3,.9],  
-  label:'toggle'  
-});
-var c = new Interface.Button({ 
-  bounds:[.35,.05,.3,.9],
-  label:'momentary',
-  mode:'momentary'  
-});
-var d = new Interface.Button({ 
-  bounds:[.65,.05,.3,.9],
-  label:'contact',
-   mode:'contact'  
-});
+var b = new Interface.Crossfader();
+var c = new Interface.Button();
+var d = new Interface.Slider();
 
 var vbox = new Interface.VBox({ bounds:[ 0,.55,1,.45 ] })
 
@@ -1093,26 +1114,28 @@ a.background = 'black';
       <div id='hboxPanel' class='interfacePanel'>
       </div>
       <script>
-      var a = new Interface.Panel({ container:$("#hboxPanel") });
+      !function() {
+        var a = new Interface.Panel({ container:$("#hboxPanel") });
 
-      var hbox = new Interface.HBox({ bounds:[0,0,1,.45] })
+        var hbox = new Interface.HBox({ bounds:[0,0,1,.45] })
       
-      var b = new Interface.Button();
-      var c = new Interface.Crossfader();
-      var d = new Interface.Slider();
+        var b = new Interface.Button();
+        var c = new Interface.Crossfader();
+        var d = new Interface.Slider();
       
-      var vbox = new Interface.VBox({ bounds:[ 0,.55,1,.45 ] })
+        var vbox = new Interface.VBox({ bounds:[ 0,.55,1,.45 ] })
       
-      var e = new Interface.Range();
-      var f = new Interface.Range();
-      var g = new Interface.Range();
+        var e = new Interface.Range();
+        var f = new Interface.Range();
+        var g = new Interface.Range();
       
-      a.add( vbox, hbox );
+        a.add( vbox, hbox );
       
-      hbox.add( c,b,d )
-      vbox.add( e,f,g )
+        hbox.add( c,b,d )
+        vbox.add( e,f,g )
       
-      a.background = 'black';   
+        a.background = 'black';   
+      }()
       </script>
     </li>   
   </ul>
