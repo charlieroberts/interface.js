@@ -3986,7 +3986,13 @@ Interface.Patchbay = function() {
         if( connection.selected ) {
           this.ctx.strokeStyle = '#0f0'
         }else{
-          this.ctx.strokeStyle = this._stroke()
+          var grd = this.ctx.createLinearGradient(startX, startY, endX, endY);
+          
+          grd.addColorStop( 0.000, 'rgba(64, 64, 64, 1.000)' )          
+          grd.addColorStop( 1.000, 'rgba(204, 204, 204, 1.000)' )
+
+          
+          this.ctx.strokeStyle = grd
         }
         
         this.ctx.beginPath();
@@ -4006,7 +4012,7 @@ Interface.Patchbay = function() {
           
       this.patchWidth = width / this.points.length
       this.patchHeight = height
-      this.rows = 1      
+      this.rows = 1 
     },
     
     createConnection : function( connection ) {
@@ -4059,7 +4065,12 @@ Interface.Patchbay = function() {
           var _x = Math.floor( ( e.x - this._x() / this._width() ) / ( this._width() / this.columns ) ),
               _y = Math.floor( ( e.y - this._y() / this._height()) / ( this._height() / this.rows ) )
                         
-          this.start = _y * this.columns + _x          
+          this.start = _y * this.columns + _x
+          
+          if( this.selectedConnection !== null ) {
+            this.selectedConnection.selected = false
+            this.selectedConnection = null
+          }        
         }
         
         this.draw()
