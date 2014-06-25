@@ -1,5 +1,7 @@
 #Interface.js
 
+Live demos and sample code : [http://www.charlie-roberts.com/interface][interface]
+
 Interface.js is a GUI library designed to be device agnostic; it works with mouse, touch and motion events. This means you can write a GUI once and be reasonably assured that it will work on smartphones, tablets and laptops. Although you can register for touch or mouse events individually with widgets, Interface.js adds a new event category, touchmouse events, that works for both types. The onvaluechange event handler is also agnostic to the touch / mouse divide.
 
 Sizes and positions of widgets can be provided either in absolute pixel dimensions or relative to the size of the widgets containing panel. By using relative sizing and positioning you can ensure that interfaces will have the same relative sizes and positioning in interfaces with the same aspect ratio; absolute sizes allow you to customize interfaces for particular dimensions.
@@ -61,9 +63,6 @@ Every widget has three colors: background, fill and stroke. If you do not specif
 
 The included demo file has banks of sliders along the bottom of the panel that allow you to experiment with different colors.
 
-## Live Demo (w/ Gibberish)
-[http://www.charlie-roberts.com/gibberface][demo]
-
 ## Screenshot (buttons, sliders, xy, knobs)
 
 ![Screenshot](https://raw.github.com/charlieroberts/Interface.js/screenshots/screenshot.png) 
@@ -76,6 +75,7 @@ Interface.js uses the MIT license.
 
 [gibberish]:http://www.charlie-roberts.com/gibberish
 [gibberishRepo]:https://github.com/charlieroberts/Gibberish
+[interface]:http://www.charlie-roberts.com/interface
 [control]:http://www.charlie-roberts.com/Control
 [controlRepo]:https://github.com/charlieroberts/Control
 [demo]:http://www.charlie-roberts.com/gibberface
