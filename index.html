@@ -32,7 +32,7 @@
   code,pre{
     margin:0;
     padding:0;
-    font-size:.9em;
+    font-size:.8em;
     overflow:scroll;
     height: 275px;
     background-color:#efefef;
@@ -679,9 +679,9 @@ var a = new Interface.Panel({
  });
 var c = new Interface.Piano({ 
   bounds:[0,.5,1,.5],  
-  startletter : "F",
+  startletter : "C",
    startoctave : 3,
-   endletter : "B",
+   endletter : "C",
    endoctave : 4,
   }); 
 
@@ -699,16 +699,16 @@ a.add(b,c);
         var b = new Interface.Piano({ 
           bounds:[0,0,1,.5],  
           startletter : "C",
-           startoctave : 3,
-           endletter : "C",
-           endoctave : 5,
-           noteLabels:true,
+          startoctave : 3,
+          endletter : "C",
+          endoctave : 5,
+          noteLabels:true,
         });
         var c = new Interface.Piano({ 
           bounds:[0,.5,1,.5],  
-          startletter : "F",
+          startletter : "C",
           startoctave : 3,
-          endletter : "B",
+          endletter : "C",
           endoctave : 4,
         }); 
         a.background = 'black';
