@@ -230,7 +230,6 @@ Interface.Panel = function() {
     
     touchEvent : function(event) {
       if(self.active) {
-        console.log( event )
         if( typeof event.changedTouches === 'undefined' && event.originalEvent ) {
           event.changedTouches = event.originalEvent.changedTouches
         }
@@ -330,6 +329,7 @@ Interface.Panel = function() {
         }
         this.shouldDraw.length = 0;
       }
+      $.publish('/draw')
     },
     
     getWidgetWithName: function( name ) {
@@ -866,6 +866,206 @@ Interface.Widget = {
   ],
 };
 
+
+Interface.HBox = function() {
+  var me = this
+  Interface.extend(this, {
+    type : 'HBox',    
+    
+    children: [],
+    proxyPanel : { active:true, x:0, y:0, width:1, height:1, shouldDraw:[], useRelativeSizesAndPositions:true }, // needed for absolute widths / heights which are set in _init call
+    
+    add: function() {
+      for( var i = 0; i < arguments.length; i++ ) {
+        var child = arguments[ i ]
+        if( this.children.indexOf( child ) === -1 ) this.children.push( child )
+        child.panel = this.proxyPanel
+        child.ctx = this.panel.ctx
+      }
+      
+      this.layout()
+      this.draw()
+    },
+    
+    layout : function() {
+      var w = (this.width / this.children.length) / this.width,
+          _widthUsed = 0;
+      
+      for( var i = 0; i < this.children.length; i++ ) {
+        var child = this.children[ i ]
+        
+        child.x = _widthUsed + this.x
+        child.y = this.y * (1 / this.height)
+        
+        child.width = w 
+        child.height = 1
+        
+        _widthUsed += w
+      }
+      return this
+    },
+    
+    draw: function() {
+      this.proxyPanel.width = this._width()
+      this.proxyPanel.height = this._height()
+      
+      for( var i = 0; i < this.children.length; i++ ) {
+        this.children[ i ].draw()
+      }
+    },
+    
+    refresh: function() {      
+      for( var i = 0; i < this.proxyPanel.shouldDraw.length; i++ ) {
+        this.proxyPanel.shouldDraw[ i ].draw()
+      }
+      this.proxyPanel.shouldDraw.length = 0
+    },
+    
+    mouseEvent: function(e){
+      // e.x -= this._x()
+      // e.y -= this._y()
+      for( var i = 0; i < this.children.length; i++ ) { 
+        var child = this.children[ i ]
+        
+        this.children[ i ].mouseEvent( e ) 
+      } 
+    },
+    
+    touchEvent: function(e){
+      // e.x -= this._x()
+      // e.y -= this._y()
+      for( var i = 0; i < this.children.length; i++ ) { 
+        var child = this.children[ i ]
+        
+        this.children[ i ].touchEvent( e ) 
+      } 
+    },
+
+    _init: function() {
+      this.useRelativeSizesAndPositions = this.panel.useRelativeSizesAndPositions
+      this.proxyPanel.width = this._width()
+      this.proxyPanel.height = this._height()
+      this.proxyPanel.__proto__ = this.panel
+      
+      $.subscribe('/draw', this.refresh.bind( this ) )
+      
+      Object.defineProperties(this, {
+        bounds : {
+          configurable: true,
+          get : function() { return bounds; },
+          set : function(_bounds) { 
+            bounds = _bounds; this.x = bounds[0]; this.y = bounds[1]; this.width = bounds[2]; this.height = bounds[3]; 
+            this.layout()
+            this.draw()
+          }
+        },
+      })
+    }
+  })
+  .init( arguments[0] )
+};
+Interface.HBox.prototype = Interface.Widget;
+
+Interface.VBox = function() {
+  Interface.extend(this, {
+    type : 'VBox',    
+    
+    children: [],
+    proxyPanel : { active:true, x:0, y:0, width:1, height:1, shouldDraw:[], useRelativeSizesAndPositions:true }, // needed for absolute widths / heights which are set in _init call
+    
+    add: function() {
+      for( var i = 0; i < arguments.length; i++ ) {
+        var child = arguments[ i ]
+        this.children.push( child )
+        child.panel = this.proxyPanel
+        child.ctx = this.panel.ctx
+      }
+      
+      this.layout()
+      this.draw()
+    },
+    
+    layout : function() {
+      var h = this.height  / this.children.length,
+          _heightUsed = 0;
+      
+      for( var i = 0; i < this.children.length; i++ ) {
+        var child = this.children[ i ]
+        
+        child.x = this.x
+        child.y = (this.y + _heightUsed ) * (1 / this.height)
+        //
+        child.width = 1
+        child.height = h * ( 1/this.height)
+        
+        _heightUsed += h
+      }
+      
+      return this
+    },
+    
+    draw: function() {
+      this.proxyPanel.width = this._width()
+      this.proxyPanel.height = this._height()
+      
+      for( var i = 0; i < this.children.length; i++ ) {
+        this.children[ i ].draw()
+      }
+    },
+    
+    refresh: function() {      
+      for( var i = 0; i < this.proxyPanel.shouldDraw.length; i++ ) {
+        this.proxyPanel.shouldDraw[ i ].draw()
+      }
+      this.proxyPanel.shouldDraw.length = 0
+    },
+    
+    mouseEvent: function(e){
+      // e.x -= this._x()
+      // e.y -= this._y()
+      for( var i = 0; i < this.children.length; i++ ) { 
+        var child = this.children[ i ]
+        
+        this.children[ i ].mouseEvent( e ) 
+      } 
+    },
+    
+    touchEvent: function(e){
+      e.x -= this._x()
+      e.y -= this._y()
+      for( var i = 0; i < this.children.length; i++ ) { 
+        var child = this.children[ i ]
+        
+        this.children[ i ].touchEvent( e ) 
+      } 
+    },
+
+    _init: function() {
+      this.useRelativeSizesAndPositions = this.panel.useRelativeSizesAndPositions
+      this.proxyPanel.width = this._width()
+      this.proxyPanel.height = this._height()
+      this.proxyPanel.__proto__ = this.panel
+      
+      $.subscribe('/draw', this.refresh.bind( this ) )
+      
+      Object.defineProperties(this, {
+        bounds : {
+          configurable: true,
+          get : function() { return bounds; },
+          set : function(_bounds) { 
+            bounds = _bounds; this.x = bounds[0]; this.y = bounds[1]; this.width = bounds[2]; this.height = bounds[3]; 
+            this.layout()
+            this.draw()
+          }
+        },
+      })
+    }
+  })
+  .init( arguments[0] )
+};
+Interface.VBox.prototype = Interface.Widget;
+
+
 /**#Interface.Slider - Widget
 A vertical or horizontal slider.
 
@@ -1221,9 +1421,6 @@ String. A text label to print at the textLocation coordinates of the button.
 Set. A set of x and y coordinates which position the the label within the bounds.
 **/
 
-
-
-
 Interface.ButtonV = function() {
   Interface.extend(this, {
     type : 'ButtonV',    
@@ -1423,11 +1620,10 @@ Interface.ButtonV = function() {
       }
     },
     touchend   : function(e) {
-      this.isTouchOver = false;
-      if( this.requiresFocus || ( !this.requiresFocus && this.isTouchOver) ) {
-        this.isTouchOver = false;
+      if( this.momentary && this.requiresFocus || ( !this.requiresFocus && this.isTouchOver) ) {
         this.changeValue();
       }
+      this.isTouchOver = false;
     },
   })
   .init( arguments[0] );
@@ -1438,8 +1634,7 @@ Interface.ButtonV.prototype = Interface.Widget;
 /**#Interface.Piano - Widget
 A piano with adjustable ranges of pitches 
 
-*contributed by Jonathan Simozar
-
+*contributed by Jonathan Simozar, with modifications by thecharlie
 
 ## Example Usage##
 `var c = new Interface.Piano({ 
@@ -2439,7 +2634,7 @@ Interface.XY = function() {
     touchmove : function(touch) {
       for(var t = 0; t < this.children.length; t++) {
         _t = this.children[t];
-        if(touch.identifier == _t.identifier) {
+        if(touch.identifier === _t.identifier) {
           this.changeValue(_t, touch.x - this._x(), touch.y - this._y());
 
           var now = {x:touch.x - this._x(), y:touch.y - this._y()};
@@ -2458,8 +2653,10 @@ Interface.XY = function() {
         var _t = this.children[t];
         
         if(touch.identifier === _t.identifier) {
-          _t.vx = _t.velocity.x;
-          _t.vy = _t.velocity.y;
+          if( _t.velocity ) {
+            _t.vx = _t.velocity.x;
+            _t.vy = _t.velocity.y;
+          }
           
           _t.lastPosition = null;
           _t.isActive = false;
@@ -2679,10 +2876,11 @@ Interface.Label = function() {
           rect.x =  x - metrics.width;
           break;
       }
+
       switch(this.vAlign) {
         case 'middle':
           y = (this._y() + this._height() / 2)
-          rect.y = y - metrics.height / 2;
+          rect.y = y - this.size / 2;
           break;
         case 'top':
           y = this._y();
@@ -2690,7 +2888,7 @@ Interface.Label = function() {
           break; 
         case 'bottom':
           y = this._y() + this._height();
-          rect.y =  y - metrics.height;
+          rect.y =  y - this.size / 2;
           break;
       }
       this.ctx.clearRect(rect.x, rect.y, rect.width, rect.height * 2);      
@@ -2855,6 +3053,21 @@ Interface.MultiSlider = function() {
       this.values[ sliderNum ] = value
       this._values[ sliderNum ] = value
       this.refresh()
+    },
+    resetValues : function() {
+      for( var i = 0; i < this.count; i++ ) {
+        this.values[ i ] = this.min + (this.max - this.min) * this._values[ i ];
+        
+        if(this.target !== "OSC") {
+          this.sendTargetMessage();
+        }else{
+          if(Interface.OSC)
+            Interface.OSC.send( this.key, 'if', [ sliderHit, this.values[ sliderHit ] ] );
+        }
+        if(this.onvaluechange) this.onvaluechange(sliderHit, this.values[ sliderHit ]);
+      }
+      
+      this.refresh();
     },
     changeValue : function( xOffset, yOffset ) {
       if(this.hasFocus || !this.requiresFocus) {
@@ -3593,83 +3806,349 @@ Interface.Paint = function() {
         this.animate()
       }
     },
-    /*
-    trackTouch : function(xPos, yPos, _touch) {
-      var closestDiff = 10000;
-      var touchFound = null;
-      var touchNum = null;
-      
-      for(var i = 0; i < this.children.length; i++) {
-        var touch = this.children[i];
-        var xdiff = Math.abs(touch.x - xPos);
-        var ydiff = Math.abs(touch.y - yPos);
-
-        if(xdiff + ydiff < closestDiff && !touch.isActive) {
-          closestDiff = xdiff + ydiff;
-          touchFound = touch;
-          touchNum = i;
-        }
-      }
-      
-      touchFound.isActive = true;
-      touchFound.vx = 0;
-      touchFound.vy = 0;
-      touchFound.identifier = _touch.identifier;
-      touchFound.childID = touchNum;
-
-      if(touchFound != null)
-        this.changeValue(touchFound, xPos, yPos);
-    
-      this.lastTouched = touchFound;
-      return touchFound.childID;
-    },
     touchstart : function(touch) {
-      // if(this.hitTest(touch)) {
-      //   this.trackTouch(touch.x - this.x, touch.y - this.y, touch);
-      // }
-    },
-    touchmove : function(touch) {
-      for(var t = 0; t < this.children.length; t++) {
-        _t = this.children[t];
-        if(touch.identifier == _t.identifier) {
-          this.changeValue(_t, touch.x - this._x(), touch.y - this._y());
-
-          var now = {x:touch.x - this._x(), y:touch.y - this._y()};
-          
-          if(_t.lastPosition !== null) {
-            _t.velocity = {x:now.x - _t.lastPosition.x, y:now.y - _t.lastPosition.y };
-          }
-          _t.lastPosition = now;
-        }
-      }
-    },
-    touchend : function(touch) {
-      var found = false;
-      var tu = null;
-      for(var t = 0; t < this.children.length; t++) {
-        var _t = this.children[t];
+      if(this.hitTest(touch)) {
+        this.lines = []
+        this.animationPoint = 0
         
-        if(touch.identifier === _t.identifier) {
-          _t.vx = _t.velocity.x;
-          _t.vy = _t.velocity.y;
-          
-          _t.lastPosition = null;
-          _t.isActive = false;
-          
+        if( this.lines.length === 0 ) {
+          this.startTime = Date.now()
+        }
 
-          found = true;
-          tu = t.childID;
+        this.lines.push( [] )
+        this.isDrawing = true;
+        this.isAnimating = false;
+      }
+      
+      this.activeTouch = touch
+    },
+    
+    touchmove : function(touch) {
+      if(this.hitTest(touch) && this.activeTouch !== null) {
+        if( this.isDrawing ) {
+          var points = this.lines[ this.lines.length - 1 ]
+          if( points ) {
+            points.push({ x:touch.x / this._width(), y:touch.y / this._height(), timestamp: Date.now() - this.startTime })
+            this.draw()
+          }
+        }  
+      }
+    },
+    
+    touchend : function(touch) {
+      this.isDrawing = false
+      if( this.lines.length > 0 ) {
+        this.isAnimating = true;
+        this.animate()
+      }
+    },
+  })
+  .init( arguments[0] );
+}
+Interface.Paint.prototype = Interface.Widget;
+
+Interface.Patchbay = function() {
+  Interface.extend(this, {
+    type:"Patchbay",
+    points: [],
+    minWidth:80,
+    cableWidth:5,
+    start:null,
+    over:null,
+    connections:[],
+    rowLength:null,
+    selectedConnection: null,
+    patchOutlineWidth:3,
+    
+    draw : function() {
+      var x = this._x(), y = this._y(), width = this._width(), height = this._height(),
+          length = this.points.length
+        
+      this.ctx.fillStyle = this._background();
+      this.ctx.strokeStyle = this._stroke();
+      this.ctx.clearRect(x, y, width, height);          
+      
+      this.layout()
+      this.drawSegments()
+      this.drawPatchPoints()
+      this.drawConnections()
+      //this.drawLabels()
+    },
+    
+    layout: function() {
+      var x = this._x(), y = this._y(), width = this._width(), height = this._height()
+      
+      this.rows = 1
+      
+      this.patchWidth = width / this.points.length
+      
+      if( this.patchWidth < this.minWidth ) {
+        this.patchWidth = this.minWidth
+      }
+      
+      this.rows = Math.ceil( (this.patchWidth * this.points.length) / width )
+            
+      this.patchHeight = height / this.rows
+      
+      
+      this.columns = Math.floor( width / this.patchWidth )
+    },
+    
+    drawSegments : function() {
+      var x = this._x(), y = this._y(), width = this._width(), height = this._height(),
+          length = this.points.length
+          
+      this.ctx.fillStyle = this._fill();
+
+      var totalWidth = 0, row = 1
+      
+      //console.log("SEGMENT, START:", this.start, 'OVER:', this.over )
+      for( var i = 0; i < this.points.length; i++ ) {
+        if( this.start === i ) {
+          this.ctx.fillStyle = "#777"            
+          this.ctx.fillRect(x + totalWidth, y + (this.patchHeight * (row-1)), this.patchWidth, this.patchHeight  );
+        }else if( this.over === i ) {
+          this.ctx.fillStyle = "#744"
+          this.ctx.fillRect(x + totalWidth, y + (this.patchHeight * (row-1)), this.patchWidth, this.patchHeight );
+        }
+        
+        this.ctx.fillStyle = this._stroke()
+        this.ctx.textBaseline = 'middle'
+        this.ctx.textAlign = 'center'
+        this.ctx.font = this._font()
+        this.ctx.font = 'normal 12px Helvetica'
+        
+        if( typeof this.points[i].name !== 'undefined' ) { 
+          this.ctx.fillText( this.points[ i ].name ,  totalWidth + this.patchWidth / 2, y + ((row-1) * this.patchHeight + .1 * this.patchHeight)  )
+        }
+        
+        if( typeof this.points[i].name2 !== 'undefined' ) {
+          this.ctx.fillText( this.points[ i ].name2 , totalWidth + this.patchWidth / 2, y + ((row-1) * this.patchHeight + .9 * this.patchHeight)  )
+        }
+  
+        totalWidth += this.patchWidth
+        
+        this.points[ i ].row = row
+        
+        if( totalWidth + this.patchWidth > width ) {
+          totalWidth = 0
+          row++
         }
       }
-      if(found) { this.touchUp = tu; }
-      //if(!found) console.log("NOT FOUND", touch.identifier);
     },
-    */
+    
+    drawPatchPoints : function() {
+      var x = this._x(), y = this._y(), width = this._width(), height = this._height(),
+          length = this.points.length
+          
+      this.ctx.fillStyle = this._background();
+    
+      var totalWidth = 0, row = 1
+      for( var i = 0; i < this.points.length; i++ ) {
+        //this.ctx.fillRect(totalWidth, y, patchWidth, patchHeight);
+        this.ctx.beginPath()
+        this.ctx.arc( totalWidth + this.patchWidth / 2, y + this.patchHeight / 2 + (this.patchHeight * (row-1)), this.patchWidth/4, 0, Math.PI*2, true); 
+        this.ctx.closePath()
+        
+        this.ctx.fill()
+        
+        this.ctx.lineWidth = this.patchOutlineWidth
+        this.ctx.stroke()
+        
+        this.points[i].row = row
+        
+        this.ctx.lineWidth = 1
+        this.ctx.strokeRect(totalWidth, y + (this.patchHeight * (row-1)), this.patchWidth, this.patchHeight );
+              
+        totalWidth += this.patchWidth
+        if( totalWidth + this.patchWidth > width ) {
+          totalWidth = 0
+          row++
+        }
+      }
+      
+      //console.log("TOTAL ROWS = ", row )
+    },
+    
+    drawConnections : function() {
+      var x = this._x(), y = this._y(), width = this._width(), height = this._height()
+      
+      this.ctx.lineWidth = this.cableWidth
+      
+      for( var i = 0; i < this.connections.length; i++ ) {
+        var connection = this.connections[ i ],
+            origin = this.connections[ i ][ 0 ],
+            destination = this.connections[ i ][ 1 ],
+            startX = x + this.patchWidth * (origin % this.columns) + this.patchWidth / 2,
+            startY = y + (this.patchHeight / 2) + (this.patchHeight * Math.floor(origin / this.columns) ),
+            endX   = x + this.patchWidth * (destination % this.columns) + this.patchWidth / 2,
+            endY   = y + (this.patchHeight / 2) + (this.patchHeight * Math.floor(destination / this.columns) ),
+            ctrl1X = startX,
+            ctrl1Y = startY + this.patchHeight * .5,
+            ctrl2X = endX,
+            ctrl2Y = endY + this.patchHeight * .5
+        
+            //console.log( "ORIGIN", this.points[origin].row, "DESTINATION", this.points[destination].row )
+        if( connection.selected ) {
+          this.ctx.strokeStyle = '#0f0'
+        }else{
+          var grd = this.ctx.createLinearGradient(startX, startY, endX, endY);
+          
+          grd.addColorStop( 0.000, 'rgba(64, 64, 64, 1.000)' )          
+          grd.addColorStop( 1.000, 'rgba(204, 204, 204, 1.000)' )
+
+          
+          this.ctx.strokeStyle = grd
+        }
+        
+        this.ctx.beginPath();
+        this.ctx.moveTo( startX, startY )
+        this.ctx.bezierCurveTo( ctrl1X, ctrl1Y, ctrl2X, ctrl2Y, endX, endY );
+        this.ctx.stroke()
+
+        connection.edge = [startX, startY, ctrl1X, ctrl1Y, ctrl2X, ctrl2Y, endX, endY]
+      }
+    },
+    
+    _init : function() {
+      var x = this._x(),
+          y = this._y(),
+          width = this._width(),
+          height= this._height()
+          
+      this.patchWidth = width / this.points.length
+      this.patchHeight = height
+      this.rows = 1 
+    },
+    
+    createConnection : function( connection ) {
+      var start = this.points[ connection[0] ],
+          end   = this.points[ connection[1] ]
+      
+      if( end.output !== false ) {
+        this.connections.push( connection )
+      
+        if( this.onconnection ) { 
+          this.onconnection( start, end ) 
+        }
+      }
+    },
+    
+    changeValue : function( xOffset, yOffset ) {  },
+    
+    hitTestEdges: function(e) {
+      var hit = false,
+          x = e.x - this._x(),
+          y = e.y - this._y()
+      
+      for( var i = 0; i < this.connections.length; i++ ) {
+        var edge = this.connections[ i ].edge
+        
+        this.ctx.beginPath()
+        this.ctx.moveTo( edge[0], edge[1] )
+        this.ctx.bezierCurveTo( edge[2], edge[3], edge[4], edge[5], edge[6], edge[7] );
+        if( this.ctx.isPointInStroke( x,y ) ) {
+          this.connections.forEach( function( elem, index, array ){
+            elem.selected = false
+          })
+          
+          this.connections[ i ].selected = true
+          this.selectedConnection = this.connections[ i ]
+          
+          hit = true
+          
+          break;
+        }
+      }
+      
+      return hit
+    },
+  
+    mousedown : function(e, hit) {
+      if( hit && Interface.mouseDown ) {
+        if( !this.hitTestEdges( e ) ) {
+          //this.start = Math.floor( ( e.x - this._x() / this._width() / this.rows ) / ( this._width() / this.points.length / this.rows ) )
+          var _x = Math.floor( ( e.x - this._x() / this._width() ) / ( this._width() / this.columns ) ),
+              _y = Math.floor( ( e.y - this._y() / this._height()) / ( this._height() / this.rows ) )
+                        
+          this.start = _y * this.columns + _x
+          
+          if( this.selectedConnection !== null ) {
+            this.selectedConnection.selected = false
+            this.selectedConnection = null
+          }        
+        }
+        
+        this.draw()
+      }
+    },
+    mousemove : function(e, hit) { 
+      if( hit && Interface.mouseDown ) {
+        var _x = Math.floor( ( e.x - this._x() / this._width() ) / ( this._width() / this.columns) ),
+            _y = Math.floor( ( e.y - this._y() / this._height()) / ( this._height() / this.rows ) )
+            
+        var prevOver = this.over
+        this.over = _y * this.columns + _x
+        
+        if( this.over !== prevOver ) {
+          this.draw()
+        }
+      }
+    },
+    mouseup   : function(e, hit) { 
+      if( hit ) {
+        var _x = Math.floor( ( e.x - this._x() / this._width() ) / ( this._width() / this.columns ) ),
+            _y = Math.floor( ( e.y - this._y() / this._height()) / ( this._height() / this.rows ) ),
+            over = _y * this.columns + _x
+            
+        // var over = Math.floor( ( e.x - this._x() / this._width() / this.rows ) / ( this._width() / this.points.length / this.rows ) )
+        
+        if( this.start !== over && this.start !== null ) {
+          var connection = [ this.start, over ],
+              isFound = false
+              
+          for( var i = 0; i < this.connections.length; i++ ) {
+            if( this.connections[i][0] === connection[0] && this.connections[i][1] === connection[1] ) {
+              isFound = true
+            }
+          }
+          
+          if( !isFound ) this.createConnection( connection )
+        }
+      }
+      
+      this.over = null
+      this.start = null
+      this.draw()
+    },
+    
+    onkeydown: function(e) {
+      var key = Interface.keyCodeToChar[ e.keyCode ]
+            
+      if( key === 'Delete' || key === 'Backspace' ) {
+        if( this.selectedConnection !== null ) {
+          this.deleteConnection( this.selectedConnection )
+          e.preventDefault()
+        }
+      }
+    },
+    
+    deleteConnection: function( connection ) {
+      this.connections.splice( this.connections.indexOf( connection ), 1 )
+      
+      if( this.ondisconnection ) { this.ondisconnection( this.points[ connection[0] ], this.points[ connection[1] ] ) }
+      
+      this.draw()
+    },
+    
+    touchstart : function(e, hit) { if(hit) this.changeValue( e.x - this._x(), e.y - this._y() ); },
+    touchmove  : function(e, hit) { if(hit) this.changeValue( e.x - this._x(), e.y - this._y() ); },
+    touchend   : function(e, hit) { if(hit) this.changeValue( e.x - this._x(), e.y - this._y() ); },  
   })
   .init( arguments[0] );
 }
 
-Interface.Paint.prototype = Interface.Widget;
+Interface.Patchbay.prototype = Interface.Widget;
 
 Interface.defineChildProperties = function(widget, properties) {
   for(var j = 0; j < properties.length; j++) {
@@ -3688,6 +4167,36 @@ Interface.defineChildProperties = function(widget, properties) {
     })();
   }
 };
+
+(function ($) {
+	var cache = {};
+
+	$.publish = function(/* String */topic, /* Array? */args){
+		if(typeof cache[topic] === 'object') {	
+			cache[topic].forEach(function(property){
+				property.apply($, args || []);
+			});
+		}
+	};
+
+	$.subscribe = function(/* String */topic, /* Function */callback){
+		if(!cache[topic]){
+			cache[topic] = [];
+		}
+		cache[topic].push(callback);
+		return [topic, callback]; // Array
+	};
+
+	$.unsubscribe = function(/* Array */handle){
+		var t = handle[0];
+		cache[t] && $.each(cache[t], function(idx){
+			if(this == handle[1]){
+				cache[t].splice(idx, 1);
+			}
+		});
+	};
+
+})($);
 
 module.exports = Interface
 
