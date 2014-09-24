@@ -1,12 +1,17 @@
 <html>
 <head>
   <!-- This file is the boilerplate needed to create an interface using interface.js -->
-  <script src="zepto.js"></script>
-  <script src="interface.js"></script>
+  <script src="build/interface.js"></script>
 </head>
 <body>
   <script>
-    // place your script here
+  panel = new Interface.Panel()
+  
+  // place your script here; below is for demo only
+  btn = new Interface.Button({ bounds:[0,0,1,1], label:'test' })
+  
+  panel.add( btn )
+
   </script>
 </body>
 </html>
