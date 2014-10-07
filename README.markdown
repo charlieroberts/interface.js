@@ -28,8 +28,7 @@ Interface.js also comes with a server that translates Interface.js messages OSC 
 ```html
 <html>
 <head>
-  <script src="zepto.js"></script>
-  <script src="interface.js"></script>
+  <script src="build/interface.js"></script>
 </head>
 <body>
   <script>
@@ -68,7 +67,7 @@ The included demo file has banks of sliders along the bottom of the panel that a
 ![Screenshot](https://raw.github.com/charlieroberts/Interface.js/screenshots/screenshot.png) 
 
 ## Dependencies
-Interface.js requires jQuery or Zepto (a minimal version of jQuery). The demo included in the repo uses Zepto.
+Interface.js requires jQuery or Zepto. By default, the build script bundles jQuery 2.x in with interface.js and interface.js.min.
 
 ## License
 Interface.js uses the MIT license.

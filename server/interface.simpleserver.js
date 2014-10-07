@@ -24,7 +24,7 @@ var fs                = require('fs'),
       "programchange" : 0xC0,
     };
 
-interfaceJS =  fs.readFileSync( '../zepto.js', ['utf-8'] );
+interfaceJS =  fs.readFileSync( '../external/zepto.js', ['utf-8'] );
 interfaceJS += fs.readFileSync( '../interface.js', ['utf-8'] );
 interfaceJS += fs.readFileSync( './interface.client.js', ['utf-8'] );
 

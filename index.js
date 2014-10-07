@@ -20,6 +20,10 @@ Boolean. Whether or not a touch UI browser is being used.
 /**###Interface.isAndroid : property  
 Boolean. Whether or not the browser is running under Android. This is used to determine the range of accelerometer values generated.
 **/
+!function() {
+
+var $ = require( 'jquery' )
+
 var Interface = {
   extend : function(destination, source) {
     for (var property in source) {
@@ -93,6 +97,7 @@ Interface.Presets = {
     return Object.keys( this.dictionary );
   },
 };
+
 /**#Interface.Panel - Widget
 A panel is a container for on-screen widgets. There can be multiple panels in a HTML page. Panels are the starting point for event processing in Interface.js.
 **/
@@ -4153,6 +4158,7 @@ Interface.Patchbay = function() {
   })
   .init( arguments[0] );
 }
+
 Interface.Patchbay.prototype = Interface.Widget;
 
 Interface.defineChildProperties = function(widget, properties) {
@@ -4173,7 +4179,6 @@ Interface.defineChildProperties = function(widget, properties) {
   }
 };
 
-// pub/sub for jquery && zepto, see https://github.com/martinjuhasz/pubsub-zepto/blob/master/pubsub.js
 (function ($) {
 	var cache = {};
 
@@ -4202,4 +4207,8 @@ Interface.defineChildProperties = function(widget, properties) {
 		});
 	};
 
-})(window.Zepto);
+})($);
+
+module.exports = Interface
+
+}()

@@ -1,12 +1,7 @@
 <html>
 <head>
   <title>Interface.js</title>
-  <script src="rainbow-custom.min.js"></script>
-  <script src="zepto.js"></script>
-  <script src="interface.js"></script>
-  <!--<script src="http://a.local:8080/target/target-script-min.js#anonymous"></script> -->
-  
-  <link href="themes/tricolore.css" rel="stylesheet" type="text/css">
+  <script src="build/interface.min.js"></script>
   
   <style>
   html, body {
@@ -91,7 +86,7 @@
         
         <pre><code data-language="javascript">
 var a = new Interface.Panel({ 
-  container:$("#buttonPanel") 
+  container:document.querySelector("#buttonPanel") 
 });
 
 var b = new Interface.Button({ 
@@ -118,7 +113,7 @@ a.add(b,c,d);
       </div>
       <script>
       !function() {
-        var a = new Interface.Panel({  background:"#000", container:$("#buttonPanel") });
+        var a = new Interface.Panel({  background:"#000", container:document.querySelector("#buttonPanel") });
         var b = new Interface.Button({ bounds:[.05,.05,.3,.9],  label:'toggle'  });
         var c = new Interface.Button({ bounds:[.35,.05,.3,.9],  label:'momentary', mode:'momentary'  });
         var d = new Interface.Button({ bounds:[.65,.05,.3,.9],  label:'contact', mode:'contact'  });
@@ -133,7 +128,7 @@ a.add(b,c,d);
         <h3>ButtonV</h3>
         
         <pre><code data-language="javascript">
-var a = new Interface.Panel({  background:"#000", container:$("#buttonVPanel") });
+var a = new Interface.Panel({  background:"#000", container:document.querySelector("#buttonVPanel") });
 var b0 = new Interface.ButtonV({
   bounds:[.2,.15,.2,.2], 
   points: [{x:.2,y:0},{x:.8,y:0},{x:1,y:.5},{x:.8,y:1},{x:.2,y:1},{x:0,y:.5},{x:.2,y:0}],
@@ -201,7 +196,7 @@ a.add(b0,b1,b2,b3,b4,b5,b6,c);
       </div>
       <script>
       !function() {
-        var a = new Interface.Panel({  background:"#000", container:$("#buttonVPanel") });
+        var a = new Interface.Panel({  background:"#000", container:document.querySelector("#buttonVPanel") });
         var b0 = new Interface.ButtonV({
           bounds:[.2,.15,.2,.2], 
           points: [{x:.2,y:0},{x:.8,y:0},{x:1,y:.5},{x:.8,y:1},{x:.2,y:1},{x:0,y:.5},{x:.2,y:0}],
@@ -271,7 +266,7 @@ a.add(b0,b1,b2,b3,b4,b5,b6,c);
         <h3>Slider</h3>
         <pre><code data-language="javascript">
 var a = new Interface.Panel({ 
-  container:$("#sliderPanel") 
+  container:document.querySelector("#sliderPanel") 
 });
 var b = new Interface.Slider({
   label: 'vertical slider',  
@@ -292,7 +287,7 @@ a.add(b,c);
       </div>
       <script>
       !function() {
-        var a = new Interface.Panel({  background:"#000", container:$("#sliderPanel") });      
+        var a = new Interface.Panel({  background:"#000", container:document.querySelector("#sliderPanel") });      
         var b = new Interface.Slider({ bounds:[.05,.05,.3,.9], label: 'vertical slider' });
         var c = new Interface.Slider({ bounds:[.4,.35,.55,.3], label: 'horizontal slider', isVertical:false, value:.5 });
 
@@ -306,7 +301,7 @@ a.add(b,c);
         <h3>XY</h3>
         <pre><code data-language="javascript">
 var a = new Interface.Panel({ 
-  container:$("#xyPanel") 
+  container:document.querySelector("#xyPanel") 
 });
 var xy = new Interface.XY({
   childWidth: 25,
@@ -316,7 +311,6 @@ var xy = new Interface.XY({
   bounds:[0,0,.6,1],
   oninit: function() { this.rainbow() },  
 });
-xy.rainbow()
 var c = new Interface.Slider({ 
   bounds:[.65,0,.15,1], 
   min:.0, max:.25,
@@ -343,7 +337,7 @@ a.add(xy, c, d);
       </div>
       <script>
       !function() {
-        var a = new Interface.Panel({  background:"#000", container:$("#xyPanel") });      
+        var a = new Interface.Panel({  background:"#000", container:document.querySelector("#xyPanel") });      
         var xy = new Interface.XY({
           childWidth: 25,
           numChildren: 6,
@@ -378,7 +372,7 @@ a.add(xy, c, d);
       <div class="interfaceCode">
         <h3>Knob</h3>
         <pre><code data-language="javascript">
-var a = new Interface.Panel({ container:$("#knobPanel") });      
+var a = new Interface.Panel({ container:document.querySelector("#knobPanel") });      
 var k1 = new Interface.Knob({ 
   bounds:[.05,0,.25],
   value:.25,
@@ -421,7 +415,7 @@ a.add(k1, k2, k3, k4, m, n)
       </div>
       <script>
       !function() {      
-        var a = new Interface.Panel({  background:"#000", container:$("#knobPanel") });      
+        var a = new Interface.Panel({  background:"#000", container:document.querySelector("#knobPanel") });      
         var k1 = new Interface.Knob({ 
           bounds:[.05,0,.25],
           value:.25,
@@ -465,7 +459,7 @@ a.add(k1, k2, k3, k4, m, n)
       <div class="interfaceCode">
         <h3>Crossfader</h3>
         <pre><code data-language="javascript">
-var a = new Interface.Panel({ container:$("#crossfaderPanel") }); 
+var a = new Interface.Panel({ container:document.querySelector("#crossfaderPanel") }); 
 var crossfaderLabel = new Interface.Label({ 
   bounds:[.3,.2,.4,.2],
   hAlign:'center',
@@ -486,7 +480,7 @@ a.add(crossfaderLabel, crossfader);
       </div>
       <script>
       !function() {      
-        var a = new Interface.Panel({  background:"#000", container:$("#crossfaderPanel") }); 
+        var a = new Interface.Panel({  background:"#000", container:document.querySelector("#crossfaderPanel") }); 
         var crossfaderLabel = new Interface.Label({ bounds:[.3,.2, .4, .2], hAlign:'center', value:0 });     
         var crossfader = new Interface.Crossfader({
           bounds:[.1,.35,.8,.3],
@@ -504,7 +498,7 @@ a.add(crossfaderLabel, crossfader);
       <div class="interfaceCode">
         <h3>Range</h3>
         <pre><code data-language="javascript">
-var a = new Interface.Panel({ container:$("#rangePanel") }); 
+var a = new Interface.Panel({ container:document.querySelector("#rangePanel") }); 
 var rangeLabel = new Interface.Label({ 
   bounds:[.3,.2, .4, .2],
   hAlign:'center',
@@ -528,7 +522,7 @@ a.add(rangeLabel, range);
       </div>
       <script>
       !function() {      
-        var a = new Interface.Panel({  background:"#000", container:$("#rangePanel") }); 
+        var a = new Interface.Panel({  background:"#000", container:document.querySelector("#rangePanel") }); 
         var rangeLabel = new Interface.Label({ 
           bounds:[0, .2, 1, .2],
           hAlign:'center',
@@ -552,7 +546,7 @@ a.add(rangeLabel, range);
       <div class="interfaceCode">
         <h3>MultiSlider</h3>
         <pre><code data-language="javascript">
-var a = new Interface.Panel({ container:$("#multiSliderPanel") });            
+var a = new Interface.Panel({ container:document.querySelector("#multiSliderPanel") });            
 var multiSlider = new Interface.MultiSlider({ 
   count:15,
   bounds:[.05,.05,.9,.8],
@@ -579,7 +573,7 @@ for(var i = 0; i &lt; multiSlider.count; i++) {
       </div>
       <script>
       !function() {
-        var a = new Interface.Panel({  background:"#000", container:$("#multiSliderPanel") });            
+        var a = new Interface.Panel({  background:"#000", container:document.querySelector("#multiSliderPanel") });            
         var multiSlider = new Interface.MultiSlider({ 
           count:15,
           bounds:[.05,.05,.9,.8],
@@ -633,7 +627,7 @@ for(var i = 0; i < multiButton.count; i++) {
       </div>
       <script>
       !function() {
-        var a = new Interface.Panel({  background:"#000", container:$("#multiButtonPanel") });            
+        var a = new Interface.Panel({  background:"#000", container:document.querySelector("#multiButtonPanel") });            
         var multiButton = new Interface.MultiButton({ 
           row:4,
           columns:8,
@@ -666,7 +660,7 @@ for(var i = 0; i < multiButton.count; i++) {
         
         <pre><code data-language="javascript">
 var a = new Interface.Panel({ 
-  container:$("#pianoPanel") 
+  container:document.querySelector("#pianoPanel") 
 });
 
  var b = new Interface.Piano({ 
@@ -693,8 +687,9 @@ a.add(b,c);
       <div id='pianoPanel' class='interfacePanel'>
       </div>
       <script>
+
       !function() {
-        var a = new Interface.Panel({  background:"#000", childFill: "#fff" , container:$("#pianoPanel") });
+        var a = new Interface.Panel({  background:"#000", childFill: "#fff" , container:document.querySelector("#pianoPanel") });
      
         var b = new Interface.Piano({ 
           bounds:[0,0,1,.5],  
@@ -721,7 +716,7 @@ a.add(b,c);
       <div class="interfaceCode">
         <h3>TextField</h3>
         <pre><code data-language="javascript">
-var a = new Interface.Panel({ container:$("#textFieldPanel") });
+var a = new Interface.Panel({ container:document.querySelector("#textFieldPanel") });
 var textField = new Interface.TextField({ 
   bounds:[.05,.05,.5,.2],
   onvaluechange : function(value, oldValue) {
@@ -748,7 +743,7 @@ a.add(textField, textFieldLabel);
       !function() {
         var a = new Interface.Panel({  
           background:"#000",
-          container:$("#textFieldPanel") 
+          container:document.querySelector("#textFieldPanel") 
         });
         var textField = new Interface.TextField({ 
           bounds:[.05,.05,.5,.2],
@@ -775,7 +770,7 @@ a.add(textField, textFieldLabel);
       <div class="interfaceCode">
         <h3>Menu</h3>
         <pre><code data-language="javascript">
-var a = new Interface.Panel({ container:$("#menuPanel") });
+var a = new Interface.Panel({ container:document.querySelector("#menuPanel") });
 var menu = new Interface.Menu({ 
   bounds:[.25,.45,.5,.1],
   stroke:"#666",
@@ -793,7 +788,7 @@ a.add(menu);
       !function() {
         var a = new Interface.Panel({  
           background:"#000",
-          container:$("#menuPanel") 
+          container:document.querySelector("#menuPanel") 
         });
         var menu = new Interface.Menu({ 
           bounds:[.25,.45,.5,.1],
@@ -811,7 +806,7 @@ a.add(menu);
       <div class="interfaceCode">
         <h3>Label</h3>
         <pre><code data-language="javascript">
-var a = new Interface.Panel({ container:$("#labelPanel") });
+var a = new Interface.Panel({ container:document.querySelector("#labelPanel") });
 var label = new Interface.Label({
   value:"center aligned",
   size: 25,
@@ -851,7 +846,7 @@ a.add(label, label2, label3, label4, label5);
       </div>
       <script>
       !function() {
-        var a = new Interface.Panel({ container:$("#labelPanel") });
+        var a = new Interface.Panel({ container:document.querySelector("#labelPanel") });
         var label = new Interface.Label({
           value:"center aligned",
           size: 25,
@@ -894,7 +889,7 @@ a.add(label, label2, label3, label4, label5);
         
         <pre><code data-language="javascript">
 var a = new Interface.Panel({ 
-  container:$("#patchbayPanel") 
+  container:document.querySelector("#patchbayPanel") 
 });
 
 var b = new Interface.Patchbay({ 
@@ -926,7 +921,7 @@ a.add(b);
       <script>
       !function() {
         var a = new Interface.Panel({ 
-          container:$("#patchbayPanel") 
+          container:document.querySelector("#patchbayPanel") 
         });
 
         var b = new Interface.Patchbay({ 
@@ -961,7 +956,7 @@ a.add(b);
         <h3>Orientation (mobile + Chrome only)</h3>
         <pre><code data-language="javascript">
 var a = new Interface.Panel({ 
-  container:$("#sliderPanel") 
+  container:document.querySelector("#sliderPanel") 
 });
 var orientation = new Interface.Orientation({
   onvaluechange : function(_pitch, _roll, _yaw, _heading) {
@@ -992,7 +987,7 @@ a.add(pitch, roll, yaw);
       <script>
       !function() {
         var a = new Interface.Panel({ 
-          container:$("#orientationPanel") 
+          container:document.querySelector("#orientationPanel") 
         });
         var orientation = new Interface.Orientation({
           onvaluechange : function(_pitch, _roll, _yaw, _heading) {
@@ -1029,7 +1024,7 @@ a.add(pitch, roll, yaw);
         <h3>Accelerometer (mobile only)</h3>
         <pre><code data-language="javascript">
 var a = new Interface.Panel({ 
-  container:$("#sliderPanel") 
+  container:document.querySelector("#sliderPanel") 
 });
 var accelerometer = new Interface.Accelerometer({
   onvaluechange : function(_x,_y,_z) {
@@ -1060,7 +1055,7 @@ a.add(x,y,z);
       <script>
       !function() {
         var a = new Interface.Panel({ 
-          container:$("#accelerometerPanel") 
+          container:document.querySelector("#accelerometerPanel") 
         });
         var accelerometer = new Interface.Accelerometer({
           onvaluechange : function(_x,_y,_z) {
@@ -1093,7 +1088,7 @@ a.add(x,y,z);
         
         <pre><code data-language="javascript">
 var a = new Interface.Panel({ 
-  container:$("#hboxPanel") 
+  container:document.querySelector("#hboxPanel") 
 });
 
 var hbox = new Interface.HBox({ 
@@ -1122,7 +1117,7 @@ a.background = 'black';
       </div>
       <script>
       !function() {
-        var a = new Interface.Panel({ container:$("#hboxPanel") });
+        var a = new Interface.Panel({ container:document.querySelector("#hboxPanel") });
 
         var hbox = new Interface.HBox({ bounds:[0,0,1,.45] })
       
@@ -1148,9 +1143,5 @@ a.background = 'black';
   </ul>
   </div>
 </body>
-
-<script>
-  Rainbow.color();
-</script>
 
 </html>
