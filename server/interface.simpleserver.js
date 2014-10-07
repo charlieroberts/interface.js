@@ -2,8 +2,11 @@ var fs                = require('fs'),
     ws                = require('ws'),
     url               = require('url'),
     connect           = require('connect'),
+    app               = connect(),
+    directory         = require('serve-index'),
+    static            = require('serve-static'),
     omgosc            = require('omgosc'),
-    //midi              = require('midi'),
+    midi              = require('midi'),
     webServerPort     = 8080,
     socketPort        = 8081,
     oscOutPort        = 8082,
@@ -24,8 +27,8 @@ var fs                = require('fs'),
       "programchange" : 0xC0,
     };
 
-interfaceJS =  fs.readFileSync( '../external/zepto.js', ['utf-8'] );
-interfaceJS += fs.readFileSync( '../interface.js', ['utf-8'] );
+//interfaceJS =  fs.readFileSync( '../external/zepto.js', ['utf-8'] );
+interfaceJS = fs.readFileSync( '../build/interface.js', ['utf-8'] );
 interfaceJS += fs.readFileSync( './interface.client.js', ['utf-8'] );
 
 serveInterfaceJS = function(req, res, next){
@@ -44,10 +47,10 @@ serveInterfaceJS = function(req, res, next){
   next();
 };
 
-server = connect()
-  .use( connect.directory( root, { hidden:true,icons:true } ) )
+server = app
+  .use( directory( root, { hidden:true,icons:true } ) )
   .use( serveInterfaceJS )
-  .use( connect.static(root) )
+  .use( static(root) )
   .listen( webServerPort );
 
 clients_in.on( 'connection', function (socket) {
@@ -55,7 +58,7 @@ clients_in.on( 'connection', function (socket) {
   
   socket.on( 'message', function( obj ) {
     var args = JSON.parse( obj );
-    console.log( obj );
+    //console.log( obj );
     if(args.type === 'osc') {
 			osc.send( args.address, args.typetags, args.parameters );
     }else if( args.type === 'midi' ) {
