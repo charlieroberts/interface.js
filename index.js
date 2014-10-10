@@ -38,6 +38,10 @@ var Interface = {
     return destination;
   },
   
+  get$ : function() {
+    return $
+  },
+  
   isAndroid : (function() {
     var ua = navigator.userAgent.toLowerCase();
     return ua.indexOf("android") > -1;
