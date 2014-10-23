@@ -4,8 +4,6 @@
 </head>
 <body>
   <script>
-window.$ = Interface.get$()
-
 var page1 = new Interface.Panel();
 
 var xy = new Interface.XY({
@@ -34,6 +32,7 @@ var k = new Interface.Piano({
 
 page3.add( k )
 
+var pages = [ page1, page2, page3 ], currentPage
 
 /* ********************************
 
@@ -41,7 +40,7 @@ boilerplate for pages functionality
 
 ******************************** */
 
-var pages = [ page1, page2, page3 ], currentPage = null 
+var $ = Interface.get$()
 
 switchPage = function( page ) {
   if( page !== currentPage ) {
@@ -58,10 +57,10 @@ switchPage = function( page ) {
 
       otherPage.refresh()
     }
+    
+    currentPage = page
   }
 }
-
-switchPage( page1 )
 
 var buttonDiv = $('<div>').css({ 
   position:'absolute',
@@ -74,9 +73,8 @@ var buttonDiv = $('<div>').css({
 
 $('body').append( buttonDiv )
 
-var buttonPanel = new Interface.Panel({ container:buttonDiv })
-
-var pageNumber = 0
+var buttonPanel = new Interface.Panel({ container:buttonDiv }),
+    pageNumber = 0
 
 var prevBtn = new Interface.Button({
   bounds:[0,0,.5,1],
@@ -103,6 +101,8 @@ var nextBtn = new Interface.Button({
 })
 
 buttonPanel.add( prevBtn, nextBtn )
+
+switchPage( page1 )
 
   </script>
 </body>
