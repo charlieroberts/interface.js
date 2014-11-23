@@ -38,6 +38,10 @@ var Interface = {
     return destination;
   },
   
+  get$ : function() {
+    return $
+  },
+  
   isAndroid : (function() {
     var ua = navigator.userAgent.toLowerCase();
     return ua.indexOf("android") > -1;
@@ -1739,7 +1743,9 @@ Interface.Piano = function() {
         child.changeValue()
       }
     },
-    onvaluechange : function() { this.values = [this.frequency,this.value] },
+    //Math.pow(2,(startnote + 12*octave - 49)/12)*261.626
+    //onvaluechange : function() { this.values = [this.frequency,this.value] },
+    onvaluechange : function() { this.values = [Math.pow(2,(this.startnote + 12*this.octave - 49)/12)*261.626,this.value] },    
     onboundschange: function() { if( this._initialized) this.placeKeys() },
     
     draw : function() {
@@ -1884,6 +1890,8 @@ Interface.Piano = function() {
           textLocation : textLocation,
           target : this.target,
           onvaluechange: this.onvaluechange,
+          'startnote':startnote,
+          'octave':octave,
           frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
           background: bg,
           fill: fg,
@@ -1912,6 +1920,8 @@ Interface.Piano = function() {
               target : this.target,
               onvaluechange: this.onvaluechange,
               background: this._background(),
+              'startnote':startnote,
+              'octave':octave,
               frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
               bounds:[(j-.5)/dist*this.width + this.x, this.y,this.width/dist,.625*this.height],  
               label: this.noteLabels ? keylabel[startnote] : null,
@@ -1924,6 +1934,8 @@ Interface.Piano = function() {
               textLocation : {x:.5, y:.75},
               target : this.target,
               onvaluechange: this.onvaluechange,
+              'startnote':startnote,       
+              'octave':octave,       
               frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
               background: this._fill(),
               fill: this._background(),
@@ -1938,6 +1950,8 @@ Interface.Piano = function() {
               textLocation : {x:.5, y:.75},
               target : this.target,
               onvaluechange: this.onvaluechange,
+              'startnote':startnote,
+              'octave':octave,
               frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
               background: this._fill(),
               fill: this._background(),
@@ -1953,6 +1967,8 @@ Interface.Piano = function() {
               textLocation : {x:.5, y:.75},
               target : this.target,
               onvaluechange: this.onvaluechange,
+              'startnote':startnote,
+              'octave':octave,
               frequency: Math.pow(2,(startnote + 12*octave - 49)/12)*261.626,
               background: this._fill(),
               fill: this._background(),

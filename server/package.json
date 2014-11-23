@@ -1,25 +1,26 @@
 {
-  "name": "interface.js",
-  "version": "1.0.0",
-  "description": "Interface.js is a GUI library designed to be device agnostic; it works with mouse, touch and motion events.",
+  "name": "interface.simpleserver",
+  "version": "0.0.0",
+  "description": "simple osc and midi server for interface.js",
   "main": "interface.simpleserver.js",
+  "dependencies": {
+    "connect": "~3.2.0",
+    "midi": "~0.9.0",
+    "omgosc": "~1.0.0",
+    "directory": "~0.1.0",
+    "serve-index": "~1.4.0",
+    "serve-static": "~1.6.3",
+    "ws": "~0.4.32",
+    "minimist": "~1.1.0"
+  },
+  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/charlieroberts/interface.js/"
-  },
   "keywords": [
-    "GUI"
+    "osc",
+    "midi"
   ],
-  "author": "Charlie Roberts",
-  "license": "BSD",
-  "readmeFilename": "README.markdown",
-  "dependencies": {
-    "connect": "*",
-    "midi": "*",
-    "omgosc": "*",
-    "ws": "*"
-  }
+  "author": "Charlie Roberts <charlie@charlie-roberts.com> (http://www.charlie-roberts.com/)",
+  "license": "MIT"
 }

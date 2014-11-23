@@ -1,0 +1,109 @@
+<html>
+<head>
+  <script src='../build/interface.js'></script>
+</head>
+<body>
+  <script>
+var page1 = new Interface.Panel();
+
+var xy = new Interface.XY({
+  numChildren: 6,
+  bounds:[0,0,1,.8],
+});
+
+page1.add( xy )
+
+var page2 = new Interface.Panel();
+
+var c = new Interface.Slider({
+  bounds:[0,0,1,.8],
+  min:.0, max:.25,
+  value:.125,
+  fill:'#333', background:'#111',
+});
+
+page2.add( c )
+
+var page3 = new Interface.Panel();
+
+var k = new Interface.Piano({
+  bounds:[0,0,1,.8],
+});
+
+page3.add( k )
+
+var pages = [ page1, page2, page3 ], currentPage
+
+/* ********************************
+
+boilerplate for pages functionality
+
+******************************** */
+
+var $ = Interface.get$()
+
+switchPage = function( page ) {
+  if( page !== currentPage ) {
+    page.active = true
+    page.container.show()
+    
+    for( var i = 0; i < pages.length; i++ ) {
+      var otherPage = pages[ i ]
+      
+      if( otherPage === page ) continue;
+      
+      otherPage.active = false
+      otherPage.container.hide()
+
+      otherPage.refresh()
+    }
+    
+    currentPage = page
+  }
+}
+
+var buttonDiv = $('<div>').css({ 
+  position:'absolute',
+  top:$(window).height() * .8,
+  left:0,
+  width:$(window).width(),
+  height:$(window).height() * .2,
+  background:'#f00'
+})
+
+$('body').append( buttonDiv )
+
+var buttonPanel = new Interface.Panel({ container:buttonDiv }),
+    pageNumber = 0
+
+var prevBtn = new Interface.Button({
+  bounds:[0,0,.5,1],
+  label:'previous page',
+  mode:'contact',
+  ontouchmouseup: function() {
+    pageNumber -= 1
+    if( pageNumber < 0 ) pageNumber = pages.length - 1
+    
+    switchPage( pages[ pageNumber ] )
+  }
+})
+
+var nextBtn = new Interface.Button({
+  bounds:[.5,0,.5,1],
+  label:'next page',
+  mode:'contact',
+  ontouchmouseup: function() {
+    pageNumber += 1
+    pageNumber = pageNumber % pages.length
+    
+    switchPage( pages[ pageNumber ] )
+  }
+})
+
+buttonPanel.add( prevBtn, nextBtn )
+
+switchPage( page1 )
+
+  </script>
+</body>
+</html>

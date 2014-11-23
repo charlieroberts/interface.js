@@ -2,8 +2,12 @@ var fs                = require('fs'),
     ws                = require('ws'),
     url               = require('url'),
     connect           = require('connect'),
+    app               = connect(),
+    directory         = require('serve-index'),
+    static            = require('serve-static'),
     omgosc            = require('omgosc'),
-    //midi              = require('midi'),
+    midi              = require('midi'),
+    parseArgs         = require('minimist'),
     webServerPort     = 8080,
     socketPort        = 8081,
     oscOutPort        = 8082,
@@ -22,10 +26,12 @@ var fs                = require('fs'),
       "noteoff"       : 0x80,
       "cc"            : 0xB0,
       "programchange" : 0xC0,
-    };
+    },
+    idNumber = 0,
+    args = parseArgs( process.argv.slice(2) );
 
-interfaceJS =  fs.readFileSync( '../external/zepto.js', ['utf-8'] );
-interfaceJS += fs.readFileSync( '../interface.js', ['utf-8'] );
+//interfaceJS =  fs.readFileSync( '../external/zepto.js', ['utf-8'] );
+interfaceJS = fs.readFileSync( '../build/interface.js', ['utf-8'] );
 interfaceJS += fs.readFileSync( './interface.client.js', ['utf-8'] );
 
 serveInterfaceJS = function(req, res, next){
@@ -44,31 +50,36 @@ serveInterfaceJS = function(req, res, next){
   next();
 };
 
-server = connect()
-  .use( connect.directory( root, { hidden:true,icons:true } ) )
+server = app
+  .use( directory( root, { hidden:false,icons:true } ) )
   .use( serveInterfaceJS )
-  .use( connect.static(root) )
+  .use( static(root) )
   .listen( webServerPort );
 
 clients_in.on( 'connection', function (socket) {
   console.log( "device connection received" );
+  socket.idNumber = idNumber++
   
   socket.on( 'message', function( obj ) {
-    var args = JSON.parse( obj );
-    console.log( obj );
-    if(args.type === 'osc') {
-			osc.send( args.address, args.typetags, args.parameters );
-    }else if( args.type === 'midi' ) {
+    var msg = JSON.parse( obj );
+    //console.log( obj );
+    if(msg.type === 'osc') {
+      if( args.id ) {  // append client id
+        msg.typetags += 'i'
+        msg.parameters.push( socket.idNumber )
+      }
+      osc.send( msg.address, msg.typetags, msg.parameters );
+    }else if( msg.type === 'midi' ) {
       if( !midiInit ) {
         midiOutput = new midi.output();
         midiOutput.openVirtualPort( "Interface Output" );
         midiInit = true;
       }
 
-      if(args.type !== 'programchange') {
-        midiOutput.sendMessage([ midiNumbers[ args.midiType ] + args.channel, args.number, Math.round(args.value) ])
+      if(msg.type !== 'programchange') {
+        midiOutput.sendMessage([ midiNumbers[ msg.midiType ] + msg.channel, msg.number, Math.round(msg.value) ])
       }else{
-        midiOutput.sendMessage([ 0xC0 + args.channel, args.number])
+        midiOutput.sendMessage([ 0xC0 + msg.channel, msg.number])
       }
     }
   });
