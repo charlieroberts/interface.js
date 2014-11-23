@@ -3308,7 +3308,7 @@ Interface.MultiButton = function() {
       y = this.y,
       width = this.width,
       height = this.height,
-      bounds = [x,y,width,height]
+      bounds = [x,y,width,height],
       rows = this.rows,
       columns = this.columns;
   

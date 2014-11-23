@@ -18,6 +18,10 @@ Once these libraries are installed execute the following command to start the se
 
 This will start the web server running on port 8080.
 
+You can optionally tell the server to append unique client id numbers to every message by adding the `--id` flag:
+
+```node interface.simpleserver.js --id```
+
 All interface files should be stored in the interface > server > interfaces directory. When you navigate to your computer's url and port 8080 in a browser, you should see a list of all the files in the interfaces directory. Selecting any file in your browser will run the interface and interface.server.js will transmit any messages it receives into either OSC messages on port 8082 or MIDI messages that leave the virtual midi output named "Interface Out".
 
 To define widgets that send OSC messages, simply set their target to be "OSC" and their key to be the OSC address you would like them to output to. For example, to send a message to /speed we could create the following slider
