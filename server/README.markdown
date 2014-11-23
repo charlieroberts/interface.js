@@ -45,6 +45,21 @@ http://bar.local:8080
 
 ... and see a list of files to run including the two mentioned above.
 
+## Command Line Options
+
+--serverPort    : port to run the web server on, defaults to 8080
+--webSocketPort : port to send / receive websocket messages on, defaults to 8081
+--oscOutPort    : port to forward messages from clients to; the IP address is always localhost
+--oscInPort     : port to receive messages on for bi-directional control
+--appendID      : append the unique client ID# to all messages
+
+## Bi-directional Control
+You can send messages to all clients or target clients individually using the oscInPort. By default, if a message is received by a client with the same address as the key of one of its widgets the value of that widget will be set using the parameters of the received OSC message. In other words, if a button outputs to the address /button1, send a message to the client at address /button1 to change the value of that widget.
+
+By default, messages sent go to all clients. To target an individual client, place its ID number at the front of the OSC address. For example, to send a message to /button on client 0, send to the address /0/button.
+
+OSC messages can also be manually parsed in the client. See the OSC_test.htm sample interface for an example of this.
+
 [nodejs]:http://nodejs.org
 [npm]:http://nodejs.org/download/
 [interface_server_github]:https://github.com/charlieroberts/interface.server

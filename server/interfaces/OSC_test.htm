@@ -14,7 +14,7 @@
     // send a message to the address '/button'
     a = new Interface.Button({
       bounds:[0,0,1,.5],
-      mode:'contact',
+      mode:'toggle',
       target:"OSC", key:'/button',
     })
     
@@ -26,6 +26,13 @@
     })
     panel.add( a, b );
     
+    // override to process OSC messages. By default, if a message is received with the
+    // same address as the key of one of the widgets (here /button and /slider) the value
+    // of that widget will be set using the parameters of the received OSC message.
+    
+    Interface.OSC.receive = function( address, typetags, parameters ) {
+      console.log( address, typetags, parameters )
+    }
   </script>
 </body>
 </html>

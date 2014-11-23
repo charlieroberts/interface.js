@@ -7,12 +7,16 @@ var fs                = require('fs'),
     static            = require('serve-static'),
     omgosc            = require('omgosc'),
     midi              = require('midi'),
+    oscMin            = require( 'osc-min' ),    
     parseArgs         = require('minimist'),
-    webServerPort     = 8080,
-    socketPort        = 8081,
-    oscOutPort        = 8082,
-    oscInPort         = 8083,
-    osc               = new omgosc.UdpSender( '127.0.0.1', oscOutPort ),
+    udp               = require( 'dgram' ),
+    args              = parseArgs( process.argv.slice(2) ),
+    webServerPort     = args.serverPort || 8080,
+    socketPort        = args.socketPort || webServerPort + 1,
+    oscOutPort        = args.oscOutPort || webServerPort + 2,
+    oscInPort         = args.oscInPort  || webServerPort + 3,
+    appendID          = args.appendID   || false,
+    //osc               = new omgosc.UdpSender( '127.0.0.1', oscOutPort ),
     clients_in        = new ws.Server({ port:socketPort }),
     clients           = {},
     root              = __dirname + "/interfaces",
@@ -27,12 +31,37 @@ var fs                = require('fs'),
       "cc"            : 0xB0,
       "programchange" : 0xC0,
     },
-    idNumber = 0,
-    args = parseArgs( process.argv.slice(2) );
+    osc,
+    idNumber = 0;
 
 //interfaceJS =  fs.readFileSync( '../external/zepto.js', ['utf-8'] );
 interfaceJS = fs.readFileSync( '../build/interface.js', ['utf-8'] );
 interfaceJS += fs.readFileSync( './interface.client.js', ['utf-8'] );
+
+osc = udp.createSocket( 'udp4', function( _msg, rinfo ) {
+  var msg = oscMin.fromBuffer( _msg )
+    
+  var firstPath = msg.address.split('/')[1],
+      isNumber  = ! isNaN( firstPath ),
+      tt = '',
+      msgArgs = []
+    
+  for( var i = 0 ; i < msg.args.length; i++ ) {
+    var arg = msg.args[ i ]
+  
+    tt += arg.type[ 0 ]
+    msgArgs.push( arg.value )
+  }
+  
+  if( ! isNumber ) {
+    for( var key in clients ) {
+      clients[ key ].send( JSON.stringify({ type:'osc', address:msg.address, typetags: tt, parameters:msgArgs }) )
+    }
+  }else{
+    clients[ firstPath ].send( JSON.stringify({ type:'osc', address:'/'+msg.address.split('/')[2], typetags: tt, parameters:msgArgs }) )
+  }
+})
+osc.bind( oscInPort )
 
 serveInterfaceJS = function(req, res, next){
 	req.uri = url.parse( req.url );
@@ -56,19 +85,30 @@ server = app
   .use( static(root) )
   .listen( webServerPort );
 
-clients_in.on( 'connection', function (socket) {
-  console.log( "device connection received" );
+clients_in.on( 'connection', function ( socket ) {
+  //console.log( "device connection received", socket.upgradeReq.headers );
+  
+  var clientIP = socket.upgradeReq.headers.origin.split( ':' )[ 1 ].split( '//' )[ 1 ]
+  
+  console.log("client connected:", clientIP )
+  
+  clients[ idNumber ] = socket
+  socket.ip = clientIP
   socket.idNumber = idNumber++
   
   socket.on( 'message', function( obj ) {
     var msg = JSON.parse( obj );
-    //console.log( obj );
+
     if(msg.type === 'osc') {
-      if( args.id ) {  // append client id
-        msg.typetags += 'i'
+      if( args.appendID ) {  // append client id
         msg.parameters.push( socket.idNumber )
       }
-      osc.send( msg.address, msg.typetags, msg.parameters );
+      var buf = oscMin.toBuffer({
+        address: msg.address,
+        args: msg.parameters
+      })
+      
+      osc.send( buf, 0, buf.length, oscOutPort, 'localhost')
     }else if( msg.type === 'midi' ) {
       if( !midiInit ) {
         midiOutput = new midi.output();
