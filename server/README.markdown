@@ -51,11 +51,15 @@ http://bar.local:8080
 
 ## Command Line Options
 
---serverPort    : port to run the web server on, defaults to 8080
---webSocketPort : port to send / receive websocket messages on, defaults to 8081
---oscOutPort    : port to forward messages from clients to; the IP address is always localhost
---oscInPort     : port to receive messages on for bi-directional control
---appendID      : append the unique client ID# to all messages
+`--serverPort`    : port to run the web server on, defaults to 8080
+
+`--webSocketPort` : port to send / receive websocket messages on, defaults to 8081
+
+`--oscOutPort`    : port to forward messages from clients to; the IP address is always localhost
+
+`--oscInPort`     : port to receive messages on for bi-directional control
+
+`--appendID`      : append the unique client ID# to all messages
 
 ## Bi-directional Control
 You can send messages to all clients or target clients individually using the oscInPort. By default, if a message is received by a client with the same address as the key of one of its widgets the value of that widget will be set using the parameters of the received OSC message. In other words, if a button outputs to the address /button1, send a message to the client at address /button1 to change the value of that widget.
