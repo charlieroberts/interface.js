@@ -45,7 +45,7 @@ osc = udp.createSocket( 'udp4', function( _msg, rinfo ) {
       isNumber  = ! isNaN( firstPath ),
       tt = '',
       msgArgs = []
-    
+  
   for( var i = 0 ; i < msg.args.length; i++ ) {
     var arg = msg.args[ i ]
   

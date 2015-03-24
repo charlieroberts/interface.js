@@ -49,8 +49,9 @@ Interface.OSC = {
         for( var j = 0; j < Interface.panels[i].children.length; j++) {
           var child = Interface.panels[i].children[j];
           
+          //console.log( "CHECK", child.key, msg.address )
           if( child.key === msg.address ) {
-            console.log( child.key, msg.parameters )
+            //console.log( child.key, msg.parameters )
             child.setValue.apply( child, msg.parameters );
             return;
           }

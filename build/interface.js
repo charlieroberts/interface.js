@@ -1177,6 +1177,7 @@ Interface.Crossfader = function() {
     type : 'Crossfader',    
     crossfaderWidth: 30,
     serializeMe : ["crossfaderWidth"],
+    isVertical: false,
     
     _value : .5,
     
@@ -1190,15 +1191,32 @@ Interface.Crossfader = function() {
       this.ctx.fillRect( x, y, width, height );
       
       this.ctx.fillStyle = this._fill();
-      this.ctx.fillRect( x + (width - this.crossfaderWidth) * this._value, y, this.crossfaderWidth, height);
+      if( this.isVertical ) {
+        this.ctx.fillRect( x, y + ( height - this.crossfaderWidth) * this._value, width, this.crossfaderWidth );
+      }else{
+        this.ctx.fillRect( x + (width - this.crossfaderWidth) * this._value, y, this.crossfaderWidth, height);
+      }
+      
+      if(this.label) {
+        this.ctx.fillStyle = this._stroke();
+        this.ctx.textBaseline = 'middle';
+        this.ctx.textAlign = 'center';
+        this.ctx.font = this._font();
+        this.ctx.fillText(this.label, x + width / 2, y + height / 2);
+      }
       
       this.ctx.strokeStyle = this._stroke();
+      
       this.ctx.strokeRect( x, y, width, height );
     },
     
     changeValue : function( xOffset, yOffset ) {
       if(this.hasFocus || !this.requiresFocus) {
-        this._value = xOffset / this._width();
+        if( this.isVertical ) {
+          this._value = yOffset / this._height();
+        }else{
+          this._value = xOffset / this._width();
+        }
         
         if(this._value < 0) {
           this._value = 0;
@@ -1209,7 +1227,9 @@ Interface.Crossfader = function() {
         }
         
         this.value = this.min + (this.max - this.min) * this._value;
-                
+        
+        if( this.isVertical ) this.value *= -1
+        
         if(this.value !== this.lastValue) {
           this.sendTargetMessage();
           if(this.onvaluechange) this.onvaluechange();
