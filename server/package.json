@@ -1,6 +1,6 @@
 {
   "name": "interface.simpleserver",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "simple osc and midi server for interface.js",
   "main": "interface.simpleserver.js",
   "dependencies": {
