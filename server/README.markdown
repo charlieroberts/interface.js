@@ -61,6 +61,10 @@ http://bar.local:8080
 
 `--appendID`      : append the unique client ID# to all messages
 
+`--useMIDI`       : MIDI is disabled by default due to compilation problems on some systems. Set to `true` to enable
+
+`--interfaceDirectory` : By default the server will look for a folder named `interfaces` located next to the server script. You can specify any absolute path using this option.
+
 ## Bi-directional Control
 You can send messages to all clients or target clients individually using the oscInPort. By default, if a message is received by a client with the same address as the key of one of its widgets the value of that widget will be set using the parameters of the received OSC message. In other words, if a button outputs to the address /button1, send a message to the client at address /button1 to change the value of that widget.
 

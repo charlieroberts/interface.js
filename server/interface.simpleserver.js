@@ -6,9 +6,9 @@ var fs                = require('fs'),
     directory         = require('serve-index'),
     static            = require('serve-static'),
     omgosc            = require('omgosc'),
-    midi              = require('midi'),
-    oscMin            = require( 'osc-min' ),    
-    parseArgs         = require('minimist'),
+    oscMin            = require( 'osc-min' ),
+    midi              = null,   
+    parseArgs         = require( 'minimist' ),
     udp               = require( 'dgram' ),
     args              = parseArgs( process.argv.slice(2) ),
     webServerPort     = args.serverPort || 8080,
@@ -19,7 +19,7 @@ var fs                = require('fs'),
     //osc               = new omgosc.UdpSender( '127.0.0.1', oscOutPort ),
     clients_in        = new ws.Server({ port:socketPort }),
     clients           = {},
-    root              = __dirname + "/interfaces",
+    root              = args.interfaceDirectory || __dirname + "/interfaces",
     midiInit          = false,
     interfaceJS       = null,
     server            = null,
@@ -33,6 +33,8 @@ var fs                = require('fs'),
     },
     osc,
     idNumber = 0;
+    
+if( args.useMIDI === true ) midi = require( 'midi' )
 
 //interfaceJS =  fs.readFileSync( '../external/zepto.js', ['utf-8'] );
 interfaceJS = fs.readFileSync( '../build/interface.js', ['utf-8'] );
@@ -109,7 +111,7 @@ clients_in.on( 'connection', function ( socket ) {
       })
       
       osc.send( buf, 0, buf.length, oscOutPort, 'localhost')
-    }else if( msg.type === 'midi' ) {
+    }else if( msg.type === 'midi' && midi !== null ) {
       if( !midiInit ) {
         midiOutput = new midi.output();
         midiOutput.openVirtualPort( "Interface Output" );
