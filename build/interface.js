@@ -1069,6 +1069,51 @@ Interface.VBox = function() {
 };
 Interface.VBox.prototype = Interface.Widget;
 
+/**#Interface.Image - Widget
+A image drawn to the camera
+
+## Example Usage##
+`a = new Interface.Image({ bounds:[0,0,.5,.5], file:'./test1.png' });  
+panel = new Interface.Panel();
+panel.add(a);
+`  
+## Constructor   
+**param** *properties*: Object. A dictionary of property values (see below) to set for the slider on initialization.
+- - - -
+**/
+
+Interface.Image = function() {
+  Interface.extend(this, {
+    type : 'Image',
+    image: null,
+    path: null,
+    _image: null, // for buffering images while loading
+    load : function( path ) {
+      this.path = path
+      this._image = new Image();
+      this._image.src = this.path
+      this._image.onload = function() {
+        console.log( "LOADED", this._image )
+        this.image = this._image
+        this.ctx.drawImage( this.image, this._x(), this._y() );
+      }.bind( this );
+    },
+    _init: function() {
+      if( this.path ) {
+        this.load( this.path )
+      }
+    },
+    draw: function() {
+      if( this.image )
+        this.ctx.drawImage( this.image, this._x(), this._y() );
+    }
+  }).init( arguments[0] )
+}
+Interface.Image.prototype = Interface.Widget;
+
+/**###Interface.Slider.load : method
+String. Load a image at the provided path.
+**/
 
 /**#Interface.Slider - Widget
 A vertical or horizontal slider.

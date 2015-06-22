@@ -5,14 +5,13 @@
   "main": "interface.simpleserver.js",
   "dependencies": {
     "connect": "~3.2.0",
-    "midi": "~0.9.0",
-    "omgosc": "~1.0.0",
     "directory": "~0.1.0",
     "serve-index": "~1.4.0",
     "serve-static": "~1.6.3",
     "ws": "~0.4.32",
     "minimist": "~1.1.0",
-    "osc-min": "~0.2.0"
+    "osc-min": "~0.2.0",
+    "midi": "~0.9.0"
   },
   "devDependencies": {},
   "scripts": {
