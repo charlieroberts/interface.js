@@ -14,6 +14,7 @@ var fs                = require('fs'),
     socketPort        = args.socketPort || webServerPort + 1,
     oscOutPort        = args.oscOutPort || webServerPort + 2,
     oscInPort         = args.oscInPort  || webServerPort + 3,
+    outputIPAddress   = args.outputIPAddress || null,
     appendID          = args.appendID   || false,
     //osc               = new omgosc.UdpSender( '127.0.0.1', oscOutPort ),
     clients_in        = new ws.Server({ port:socketPort }),
@@ -109,7 +110,7 @@ clients_in.on( 'connection', function ( socket ) {
         args: msg.parameters
       })
       
-      osc.send( buf, 0, buf.length, oscOutPort, 'localhost')
+      osc.send( buf, 0, buf.length, oscOutPort, outputIPAddress || 'localhost')
     }else if( msg.type === 'midi' && midi !== null ) {
       if( !midiInit ) {
         midiOutput = new midi.output();

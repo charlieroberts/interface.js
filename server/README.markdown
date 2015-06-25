@@ -63,6 +63,8 @@ http://bar.local:8080
 
 `--useMIDI`       : MIDI is disabled by default due to compilation problems on some systems. Set to `true` to enable
 
+`--outputIPAddress` : By.
+
 `--interfaceDirectory` : By default the server will look for a folder named `interfaces` located next to the server script. You can specify any absolute path using this option.
 
 ## Bi-directional Control
