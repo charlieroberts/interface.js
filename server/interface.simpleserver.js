@@ -123,6 +123,12 @@ clients_in.on( 'connection', function ( socket ) {
       }else{
         midiOutput.sendMessage([ 0xC0 + msg.channel, msg.number])
       }
+    }else if( msg.type === 'socket' ) {
+      for( var key in clients ) {
+        if( clients[ key ] !== socket ) {
+          clients[ key ].send( JSON.stringify({ type:'socket', address:msg.address, parameters:msg.parameters }) )
+        }
+      }
     }
   });
 });

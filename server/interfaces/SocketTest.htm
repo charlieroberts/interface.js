@@ -1,0 +1,30 @@
+<html>
+<head>
+  <script src='interface.js'></script>
+</head>
+<body>
+  <script>    
+    // You can manually send WebSocket messages with the following syntax:
+    // Interface.Socket.send( JSON.stringify({ type:'socket', address:'/yourAddress', parameters:[ 0, 'test', {hello:'hi'} ] }) );
+    
+    panel = new Interface.Panel({ useRelativeSizesAndPositions: true });
+    
+    // send a message to the address '/button'
+    a = new Interface.Button({
+      bounds:[0,0,1,.5],
+      mode:'toggle',
+      target:"WebSocket", key:'/button',
+    })
+    
+    panel.add( a );
+    
+    // override to process OSC messages. By default, if a message is received with the
+    // same address as the key of one of the widgets (here /button and /slider) the value
+    // of that widget will be set using the parameters of the received OSC message.
+    
+    Interface.Socket.receive = function( address, parameters ) {
+      console.log( address, parameters )
+    }
+  </script>
+</body>
+</html>

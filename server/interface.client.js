@@ -15,7 +15,7 @@ Interface.Socket.onmessage = function (event) {
     Interface.OSC._receive( event.data );
   }else {
     if( Interface.Socket.receive ) {
-      Interface.Socket.receive( data  )
+      Interface.Socket.receive( data.address, data.parameters  )
     }
   }
 };

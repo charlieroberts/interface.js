@@ -836,7 +836,29 @@ Interface.Widget = {
         if(Interface.MIDI && typeof this.values === 'undefined') {
           Interface.MIDI.send( this.key[0],this.key[1],this.key[2], this.value )
         }
-      }else{
+      }else if( this.target === 'WebSocket' ){
+        var msg = {
+          type : "socket",
+          address: this.key,
+        }
+        var values
+        
+        if( Interface.Socket ) {
+          if(typeof this.values === 'undefined') {
+            values = [ this.value ]
+          }else{
+            if(typeof this.sendValues === 'undefined') {
+              values = [ this.values ]
+            }else{
+              this.sendValues()
+              return
+            }
+          }
+          msg.parameters = values
+          Interface.Socket.send( JSON.stringify( msg ) );
+        }
+        
+      }else{ 
         if(typeof this.target[this.key] === 'function') {
           this.target[this.key]( this.values || this.value );
         }else{
@@ -2448,6 +2470,10 @@ Interface.XY = function() {
       if(this.target === "OSC") {
         if(Interface.OSC) {
           Interface.OSC.send( this.key, tt, this._values );
+        }
+      }else if( this.target === 'WebSocket' ) {
+        if( Interface.Socket ) {
+          Interface.Socket.send( JSON.stringify({ address:this.key, parameters: this._values }) )
         }
       }
     },
