@@ -4,8 +4,15 @@
 </head>
 <body>
   <script>    
-    // You can manually send WebSocket messages with the following syntax:
-    // Interface.Socket.send( JSON.stringify({ type:'socket', address:'/yourAddress', parameters:[ 0, 'test', {hello:'hi'} ] }) );
+    /* You can manually send WebSocket messages with the following syntax:
+    *
+    *  Interface.Socket.send( 
+    *    JSON.stringify({ type:'socket', address:'/yourAddress', parameters:[ 0, 'test', {hello:'hi'} ] }) 
+    *  );
+    *
+    *  Interface.Socket is a normal WebSocket object, however, using the above syntax ensures that messages
+    *  will be distributed to all clients connected to the interface.js simpleserver
+    */
     
     panel = new Interface.Panel({ useRelativeSizesAndPositions: true });
     
@@ -18,10 +25,8 @@
     
     panel.add( a );
     
-    // override to process OSC messages. By default, if a message is received with the
-    // same address as the key of one of the widgets (here /button and /slider) the value
-    // of that widget will be set using the parameters of the received OSC message.
-    
+    // override to process WebSocket messages. Messages that a client sends are not echoed back by the server,
+    // and are only sent to other connected clients.
     Interface.Socket.receive = function( address, parameters ) {
       console.log( address, parameters )
     }

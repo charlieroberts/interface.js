@@ -1,6 +1,6 @@
 #Using the Interface.js Simple Server
 
-NOTE: The file interface.simpleserver.js is designed to be a quick, easy way to get OSC and MIDI messages from Interface.js interfaces. It requires a small number of terminal commands to get started. There is also a more complete Interface.Server project with a GUI for monitoring connections and some other extra functionalities. If the simple server doesn't suit your needs, please try Interface.Server! You can either [check out the source on GitHub][interface_server_github] or [download prebuilt binaries for OS X or Windows][interface_builds]. There are instructions on the GitHub site for building the project in Linux.
+NOTE: The file interface.simpleserver.js is designed to be a quick, easy way to get OSC, MIDI, and WebSocket messages from Interface.js interfaces. It requires a small number of terminal commands to get started. There is also a more complete Interface.Server project with a GUI for monitoring connections and some other extra functionalities. If the simple server doesn't suit your needs, please try Interface.Server! You can either [check out the source on GitHub][interface_server_github] or [download prebuilt binaries for OS X or Windows][interface_builds]. There are instructions on the GitHub site for building the project in Linux.
 
 The Interface.js Server has two purposes: 
   1) it serves interfaces to any browser on the local network
@@ -33,6 +33,15 @@ a = new Interface.Slider({
 });
 ```
 
+For sending WebSocket messages we use a very similar message, simply changing the `target` value:
+
+```javascript
+a = new Interface.Button({
+  bounds:[0,0,1,1],
+  target:"WebSocket", key:'/speed'
+});
+```
+
 For MIDI, we specify a target of "MIDI" instead of "OSC". For the key, we pass an array specifying the type of message we want to send, the channel it should go out on and the number of the message. It's also important to limit the range of widgets to valid MIDI values between 0 - 127. Possible message types currently include 'noteon', 'noteoff', 'cc' and 'programchange'. For example, to create a button that outputs NoteOn on channel 1, number 64 we would use:
 
 ```javascript
@@ -43,11 +52,11 @@ a = new Interface.Button({
 });
 ```
 
-The server directory comes with a couple of simple test files to experiment with MIDI and OSC, MIDI_test.htm and OSC_test.htm. If your computer is named bar, you should be able to enter the following URL with the server running:
+The server directory comes with a couple of simple test files to experiment with MIDI, OSC and WebSocket messages: MIDI_test.htm, OSC_test.htm, and SocketTest.htm. The OSC and WebSocket examples also show how to receive messages. If your computer is named bar, you should be able to enter the following URL with the server running:
 
 http://bar.local:8080
 
-... and see a list of files to run including the two mentioned above.
+... and see a list of files to run including the three mentioned above.
 
 ## Command Line Options
 

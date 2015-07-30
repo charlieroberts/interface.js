@@ -4,17 +4,18 @@
   "description": "gui library for musical and artistic applications in the browser",
   "main": "index.js",
   "dependencies": {
-    "gulp": "~3.8.8",
-    "gulp-uglify": "~1.0.1",
-    "browserify": "~5.12.0",
-    "gulp-rename": "~1.2.0",
-    "jquery": "~2.1.1",
+    "jquery": "~2.1.1"
+  },
+  "devDependencies": {
     "gulp-browserify": "~0.5.0",
     "vinyl-buffer": "~1.0.0",
     "vinyl-source-stream": "~1.0.0",
     "watchify": "~1.0.3"
+    "gulp": "~3.8.8",
+    "gulp-uglify": "~1.0.1",
+    "browserify": "~5.12.0",
+    "gulp-rename": "~1.2.0"
   },
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
