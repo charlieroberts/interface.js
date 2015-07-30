@@ -1,6 +1,6 @@
 {
   "name": "interface.js",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "gui library for musical and artistic applications in the browser",
   "main": "index.js",
   "dependencies": {
