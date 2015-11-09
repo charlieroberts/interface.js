@@ -57,7 +57,9 @@ osc = udp.createSocket( 'udp4', function( _msg, rinfo ) {
   
   if( ! isNumber ) {
     for( var key in clients ) {
-      clients[ key ].send( JSON.stringify({ type:'osc', address:msg.address, typetags: tt, parameters:msgArgs }) )
+      try{
+        clients[ key ].send( JSON.stringify({ type:'osc', address:msg.address, typetags: tt, parameters:msgArgs }) )
+      } catch (error){}
     }
   }else{
     clients[ firstPath ].send( JSON.stringify({ type:'osc', address:'/'+msg.address.split('/')[2], typetags: tt, parameters:msgArgs }) )
