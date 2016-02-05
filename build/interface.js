@@ -4093,7 +4093,10 @@ Interface.Patchbay = function() {
             ctrl1Y = startY + this.patchHeight * .5,
             ctrl2X = endX,
             ctrl2Y = endY + this.patchHeight * .5
-        
+        if (startX > endX) {
+          ctrl1Y = startY - this.patchHeight * .5
+          ctrl2Y = endY - this.patchHeight * .5
+	}
             //console.log( "ORIGIN", this.points[origin].row, "DESTINATION", this.points[destination].row )
         if( connection.selected ) {
           this.ctx.strokeStyle = '#0f0'
@@ -4169,7 +4172,7 @@ Interface.Patchbay = function() {
       
       return hit
     },
-  
+ 
     mousedown : function(e, hit) {
       if( hit && Interface.mouseDown ) {
         if( !this.hitTestEdges( e ) ) {
@@ -4227,6 +4230,63 @@ Interface.Patchbay = function() {
       this.start = null
       this.draw()
     },
+    touchstart : function(e, hit) {
+      if( hit ) {
+        if( !this.hitTestEdges( e ) ) {
+          //this.start = Math.floor( ( e.x - this._x() / this._width() / this.rows ) / ( this._width() / this.points.length / this.rows ) )
+          var _x = Math.floor( ( e.x - this._x() / this._width() ) / ( this._width() / this.columns ) ),
+              _y = Math.floor( ( e.y - this._y() / this._height()) / ( this._height() / this.rows ) )
+                        
+          this.start = _y * this.columns + _x
+          
+          if( this.selectedConnection !== null ) {
+            this.selectedConnection.selected = false
+            this.selectedConnection = null
+          }        
+        }
+        
+        this.draw()
+      }
+    },
+    touchmove : function(e, hit) { 
+      if(hit) {
+        var _x = Math.floor( ( e.x - this._x() / this._width() ) / ( this._width() / this.columns) ),
+            _y = Math.floor( ( e.y - this._y() / this._height()) / ( this._height() / this.rows ) )
+            
+        var prevOver = this.over
+        this.over = _y * this.columns + _x
+        
+        if( this.over !== prevOver ) {
+          this.draw()
+        }
+      }
+    },
+    touchend   : function(e, hit) { 
+      if( hit ) {
+        var _x = Math.floor( ( e.x - this._x() / this._width() ) / ( this._width() / this.columns ) ),
+            _y = Math.floor( ( e.y - this._y() / this._height()) / ( this._height() / this.rows ) ),
+            over = _y * this.columns + _x
+            
+        // var over = Math.floor( ( e.x - this._x() / this._width() / this.rows ) / ( this._width() / this.points.length / this.rows ) )
+        
+        if( this.start !== over && this.start !== null ) {
+          var connection = [ this.start, over ],
+              isFound = false
+              
+          for( var i = 0; i < this.connections.length; i++ ) {
+            if( this.connections[i][0] === connection[0] && this.connections[i][1] === connection[1] ) {
+              isFound = true
+            }
+          }
+          
+          if( !isFound ) this.createConnection( connection )
+        }
+      }
+      
+      this.over = null
+      this.start = null
+      this.draw()
+    },
     
     onkeydown: function(e) {
       var key = Interface.keyCodeToChar[ e.keyCode ]
@@ -4247,9 +4307,9 @@ Interface.Patchbay = function() {
       this.draw()
     },
     
-    touchstart : function(e, hit) { if(hit) this.changeValue( e.x - this._x(), e.y - this._y() ); },
-    touchmove  : function(e, hit) { if(hit) this.changeValue( e.x - this._x(), e.y - this._y() ); },
-    touchend   : function(e, hit) { if(hit) this.changeValue( e.x - this._x(), e.y - this._y() ); },  
+ //   touchstart : function(e, hit) { if(hit) this.changeValue( e.x - this._x(), e.y - this._y() ); },
+ //   touchmove  : function(e, hit) { if(hit) this.changeValue( e.x - this._x(), e.y - this._y() ); },
+ //   touchend   : function(e, hit) { if(hit) this.changeValue( e.x - this._x(), e.y - this._y() ); },  
   })
   .init( arguments[0] );
 }
