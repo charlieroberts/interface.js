@@ -1,0 +1,37 @@
+<html>
+  <head>
+    <title>Button Test</title>
+    <script src="../dist/interface.lib.js"></script>
+  </head>
+  
+  <body></body>
+  
+  <script>
+
+    var panel  = Interface.Panel.create()
+
+    var button1 = Interface.Button.create({ 
+        width:.33, height:1,
+        style: 'momentary'
+      } 
+    )
+
+    var button2 = Interface.Button.create({
+        x:.33, 
+        width:.33, height:1,
+        style:'hold',
+      } 
+    )
+
+    var button3 = Interface.Button.create({
+        x:.66, 
+        width:.33, height:1,
+        style:'toggle',
+      } 
+    )
+    
+    panel.add( button1, button2, button3 )
+
+  </script>
+
+</html>

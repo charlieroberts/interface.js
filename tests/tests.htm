@@ -1,0 +1,35 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
+  </head>
+
+  <body>
+    <div id="mocha"></div>
+    
+    <script src='http://127.0.0.1:18000/tests/babel-polyfill.js'></script>
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.9.1/polyfill.js"></script>-->
+    <script src="../dist/interface.lib.js"></script>
+    <script src="../node_modules/mocha/mocha.js"></script>
+    <script src="./assert.js"></script>
+
+    <script>
+      window.onload = function() {
+        if( window.initMochaPhantomJS ) window.initMochaPhantomJS()
+
+        mocha.ui( 'bdd' )
+        
+        runTests() 
+        
+        if( window.mochaPhantomJS )  
+          mochaPhantomJS.run()
+        else 
+          mocha.run()
+            
+      }
+    </script>
+
+    <script src='./test.js'></script>
+    
+  </body>
+</html>

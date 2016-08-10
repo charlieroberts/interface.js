@@ -1,0 +1,32 @@
+<html>
+  <head>
+    <title>Menu Test</title>
+    <script src="../dist/interface.lib.js"></script>
+  </head>
+  
+  <body></body>
+  
+  <script>
+
+    var panel  = Interface.Panel.create()
+
+    var menu1 = Interface.Menu.create({ 
+        width:.33, height:.33,
+        options:['red','green','blue'],
+        onvaluechange: function() { 
+          btn1.background = this.value 
+          btn1.draw()
+        } 
+      } 
+    )
+
+    var btn1 = Interface.Button.create({
+      width:.25, height:.25,
+      y:.5
+    })
+    
+    panel.add( menu1,btn1 )
+
+  </script>
+
+</html>

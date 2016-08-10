@@ -1,28 +1,33 @@
-var fs                = require('fs'),
-    ws                = require('ws'),
-    url               = require('url'),
-    connect           = require('connect'),
-    app               = connect(),
-    directory         = require('serve-index'),
-    static            = require('serve-static'),
+'use strict'
+
+let fs                = require( 'fs' ),
+    ws                = require( 'ws' ),
+    url               = require( 'url' ),
+    server            = require( 'http' ).createServer(),
+    monitorServer     = require( 'http' ).createServer(),
+    connect           = require( 'connect' ),
+    directory         = require( 'serve-index' ),
+    serve_static      = require( 'serve-static' ),
     oscMin            = require( 'osc-min' ),
-    midi              = null,   
     parseArgs         = require( 'minimist' ),
     udp               = require( 'dgram' ),
+    monitorApp        = connect(),
+    app               = connect(),
+    midi              = null,   
     args              = parseArgs( process.argv.slice(2) ),
     webServerPort     = args.serverPort || 8080,
-    socketPort        = args.socketPort || webServerPort + 1,
-    oscOutPort        = args.oscOutPort || webServerPort + 2,
-    oscInPort         = args.oscInPort  || webServerPort + 3,
+    oscOutPort        = args.oscOutPort || webServerPort + 1,
+    oscInPort         = args.oscInPort  || webServerPort + 2,
+    monitorPort       = args.monitorPort || webServerPort + 3,
     outputIPAddress   = args.outputIPAddress || null,
     appendID          = args.appendID   || false,
-    //osc               = new omgosc.UdpSender( '127.0.0.1', oscOutPort ),
-    clients_in        = new ws.Server({ port:socketPort }),
+    clients_in        = new ws.Server({ server:server }),
+    monitorWS         = new ws.Server({ server:monitorServer }),
+    monitorClients    = [],
     clients           = {},
-    root              = args.interfaceDirectory || __dirname + "/interfaces",
+    root              = args.interfaceDirectory || __dirname + '/../',
     midiInit          = false,
     interfaceJS       = null,
-    server            = null,
     serveInterfaceJS  = null,
     midiOut           = null,
     midiNumbers       = {
@@ -32,31 +37,88 @@ var fs                = require('fs'),
       "programchange" : 0xC0,
     },
     osc,
+    monitors = [],
+    template, templateSplit,
     idNumber = 0;
     
 if( args.useMIDI === true ) midi = require( 'midi' )
 
-//interfaceJS =  fs.readFileSync( '../external/zepto.js', ['utf-8'] );
-interfaceJS = fs.readFileSync( '../build/interface.js', ['utf-8'] );
-interfaceJS += fs.readFileSync( './interface.client.js', ['utf-8'] );
+template = fs.readFileSync( './template.htm', 'utf-8' );
+templateSplit = template.split( '\n' )
+
+/* 
+ * Start web server running
+*/
+
+app
+  .use( function( req, res, next ) {
+    req.uri = url.parse( req.url )
+
+    let pathSplit = req.uri.path.split( '/' ),
+        filename  = pathSplit[ pathSplit.length - 1 ],
+        extensionSplit = filename.split( '.' ),
+        isIJS = extensionSplit.indexOf( 'ijs' ) > -1
+
+    if( isIJS ) {
+      let ijsFile = fs.readFileSync( './' + filename, 'utf-8' ),
+          finalFile
+
+      templateSplit.splice( 8,1,ijsFile ),
+      finalFile = templateSplit.join( '\n' )
+
+      console.log( finalFile )
+
+      res.writeHead( 200, {
+        'Content-Type': 'text/html',
+        'Content-Length': finalFile.length
+      })
+      res.end( finalFile );
+
+      return;
+    }
+
+    //if( req.uri.pathname == "/interface.js" ) {
+    //  res.writeHead( 200, {
+    //    'Content-Type': 'text/javascript',
+    //    'Content-Length': interfaceJS.length
+    //  })
+    //  res.end( interfaceJS );
+
+    //  return;
+    //}
+
+    next();
+   
+  })
+  .use( directory( root, { hidden:false,icons:true } ) )
+  .use( serve_static( root ) )
+
+server.on( 'request', app )
+server.listen( webServerPort )
+
+monitorApp.use( serve_static( __dirname + '/node_modules/interface.server.monitor/'  ) )
+monitorServer.on( 'request', monitorApp )
+monitorServer.listen( monitorPort )
+
+/*
+ * Create OSC input port for bi-directional communication
+*/
 
 osc = udp.createSocket( 'udp4', function( _msg, rinfo ) {
-  var msg = oscMin.fromBuffer( _msg )
+  let msg = oscMin.fromBuffer( _msg )
     
-  var firstPath = msg.address.split('/')[1],
+  let firstPath = msg.address.split('/')[1],
       isNumber  = ! isNaN( firstPath ),
       tt = '',
       msgArgs = []
   
-  for( var i = 0 ; i < msg.args.length; i++ ) {
-    var arg = msg.args[ i ]
-  
+  for( let arg of msg.args ) {
     tt += arg.type[ 0 ]
     msgArgs.push( arg.value )
   }
   
   if( ! isNumber ) {
-    for( var key in clients ) {
+    for( let key in clients ) {
       try{
         clients[ key ].send( JSON.stringify({ type:'osc', address:msg.address, typetags: tt, parameters:msgArgs }) )
       } catch (error){}
@@ -65,58 +127,94 @@ osc = udp.createSocket( 'udp4', function( _msg, rinfo ) {
     clients[ firstPath ].send( JSON.stringify({ type:'osc', address:'/'+msg.address.split('/')[2], typetags: tt, parameters:msgArgs }) )
   }
 })
+
 osc.bind( oscInPort )
 
-serveInterfaceJS = function(req, res, next){
-	req.uri = url.parse( req.url );
-  
-	if( req.uri.pathname == "/interface.js" ) {
-		res.writeHead( 200, {
-			'Content-Type': 'text/javascript',
-			'Content-Length': interfaceJS.length
-		})
-		res.end( interfaceJS );
-    
-		return;
-	}
-  
-  next();
-};
+monitorWS.on( 'connection', function ( monitorSocket ) {
+  monitorClients.push( monitorSocket )
 
-server = app
-  .use( directory( root, { hidden:false,icons:true } ) )
-  .use( serveInterfaceJS )
-  .use( static(root) )
-  .listen( webServerPort );
+  monitorSocket.monitoredClients = []
+
+  monitorSocket.on( 'close', ws => {
+    monitorClients.splice( monitorClients.indexOf( monitorSocket ), 1 )
+  })
+
+  monitorSocket.on( 'message', msgData => {
+    let msg = JSON.parse( msgData )
+    
+    switch( msg.key ) {
+      case 'monitor.start' :
+        monitorSocket.monitoredClients.push( clients[ msg.data ] )
+        break;
+      case 'monitor.end' :
+        let client = clients[ msg.data ],
+            idx = monitorSocket.monitoredClients.indexOf( client )
+
+        if( idx > -1 ) {
+          monitorSocket.monitoredClients.splice( idx, 1 )
+        }
+        break;
+
+      default: break;
+    }
+  })
+
+})
+
+/*
+ * Define WebSocket interaction.
+*/
 
 clients_in.on( 'connection', function ( socket ) {
-  //console.log( "device connection received", socket.upgradeReq.headers );
+  let clientIP = socket.upgradeReq.headers.origin.split( ':' )[ 1 ].split( '//' )[ 1 ]
   
-  var clientIP = socket.upgradeReq.headers.origin.split( ':' )[ 1 ].split( '//' )[ 1 ]
-  
-  console.log("client connected:", clientIP )
+  console.log( 'client connected:', clientIP )
   
   clients[ idNumber ] = socket
   socket.ip = clientIP
   socket.idNumber = idNumber++
+
+  socket.on( 'close', ()=> {
+    let client = clients[ socket.idNumber ]
+
+    for( let monitor of monitorClients ) {
+      if( monitor.readyState === ws.OPEN ) {
+        monitor.send( JSON.stringify({ type:'removeClient', id:socket.idNumber }) )
+
+        let idx = monitor.monitoredClients.indexOf( client )
+
+        if( idx > -1 ) {
+          monitor.monitoredClients.splice( idx, 1 )
+        }
+      }
+    }
+    delete clients[ idNumber ]
+  })
   
   socket.on( 'message', function( obj ) {
-    var msg = JSON.parse( obj );
+    let msg = JSON.parse( obj );
 
-    if(msg.type === 'osc') {
+    if( msg.type === 'osc' ) {
       if( args.appendID ) {  // append client id
         msg.parameters.push( socket.idNumber )
       }
-      var buf = oscMin.toBuffer({
+      let buf = oscMin.toBuffer({
         address: msg.address,
         args: msg.parameters
       })
       
+      for( let monitor of monitorClients ) {
+        if( monitor.monitoredClients.indexOf( socket ) > -1 ) {
+          msg.id = socket.idNumber
+          monitor.send( JSON.stringify({ type:'monitoring', data: msg }) )
+        }
+      }
+
       osc.send( buf, 0, buf.length, oscOutPort, outputIPAddress || 'localhost')
     }else if( msg.type === 'midi' && midi !== null ) {
       if( !midiInit ) {
         midiOutput = new midi.output();
-        midiOutput.openVirtualPort( "Interface Output" );
+        midiOutput.openVirtualPort( 'Interface Output' );
         midiInit = true;
       }
 
@@ -126,11 +224,22 @@ clients_in.on( 'connection', function ( socket ) {
         midiOutput.sendMessage([ 0xC0 + msg.channel, msg.number])
       }
     }else if( msg.type === 'socket' ) {
-      for( var key in clients ) {
+      for( let key in clients ) {
         if( clients[ key ] !== socket ) {
           clients[ key ].send( JSON.stringify({ type:'socket', address:msg.address, parameters:msg.parameters }) )
         }
       }
+    }else if( msg.type === 'meta' ) {
+      switch( msg.key ) {
+        case 'register':
+          for( let monitor of monitorClients ) {
+            if( monitor.readyState === ws.OPEN )  
+              monitor.send( JSON.stringify({ type:'newClient', ip:socket.ip, id:socket.idNumber, interfaceName:msg.interfaceName }) )
+          }
+          break;
+      } 
+
     }
-  });
+  })
+
 });

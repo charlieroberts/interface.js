@@ -1,0 +1,23 @@
+<html>
+  <head>
+    <title>Slider Test</title>
+    <script src="/../dist/interface.lib.js"></script>
+  </head>
+  
+  <body></body>
+  
+  <script>
+
+    var panel  = Interface.Panel.create()
+
+    var slider1 = Interface.Slider.create({ 
+        width:1, height:1,
+        target:'osc', address:'/slider1'
+      }
+    )
+
+    panel.add( slider1 )
+
+  </script>
+
+</html>

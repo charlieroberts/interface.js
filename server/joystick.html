@@ -1,0 +1,23 @@
+<html>
+  <head>
+    <title>Joystick Test</title>
+    <script src="../dist/interface.lib.js"></script>
+  </head>
+  
+  <body></body>
+  
+  <script>
+
+    var panel  = Interface.Panel.create()
+
+    var joystick = Interface.Joystick.create({ 
+        width:.5, height:.5,
+        onvaluechange: function( value, prev ) { console.log( '1:', value, prev ) }
+      }
+    )
+
+    panel.add( joystick )
+
+  </script>
+
+</html>

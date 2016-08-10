@@ -1,0 +1,41 @@
+<html>
+  <head>
+    <title>Knob Test</title>
+    <script src="../dist/interface.lib.js"></script>
+  </head>
+  
+  <body></body>
+  
+  <script>
+
+    var panel  = Interface.Panel.create()
+
+    var knob1 = Interface.Knob.create({ 
+      x:0,y:0,
+      width:.33, height:1,
+      fill:'#f00',
+      shouldDisplayValue:true,
+    })
+
+    var knob2 = Interface.Knob.create({ 
+      x:.33,y:0,
+      width:.33, height:1,
+      fill:'#00f',
+      shouldDisplayValue:true,
+    })
+
+    var knob3 = Interface.Knob.create({ 
+      x:.66,y:0,
+      width:.33, height:1,
+      fill:'#0f0',
+      shouldDisplayValue:true,
+      min:0, max:127
+    })
+    
+    knob3.filters.push( Math.round )
+
+    panel.add( knob1,knob2,knob3 )
+
+  </script>
+
+</html>
