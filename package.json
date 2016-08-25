@@ -10,7 +10,7 @@
     "gulp-browserify": "~0.5.0",
     "vinyl-buffer": "~1.0.0",
     "vinyl-source-stream": "~1.0.0",
-    "watchify": "~1.0.3"
+    "watchify": "~1.0.3",
     "gulp": "~3.8.8",
     "gulp-uglify": "~1.0.1",
     "browserify": "~5.12.0",
