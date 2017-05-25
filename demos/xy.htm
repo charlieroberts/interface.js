@@ -11,6 +11,7 @@ var a = new Interface.Panel({
  var xy = new Interface.XY({
   childWidth: 50,
   numChildren: 6,
+  childIds: ['A', 'B', 'C'], // the first three should display letters
   background:"#111",
   target: "OSC",
   key: "/xy",
@@ -18,8 +19,8 @@ var a = new Interface.Panel({
   bounds:[0,0,.6,1],
   usePhysics: true,
   detectCollisions: false,
-  oninit: function() { 
-  	this.rainbow(); 
+  oninit: function() {
+  	this.rainbow();
 	  this.sendValues();
   },
 });
