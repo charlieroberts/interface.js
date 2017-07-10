@@ -65,6 +65,19 @@ Object.assign(Joystick, {
    * @memberof Joystick
    * @instance
    */
+  perp_norm_vector: function perp_norm_vector(value) {
+    var x1 = value[0] - .5;
+    var y1 = value[1] - .5;
+    var x2 = 0.0;
+    var y2 = -(x1 / y1) * (x2 - x1) + y1;
+    var x3 = x2 - x1;
+    var y3 = y2 - y1;
+    var m = Math.sqrt(x3 * x3 + y3 * y3);
+    x3 = x3 / m;
+    y3 = y3 / m;
+
+    return [x3, y3];
+  },
   draw: function draw() {
     // draw background
     this.ctx.fillStyle = this.background;
@@ -74,17 +87,28 @@ Object.assign(Joystick, {
 
     // draw fill (slider value representation)
     this.ctx.fillStyle = this.fill;
+    var v = this.perp_norm_vector(this.__value);
+    var r = 15.0;
 
     this.ctx.beginPath();
-    this.ctx.moveTo(this.rect.width * 0.5, this.rect.height * .5);
-    this.ctx.lineTo(this.rect.width * this.__value[0], this.rect.height * this.__value[1]);
-    this.ctx.stroke();
-    this.ctx.fillRect(this.rect.width * this.__value[0] - 12, this.rect.height * this.__value[1] - 12, 24, 24);
+    this.ctx.moveTo(this.rect.width * 0.5 + r * v[0] * .25, this.rect.height * .5 + r * v[1] * .25);
+    this.ctx.lineTo(this.rect.width * this.__value[0] + r * v[0], this.rect.height * this.__value[1] + r * v[1]);
+    this.ctx.lineTo(this.rect.width * this.__value[0] - r * v[0], this.rect.height * this.__value[1] - r * v[1]);
+    this.ctx.lineTo(this.rect.width * 0.5 - r * v[0] * .25, this.rect.height * .5 - r * v[1] * .25);
+    this.ctx.fill();
+    //  this.ctx.fillRect( this.rect.width * this.__value[0] -12, this.rect.height * this.__value[1] -12, 24, 24 )
+    this.ctx.beginPath();
+    this.ctx.arc(this.rect.width * this.__value[0], this.rect.height * this.__value[1], r, 0, 2 * Math.PI);
+    this.ctx.fill();
+
+    this.ctx.beginPath();
+    this.ctx.arc(this.rect.width * 0.5, this.rect.height * 0.5, r * .25, 0, 2 * Math.PI);
+    this.ctx.fill();
 
     this.ctx.strokeRect(0, 0, this.rect.width, this.rect.height);
   },
   addEvents: function addEvents() {
-    // create event handlers bound to the current object, otherwise 
+    // create event handlers bound to the current object, otherwise
     // the 'this' keyword will refer to the window object in the event handlers
     for (var key in this.events) {
       this[key] = this.events[key].bind(this);
@@ -102,7 +126,7 @@ Object.assign(Joystick, {
 
       this.processPointerPosition(e); // change slider value on click / touchdown
 
-      window.addEventListener('pointermove', this.pointermove); // only listen for up and move events after pointerdown 
+      window.addEventListener('pointermove', this.pointermove); // only listen for up and move events after pointerdown
       window.addEventListener('pointerup', this.pointerup);
     },
     pointerup: function pointerup(e) {

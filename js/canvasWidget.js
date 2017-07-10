@@ -39,7 +39,7 @@ Object.assign( CanvasWidget, {
     
     DOMWidget.create.call( this )
 
-    Object.assign( this, CanvasWidget.defaults)
+    Object.assign( this, CanvasWidget.defaults )
 
     /**
      * Store a reference to the canvas 2D context.

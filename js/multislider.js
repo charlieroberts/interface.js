@@ -96,7 +96,7 @@ Object.assign( MultiSlider, {
       if( this.style === 'horizontal' ) {
         let ypos = Math.floor( i * sliderWidth )
         this.ctx.fillRect( 0, ypos, this.rect.width * this.__value[ i ], Math.ceil( sliderWidth ) )
-        this.ctx.strokeRect( 0,ypos, this.rect.width, sliderWidth )
+        this.ctx.strokeRect( 0, ypos, this.rect.width, sliderWidth )
       }else{
         let xpos = Math.floor( i * sliderWidth )
         this.ctx.fillRect( xpos, this.rect.height - this.__value[ i ] * this.rect.height, Math.ceil(sliderWidth), this.rect.height * this.__value[ i ] )

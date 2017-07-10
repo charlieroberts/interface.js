@@ -140,10 +140,17 @@ let Widget = {
    * @memberof Widget
    * @instance
    */
-  transmit( override ) {
-   //looks like this should handle arrays, not tested
+  transmit( output ) {
     if( this.target === 'osc' ) {
-      Communication.OSC.send( this.address, override || this.value )
+      Communication.OSC.send( this.address, output )
+    } else {
+      if( this.target[ this.key ] !== undefined ) {
+        if( typeof this.target[ this.key ] === 'function' ) {
+          this.target[ this.key ]( output )
+        }else{
+          this.target[ this.key ] = output 
+        }
+      }
     }
   },
 }

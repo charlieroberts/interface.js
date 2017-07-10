@@ -54,6 +54,20 @@ Object.assign( Joystick, {
    * @memberof Joystick
    * @instance
    */
+  perp_norm_vector(value) {
+    let x1 = value[0]-.5
+    let y1 = value[1]-.5
+    let x2 = 0.0
+    let y2 = -(x1/y1)*(x2-x1)+y1
+    let x3 = x2-x1
+    let y3 = y2-y1
+    let m = Math.sqrt(x3*x3+y3*y3)
+    x3 = x3/m
+    y3 = y3/m
+
+    return [x3,y3]
+  },
+
   draw() {
     // draw background
     this.ctx.fillStyle   = this.background
@@ -63,12 +77,25 @@ Object.assign( Joystick, {
 
     // draw fill (slider value representation)
     this.ctx.fillStyle = this.fill
+    let v = this.perp_norm_vector(this.__value)
+    let r = 15.0
 
     this.ctx.beginPath();
-    this.ctx.moveTo(this.rect.width*0.5,this.rect.height*.5);
-    this.ctx.lineTo(this.rect.width *this.__value[0], this.rect.height * this.__value[1]);
-    this.ctx.stroke();
-    this.ctx.fillRect( this.rect.width * this.__value[0] -12, this.rect.height * this.__value[1] -12, 24, 24 )
+    this.ctx.moveTo(this.rect.width*0.5 + r*v[0]*.25,this.rect.height*.5 + r*v[1]*.25);
+    this.ctx.lineTo(this.rect.width *this.__value[0]+r*v[0], this.rect.height * this.__value[1]+r*v[1]);
+    this.ctx.lineTo(this.rect.width *this.__value[0]-r*v[0], this.rect.height * this.__value[1]-r*v[1]);
+    this.ctx.lineTo(this.rect.width*0.5 - r*v[0]*.25,this.rect.height*.5 - r*v[1]*.25);
+    this.ctx.fill();
+  //  this.ctx.fillRect( this.rect.width * this.__value[0] -12, this.rect.height * this.__value[1] -12, 24, 24 )
+    this.ctx.beginPath();
+    this.ctx.arc(this.rect.width *this.__value[0],this.rect.height * this.__value[1],r,0,2*Math.PI);
+    this.ctx.fill();
+
+
+    this.ctx.beginPath();
+    this.ctx.arc(this.rect.width *0.5,this.rect.height * 0.5,r*.25,0,2*Math.PI);
+    this.ctx.fill();
+
 
     this.ctx.strokeRect( 0,0, this.rect.width, this.rect.height )
   },

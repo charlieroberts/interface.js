@@ -96,6 +96,8 @@ Object.assign( DOMWidget, {
      * @type {Object}
      */
     this.rect = this.element.getBoundingClientRect() 
+
+    if( typeof this.onplace === 'function' ) this.onplace()
   },
   
 })

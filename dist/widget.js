@@ -230,10 +230,17 @@ var Widget = {
    * @memberof Widget
    * @instance
    */
-  transmit: function transmit(override) {
-    //looks like this should handle arrays, not tested
+  transmit: function transmit(output) {
     if (this.target === 'osc') {
-      _communication2.default.OSC.send(this.address, override || this.value);
+      _communication2.default.OSC.send(this.address, output);
+    } else {
+      if (this.target[this.key] !== undefined) {
+        if (typeof this.target[this.key] === 'function') {
+          this.target[this.key](output);
+        } else {
+          this.target[this.key] = output;
+        }
+      }
     }
   }
 };

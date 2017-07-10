@@ -126,7 +126,7 @@ Object.assign(Knob, {
     this.ctx.fill();
   },
   addEvents: function addEvents() {
-    // create event handlers bound to the current object, otherwise 
+    // create event handlers bound to the current object, otherwise
     // the 'this' keyword will refer to the window object in the event handlers
     for (var key in this.events) {
       this[key] = this.events[key].bind(this);
@@ -144,7 +144,7 @@ Object.assign(Knob, {
 
       this.processPointerPosition(e); // change knob value on click / touchdown
 
-      window.addEventListener('pointermove', this.pointermove); // only listen for up and move events after pointerdown 
+      window.addEventListener('pointermove', this.pointermove); // only listen for up and move events after pointerdown
       window.addEventListener('pointerup', this.pointerup);
     },
     pointerup: function pointerup(e) {
