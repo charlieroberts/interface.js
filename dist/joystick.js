@@ -108,7 +108,7 @@ Object.assign(Joystick, {
     this.ctx.strokeRect(0, 0, this.rect.width, this.rect.height);
   },
   addEvents: function addEvents() {
-    // create event handlers bound to the current object, otherwise
+    // create event handlers bound to the current object, otherwise 
     // the 'this' keyword will refer to the window object in the event handlers
     for (var key in this.events) {
       this[key] = this.events[key].bind(this);
@@ -126,7 +126,7 @@ Object.assign(Joystick, {
 
       this.processPointerPosition(e); // change slider value on click / touchdown
 
-      window.addEventListener('pointermove', this.pointermove); // only listen for up and move events after pointerdown
+      window.addEventListener('pointermove', this.pointermove); // only listen for up and move events after pointerdown 
       window.addEventListener('pointerup', this.pointerup);
     },
     pointerup: function pointerup(e) {

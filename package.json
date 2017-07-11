@@ -41,6 +41,7 @@
     "gulp-mocha": "^2.2.0",
     "gulp-notify": "^2.2.0",
     "pepjs": "^0.4.1",
+    "victor": "^1.1.0",
     "vinyl-source-stream": "^1.1.0"
   }
 }

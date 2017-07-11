@@ -11,7 +11,18 @@ import Knob from './knob'
 import MultiSlider from './multislider'
 import MultiButton from './multiButton'
 import Keyboard from './keyboard'
+import XY from './xy'
 
 export {
-  Panel, Slider, Joystick, Button, Menu, Communication, Knob, MultiSlider, MultiButton, Keyboard
+  Panel, 
+  Slider, 
+  Joystick, 
+  Button, 
+  Menu, 
+  Communication, 
+  Knob, 
+  MultiSlider, 
+  MultiButton, 
+  Keyboard,
+  XY
 }

@@ -262,7 +262,7 @@ Object.assign(Keys, {
     }
   },
   addEvents: function addEvents() {
-    // create event handlers bound to the current object, otherwise
+    // create event handlers bound to the current object, otherwise 
     // the 'this' keyword will refer to the window object in the event handlers
     for (var key in this.events) {
       this[key] = this.events[key].bind(this);
@@ -282,8 +282,8 @@ Object.assign(Keys, {
         //this.active[ e.pointerId ].lastButton = data.buttonNum
       }
 
-      //window.addEventListener( 'pointermove', this.pointermove ) // only listen for up and move events after pointerdown
-      //window.addEventListener( 'pointerup',   this.pointerup )
+      //window.addEventListener( 'pointermove', this.pointermove ) // only listen for up and move events after pointerdown 
+      //window.addEventListener( 'pointerup',   this.pointerup ) 
     },
     pointerup: function pointerup(e) {
       var keyNum = this.active[e.pointerId];
@@ -295,8 +295,8 @@ Object.assign(Keys, {
         var shouldDraw = this.output(keyNum);
         if (shouldDraw) this.draw();
 
-        //window.removeEventListener( 'pointermove', this.pointermove )
-        //window.removeEventListener( 'pointerup',   this.pointerup )
+        //window.removeEventListener( 'pointermove', this.pointermove ) 
+        //window.removeEventListener( 'pointerup',   this.pointerup ) 
       }
     },
     pointermove: function pointermove(e) {
