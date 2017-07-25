@@ -73,7 +73,8 @@ Object.assign( XY, {
         })
       }
 
-      xy.startAnimationLoop()
+      if( xy.usePhysics === true )
+        xy.startAnimationLoop()
     }
 
     return xy
