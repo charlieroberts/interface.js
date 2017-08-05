@@ -39,6 +39,9 @@ let Utilities = {
     return hit
   },
 
+  mtof( num, tuning = 440 ) {
+    return tuning * Math.exp( .057762265 * ( num - 69 ) )
+  }
 }
 
 export default Utilities
