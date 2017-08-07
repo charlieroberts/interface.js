@@ -12,6 +12,7 @@ import MultiSlider from './multislider'
 import MultiButton from './multiButton'
 import Keyboard from './keyboard'
 import XY from './xy'
+import Utilities from './utilities'
 
 export {
   Panel, 
@@ -24,5 +25,6 @@ export {
   MultiSlider, 
   MultiButton, 
   Keyboard,
-  XY
+  XY,
+  Utilities
 }

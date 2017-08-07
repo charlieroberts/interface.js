@@ -42,6 +42,11 @@ var Utilities = {
     if (sides % 2 === 1) hit = true;
 
     return hit;
+  },
+  mtof: function mtof(num) {
+    var tuning = arguments.length <= 1 || arguments[1] === undefined ? 440 : arguments[1];
+
+    return tuning * Math.exp(.057762265 * (num - 69));
   }
 };
 

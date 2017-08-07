@@ -57,7 +57,8 @@ Object.assign(Keys, {
     startKey: 36,
     endKey: 60,
     whiteColor: '#fff',
-    blackColor: '#000'
+    blackColor: '#000',
+    followMouse: false
   },
 
   /**
@@ -79,7 +80,8 @@ Object.assign(Keys, {
       __value: {},
       bounds: [],
       active: {},
-      __prevValue: []
+      __prevValue: [],
+      __lastKey: null
     });
 
     // set underlying value if necessary... TODO: how should this be set given min/max?
@@ -116,6 +118,7 @@ Object.assign(Keys, {
 
       switch (noteDrawType) {
         case 'wRight':
+          // C, F
           bounds.push({ x: currentX, y: 0 });
           bounds.push({ x: currentX, y: rect.height });
           bounds.push({ x: currentX + keyWidth, y: rect.height });
@@ -128,6 +131,7 @@ Object.assign(Keys, {
           break;
 
         case 'b':
+          // all flats and sharps
           bounds.push({ x: currentX, y: 0 });
           bounds.push({ x: currentX, y: blackHeight });
           bounds.push({ x: currentX + keyWidth * .6, y: blackHeight });
@@ -138,6 +142,7 @@ Object.assign(Keys, {
           break;
 
         case 'wMiddle':
+          // D
           bounds.push({ x: currentX, y: blackHeight });
           bounds.push({ x: currentX, y: rect.height });
           bounds.push({ x: currentX + keyWidth, y: rect.height });
@@ -152,6 +157,7 @@ Object.assign(Keys, {
           break;
 
         case 'wLeft':
+          // E, B
           currentX -= keyWidth * .2;
 
           bounds.push({ x: currentX, y: blackHeight });
@@ -166,12 +172,13 @@ Object.assign(Keys, {
           break;
 
         case 'wMiddleR':
+          // G
           bounds.push({ x: currentX + keyWidth * .2, y: 0 });
           bounds.push({ x: currentX + keyWidth * .2, y: blackHeight });
           bounds.push({ x: currentX, y: blackHeight });
           bounds.push({ x: currentX, y: rect.height });
-          bounds.push({ x: currentX + keyWidth * 1.1, y: rect.height });
-          bounds.push({ x: currentX + keyWidth * 1.1, y: blackHeight });
+          bounds.push({ x: currentX + keyWidth * 1., y: rect.height });
+          bounds.push({ x: currentX + keyWidth * 1., y: blackHeight });
           bounds.push({ x: currentX + keyWidth * .7, y: blackHeight });
           bounds.push({ x: currentX + keyWidth * .7, y: 0 });
           bounds.push({ x: currentX + keyWidth * .2, y: 0 });
@@ -180,6 +187,7 @@ Object.assign(Keys, {
           break;
 
         case 'wMiddleL':
+          // A
           currentX -= keyWidth * .1;
 
           bounds.push({ x: currentX, y: blackHeight });
@@ -271,6 +279,7 @@ Object.assign(Keys, {
     // only listen for mousedown intially; mousemove and mouseup are registered on mousedown
     this.element.addEventListener('pointerdown', this.pointerdown);
     this.element.addEventListener('pointerup', this.pointerup);
+    this.element.addEventListener('pointermove', this.pointermove);
   },
 
 
@@ -300,9 +309,9 @@ Object.assign(Keys, {
       }
     },
     pointermove: function pointermove(e) {
-      if (this.active && e.pointerId === this.pointerId) {
-        //this.processPointerPosition( e )
-      }
+      //if( this.active && e.pointerId === this.pointerId ) {
+      this.processPointerPosition(e, 'move');
+      //}
     }
   },
 
@@ -323,9 +332,27 @@ Object.assign(Keys, {
 
       if (hit === true) {
         hitKeyNum = i;
-        this.__value[i] = dir === 'down' ? 1 : 0;
-        var __shouldDraw = this.output(hitKeyNum, dir);
+        var __shouldDraw = false;
 
+        if (this.followMouse === false || dir !== 'move') {
+          this.__value[i] = dir === 'down' ? 1 : 0;
+          __shouldDraw = this.output(hitKeyNum, dir);
+        } else {
+          if (this.__lastKey !== hitKeyNum && e.pressure > 0) {
+            //console.log( this.__lastKey, hitKeyNum, this.__value[ this.__lastKey ] )
+            this.__value[this.__lastKey] = 0;
+            this.__value[hitKeyNum] = 1;
+
+            this.active[e.pointerId] = hitKeyNum;
+
+            this.output(this.__lastKey, 0);
+            this.output(hitKeyNum, 1);
+
+            __shouldDraw = true;
+          }
+        }
+
+        this.__lastKey = hitKeyNum;
         if (__shouldDraw === true) shouldDraw = true;
       }
     }
