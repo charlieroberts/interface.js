@@ -125,6 +125,15 @@ Object.assign(Menu, {
       }
     }
   },
+  selectOption: function selectOption(optionString) {
+    var optionIdx = this.options.indexOf(optionString);
+    var option = this.element.options[optionIdx];
+    option.selected = true;
+
+    var evt = document.createEvent('HTMLEvents');
+    evt.initEvent('change', false, true);
+    this.element.dispatchEvent(evt);
+  },
 
 
   /**

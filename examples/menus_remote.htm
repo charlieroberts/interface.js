@@ -1,0 +1,50 @@
+<html lang='en'>
+  <head>
+    <title>Menu Test</title>
+    <script src="../dist/interface.lib.js"></script>
+  </head>
+  
+  <body></body>
+  
+  <script>
+
+    /* 
+    ** an example showing simple bi-directional control.
+    ** by default the server expects to receive OSC messages
+    ** on port 8082, and outputs OSC messages on port 8081. 
+    ** web pages are served on port 8080. 
+    **
+    ** In this example, sending the message '/menu green' to the
+    ** interface.js simple server will change the color of the button
+    ** in the interface to green. Pressing the button will output
+    ** a value of 0 or 1 to /btn.
+    */
+    const panel  = Interface.Panel.create()
+
+    const  menu1 = Interface.Menu.create({ 
+        width:.33, height:.33,
+        options:['red','green','blue'],
+        onvaluechange: function() { 
+          btn1.background = this.value 
+          btn1.draw()
+        } 
+      } 
+    )
+
+    const btn1 = Interface.Button.create({
+      width:.25, height:.25,
+      x:0, y:.5,
+      target:'osc', address:'/btn'
+
+    })
+    
+    panel.add( menu1,btn1 )
+
+    Interface.Communication.OSC.callbacks['/menu'] = msg => {
+      console.log( 'message received!', msg )
+      menu1.selectOption( msg[0] )
+    }
+
+  </script>
+
+</html>

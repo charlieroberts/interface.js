@@ -36,7 +36,7 @@ let Communication = {
   onmessage( e ) {
     let data = JSON.parse( e.data )
     if( data.type === 'osc' ) {
-      Communication.OSC._receive( e.data );
+      Communication.OSC.receive( e.data );
     }else {
       if( Communication.Socket.receive ) {
         Communication.Socket.receive( data.address, data.parameters  )

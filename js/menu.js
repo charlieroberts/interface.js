@@ -93,6 +93,16 @@ Object.assign( Menu, {
     }
   },
 
+  selectOption( optionString ) {
+    const optionIdx = this.options.indexOf( optionString )
+    const option = this.element.options[ optionIdx ]
+    option.selected = true
+
+    let evt = document.createEvent( 'HTMLEvents' )
+    evt.initEvent( 'change', false, true )
+    this.element.dispatchEvent( evt )
+  },
+
   /**
    * Overridden virtual method to add element to panel.
    * @private

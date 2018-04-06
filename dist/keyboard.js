@@ -58,7 +58,7 @@ Object.assign(Keys, {
     endKey: 60,
     whiteColor: '#fff',
     blackColor: '#000',
-    followMouse: false
+    followMouse: true
   },
 
   /**
