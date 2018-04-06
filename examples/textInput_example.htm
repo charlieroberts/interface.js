@@ -1,0 +1,23 @@
+<html>
+  <head>
+    <title>Menu Test</title>
+    <script src="../dist/interface.lib.js"></script>
+  </head>
+  
+  <body></body>
+  
+  <script>
+
+    var panel  = Interface.Panel.create()
+
+    var input = Interface.Input.create({ 
+        width:.5, height:.33,
+        value:'test',
+        target:'osc', address:'/input'
+    })
+    
+    panel.add( input )
+
+  </script>
+
+</html>
