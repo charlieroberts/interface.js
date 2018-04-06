@@ -96,7 +96,7 @@ app
 server.on( 'request', app )
 server.listen( webServerPort )
 
-monitorApp.use( serve_static( __dirname + '/node_modules/interface.server.monitor/'  ) )
+monitorApp.use( serve_static( __dirname + '/../node_modules/interface.server.monitor/'  ) )
 monitorServer.on( 'request', monitorApp )
 monitorServer.listen( monitorPort )
 
