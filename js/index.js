@@ -5,7 +5,7 @@ import Slider from './slider'
 import Joystick from './joystick'
 import Button from './button'
 import Menu from './menu'
-import Input from './textInput'
+import TextInput from './textInput'
 import Communication from './communication'
 import PEP from 'pepjs'
 import Knob from './knob'
@@ -21,7 +21,7 @@ export {
   Joystick, 
   Button, 
   Menu, 
-  Input,
+  TextInput,
   Communication, 
   Knob, 
   MultiSlider, 

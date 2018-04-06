@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Utilities = exports.XY = exports.Keyboard = exports.MultiButton = exports.MultiSlider = exports.Knob = exports.Communication = exports.Input = exports.Menu = exports.Button = exports.Joystick = exports.Slider = exports.Panel = undefined;
+exports.Utilities = exports.XY = exports.Keyboard = exports.MultiButton = exports.MultiSlider = exports.Knob = exports.Communication = exports.TextInput = exports.Menu = exports.Button = exports.Joystick = exports.Slider = exports.Panel = undefined;
 
 var _panel = require('./panel');
 
@@ -70,7 +70,7 @@ exports.Slider = _slider2.default;
 exports.Joystick = _joystick2.default;
 exports.Button = _button2.default;
 exports.Menu = _menu2.default;
-exports.Input = _textInput2.default;
+exports.TextInput = _textInput2.default;
 exports.Communication = _communication2.default;
 exports.Knob = _knob2.default;
 exports.MultiSlider = _multislider2.default;
