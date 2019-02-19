@@ -258,6 +258,7 @@ Object.assign( XY, {
     touchFound.pos.y = touchFound.lastY = e.clientY
     touchFound.pointerId = e.pointerId
 
+    this.output()
     //touchFound.identifier = _touch.identifier
     //touchFound.childID = touchNum
     //if( this.style === 'horizontal' ) {
