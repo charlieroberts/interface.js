@@ -13,9 +13,11 @@ import MultiSlider from './multislider'
 import MultiButton from './multiButton'
 import Keyboard from './keyboard'
 import XY from './xy'
+import Accelerometer from './accelerometer'
 import Utilities from './utilities'
 
 export {
+  Accelerometer,
   Panel, 
   Slider, 
   Joystick, 

@@ -7,6 +7,11 @@ var Utilities = {
   getMode: function getMode() {
     return 'ontouchstart' in document.documentElement ? 'touch' : 'mouse';
   },
+  getOS: function getOS() {
+    var ua = navigator.userAgent.toLowerCase();
+    var os = ua.indexOf('android') > -1 ? 'android' : 'ios';
+    return os;
+  },
   compareArrays: function compareArrays(a1, a2) {
     return a1.length === a2.length && a1.every(function (v, i) {
       return v === a2[i];
@@ -44,7 +49,7 @@ var Utilities = {
     return hit;
   },
   mtof: function mtof(num) {
-    var tuning = arguments.length <= 1 || arguments[1] === undefined ? 440 : arguments[1];
+    var tuning = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 440;
 
     return tuning * Math.exp(.057762265 * (num - 69));
   }

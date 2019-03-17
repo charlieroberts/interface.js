@@ -13,7 +13,7 @@ var Panel = {
   panels: [],
 
   create: function create() {
-    var props = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
+    var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 
     var panel = Object.create(this);
 

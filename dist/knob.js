@@ -204,6 +204,23 @@ Object.assign(Knob, {
 
     if (shouldDraw) this.draw();
   }
-});
+}
+
+//__addToPanel( panel ) {
+//  this.container = panel
+
+//  if( typeof this.addEvents === 'function' ) this.addEvents()
+
+//  // called if widget uses DOMWidget as prototype; .place inherited from DOMWidget
+
+//  this.place( true ) 
+
+//  if( this.label ) this.addLabel()
+
+//  this.draw()     
+
+//}
+
+);
 
 module.exports = Knob;

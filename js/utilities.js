@@ -3,11 +3,16 @@ let Utilities = {
   getMode() {
     return 'ontouchstart' in document.documentElement ? 'touch' : 'mouse'
   },
-  
+
+  getOS() {
+    const ua = navigator.userAgent.toLowerCase();
+    const os = ua.indexOf('android') > -1 ? 'android' : 'ios'
+    return os
+  },
+
   compareArrays( a1, a2 ) {
     return a1.length === a2.length && a1.every((v,i)=> v === a2[i])
   },
-
 
   // ported/adapted from orignal Interface.js ButtonV code by Jonathan Simozar
   polyHitTest( e, bounds, rect ) {

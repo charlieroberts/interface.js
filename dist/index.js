@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Utilities = exports.XY = exports.Keyboard = exports.MultiButton = exports.MultiSlider = exports.Knob = exports.Communication = exports.TextInput = exports.Menu = exports.Button = exports.Joystick = exports.Slider = exports.Panel = undefined;
+exports.Utilities = exports.XY = exports.Keyboard = exports.MultiButton = exports.MultiSlider = exports.Knob = exports.Communication = exports.TextInput = exports.Menu = exports.Button = exports.Joystick = exports.Slider = exports.Panel = exports.Accelerometer = undefined;
 
 var _panel = require('./panel');
 
@@ -57,14 +57,17 @@ var _xy = require('./xy');
 
 var _xy2 = _interopRequireDefault(_xy);
 
+var _accelerometer = require('./accelerometer');
+
+var _accelerometer2 = _interopRequireDefault(_accelerometer);
+
 var _utilities = require('./utilities');
 
 var _utilities2 = _interopRequireDefault(_utilities);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// Everything we need to include goes here and is fed to browserify in the gulpfile.js
-
+exports.Accelerometer = _accelerometer2.default;
 exports.Panel = _panel2.default;
 exports.Slider = _slider2.default;
 exports.Joystick = _joystick2.default;
@@ -77,4 +80,4 @@ exports.MultiSlider = _multislider2.default;
 exports.MultiButton = _multiButton2.default;
 exports.Keyboard = _keyboard2.default;
 exports.XY = _xy2.default;
-exports.Utilities = _utilities2.default;
+exports.Utilities = _utilities2.default; // Everything we need to include goes here and is fed to browserify in the gulpfile.js

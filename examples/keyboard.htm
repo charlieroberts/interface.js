@@ -1,0 +1,33 @@
+<! doctype=html >
+<html lang='en'>
+  <head>
+    <title>Keyboard Test</title>
+    <script src="../dist/interface.lib.js"></script>
+  </head>
+  
+  <body></body>
+  
+  <script>
+
+    const panel  = Interface.Panel.create()
+
+    window.test = { a: -5 }
+
+    window.keys = Interface.Keyboard.create({ 
+      width:.5, height:1,
+      target:test, key:'a',
+      onvaluechange( value, key ) {
+        console.log( value === 1 ? 'down: ' : 'up: ', key )
+      }
+    })
+
+    window.slider = Interface.Slider.create({
+      x:.5, width:.5, height:1,
+      target:test, key:'a'
+    })
+    
+    panel.add( keys, slider ) 
+
+  </script>
+
+</html>

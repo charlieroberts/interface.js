@@ -1,0 +1,25 @@
+<! doctype=html >
+<html lang='en'>
+  <head>
+    <title>XY Test</title>
+    <script src="../dist/interface.lib.js"></script>
+  </head>
+  
+  <body></body>
+  
+  <script>
+
+    const panel  = Interface.Panel.create()
+
+    const xy = Interface.XY.create({ 
+      width:1, height:1,
+      names:['albert','b','c','d'],
+      target:'osc', key:'/xy'
+    })
+
+    panel.add( xy ) 
+
+  </script>
+
+</html>
+/html>

@@ -1,0 +1,33 @@
+<!doctype=html >
+<html lang='en'>
+  <head>
+    <title>Keyboard Test</title>
+    <script src="../dist/interface.lib.js"></script>
+  </head>
+  
+  <body>
+    <h1 id='x'>x:</h1>
+    <h1 id='y'>y:</h1>
+    <h1 id='z'>z:</h1>
+  </body>
+
+  
+  <script>
+    //const panel  = Interface.Panel.create()
+
+    const acc = Interface.Accelerometer.create()
+    const x = document.querySelector('#x')
+    const y = document.querySelector('#y')
+    const z = document.querySelector('#z')
+
+    acc.onvaluechange = value => {
+      x.innerText = `x: ${value[0]}`
+      y.innerText = `y: ${value[1]}`
+      z.innerText = `z: ${value[2]}`
+    }
+
+    //panel.add( keys, slider ) 
+
+  </script>
+
+</html>

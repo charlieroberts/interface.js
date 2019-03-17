@@ -86,7 +86,7 @@ Object.assign(CanvasWidget, {
   applyHandlers: function applyHandlers() {
     var _this = this;
 
-    var shouldUseTouch = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+    var shouldUseTouch = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 
     var handlers = shouldUseTouch ? CanvasWidget.handlers.touch : CanvasWidget.handlers.mouse;
 
