@@ -45,7 +45,14 @@ Object.assign(Accelerometer, {
     return acc;
   },
   addEvents: function addEvents() {
-    window.addEventListener('devicemotion', this.update.bind(this));
+    var _this = this;
+
+    alert('adding');
+    DeviceMotionEvent.requestPermission().then(function (response) {
+      if (response === 'granted') {
+        window.addEventListener('devicemotion', _this.update.bind(_this));
+      }
+    });
   },
   update: function update(event) {
     var acceleration = event.acceleration;
@@ -53,11 +60,6 @@ Object.assign(Accelerometer, {
     this.y = this.__value[1] = this.min + (0 - this.hardwareMin + acceleration.y) / this.hardwareRange * this.max;
     this.z = this.__value[2] = this.min + (0 - this.hardwareMin + acceleration.z) / this.hardwareRange * this.max;
 
-    //if(typeof this.onvaluechange !== 'undefined') {
-    //  this.onvaluechange(this.x, this.y, this.z);
-    //}
-
-    //this.sendTargetMessage();
     this.output();
   }
 }, {

@@ -96,7 +96,7 @@ app
 server.on( 'request', app )
 server.listen( webServerPort )
 
-monitorApp.use( serve_static( __dirname + '/../node_modules/interface.server.monitor/'  ) )
+monitorApp.use( serve_static( __dirname + '/node_modules/interface.server.monitor/'  ) )
 monitorServer.on( 'request', monitorApp )
 monitorServer.listen( monitorPort )
 
@@ -203,12 +203,7 @@ clients_in.on( 'connection', function ( socket ) {
         args: msg.parameters
       })
       
-      for( let monitor of monitorClients ) {
-        if( monitor.monitoredClients.indexOf( socket ) > -1 ) {
-          msg.id = socket.idNumber
-          monitor.send( JSON.stringify({ type:'monitoring', data: msg }) )
-        }
-      }
+
 
       osc.send( buf, 0, buf.length, oscOutPort, outputIPAddress || 'localhost')
     }else if( msg.type === 'midi' && midi !== null ) {
@@ -226,7 +221,9 @@ clients_in.on( 'connection', function ( socket ) {
     }else if( msg.type === 'socket' ) {
       for( let key in clients ) {
         if( clients[ key ] !== socket ) {
-          clients[ key ].send( JSON.stringify({ type:'socket', address:msg.address, parameters:msg.parameters }) )
+          if( clients[ key ].readyState === ws.OPEN ) {
+            clients[ key ].send( JSON.stringify({ type:'socket', address:msg.address, parameters:msg.parameters }) )
+          }
         }
       }
     }else if( msg.type === 'meta' ) {
@@ -239,6 +236,13 @@ clients_in.on( 'connection', function ( socket ) {
           break;
       } 
 
+    }
+
+    for( let monitor of monitorClients ) {
+      if( monitor.monitoredClients.indexOf( socket ) > -1 ) {
+        msg.id = socket.idNumber
+        monitor.send( JSON.stringify({ type:'monitoring', data: msg }) )
+      }
     }
   })
 

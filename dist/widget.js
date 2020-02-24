@@ -82,7 +82,7 @@ var Widget = {
    */
 
   init: function init() {
-    if (this.target && this.target === 'osc' || this.target === 'midi') {
+    if (this.target && this.target === 'osc' || this.target === 'midi' || this.target === 'socket') {
       if (!_communication2.default.initialized) _communication2.default.init();
     }
 
@@ -233,6 +233,8 @@ var Widget = {
   transmit: function transmit(output) {
     if (this.target === 'osc') {
       _communication2.default.OSC.send(this.address, output);
+    } else if (this.target === 'socket') {
+      _communication2.default.WebSocket.send(this.address, output);
     } else {
       if (this.target[this.key] !== undefined) {
         if (typeof this.target[this.key] === 'function') {

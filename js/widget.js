@@ -66,7 +66,7 @@ let Widget = {
    */
 
   init() {
-    if( this.target && this.target === 'osc' || this.target === 'midi' ) {
+    if( this.target && this.target === 'osc' || this.target === 'midi' || this.target === 'socket' ) {
       if( !Communication.initialized ) Communication.init()
     }
 
@@ -143,6 +143,8 @@ let Widget = {
   transmit( output ) {
     if( this.target === 'osc' ) {
       Communication.OSC.send( this.address, output )
+    } else if( this.target === 'socket' ) {
+      Communication.WebSocket.send( this.address, output )
     } else {
       if( this.target[ this.key ] !== undefined ) {
         if( typeof this.target[ this.key ] === 'function' ) {

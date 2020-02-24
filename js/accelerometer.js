@@ -33,7 +33,13 @@ Object.assign( Accelerometer, {
   },
 
   addEvents() {
-    window.addEventListener( 'devicemotion',  this.update.bind( this ) )
+    alert('adding')
+    DeviceMotionEvent.requestPermission()
+    .then( response => {
+      if ( response === 'granted') {
+        window.addEventListener( 'devicemotion',  this.update.bind( this ) )
+      }
+    })
   },
 
   update( event ) {

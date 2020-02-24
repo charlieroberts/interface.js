@@ -44,6 +44,26 @@ let Communication = {
     }
   },
 
+  WebSocket: {
+    send( address, parameters ) {
+      if( Communication.Socket.readyState === 1 ) {
+        if( typeof address === 'string' ) {
+          let msg = {
+            type : 'socket',
+            address,
+            'parameters': Array.isArray( parameters ) ? parameters : [ parameters ],
+          }
+
+          Communication.Socket.send( JSON.stringify( msg ) )
+        }else{
+          throw Error( 'Invalid socket message:', arguments )   
+        }
+      }else{
+        throw Error( 'Socket is not yet connected; cannot send websocket messsages.' )
+      }
+    },
+  },
+
   OSC : {
     callbacks: {},
     onmessage: null,
