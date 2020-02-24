@@ -9,6 +9,7 @@
     "serve-index": "~1.4.0",
     "serve-static": "~1.6.3",
     "ws": "~0.4.32",
+    "interface.server.monitor": "^0.1.2",
     "minimist": "~1.1.0",
     "osc-min": "~0.2.0",
     "midi": "~0.9.0"
