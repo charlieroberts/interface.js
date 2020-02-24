@@ -1,0 +1,14 @@
+<html>
+<head>
+  <script src='../../dist/interface.lib.js'></script>
+</head>
+<body>
+  <script>    
+    Interface.Communication.init()
+    Interface.Communication.OSC.onmessage = function( address, tt, parameters ) {
+      console.log( address, tt, parameters )
+    }
+
+  </script>
+</body>
+</html>

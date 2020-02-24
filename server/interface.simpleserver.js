@@ -107,8 +107,10 @@ monitorServer.listen( monitorPort )
 osc = udp.createSocket( 'udp4', function( _msg, rinfo ) {
   let msg = oscMin.fromBuffer( _msg )
     
+  // XXX firstPath breaks touchosc messages
+  // I guess it was for different clients originally?
   let firstPath = msg.address.split('/')[1],
-      isNumber  = ! isNaN( firstPath ),
+      isNumber  = false, // ! isNaN( firstPath ),
       tt = '',
       msgArgs = []
   

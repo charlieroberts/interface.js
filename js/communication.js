@@ -103,7 +103,7 @@ let Communication = {
         }    
 
         if( this.onmessage !== null ) { 
-          this.receive( msg.address, msg.typetags, msg.parameters )
+          this.onmessage( msg.address, msg.typetags, msg.parameters )
         }
       }
     }
