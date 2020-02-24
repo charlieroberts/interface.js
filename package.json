@@ -2,7 +2,7 @@
   "name": "interface.js",
   "version": "3.0.0",
   "description": "Library for browser-based OSC / WebSocket interfaces",
-  "main": "index.js",
+  "main": "js/index.js",
   "scripts": {
     "test": "npm test"
   },
@@ -28,7 +28,8 @@
     "babel-preset-es2015": "^6.9.0",
     "babel-preset-react": "^6.11.1",
     "interface.server.monitor": "^0.0.1",
-    "pepjs": "^0.4.1"
+    "pepjs": "^0.4.1",
+    "victor": "^1.1.0",
   },
   "devDependencies": {
     "babel-preset-es2015": "^6.9.0",
@@ -41,7 +42,6 @@
     "gulp-mocha": "^2.2.0",
     "gulp-notify": "^2.2.0",
     "pepjs": "^0.4.1",
-    "victor": "^1.1.0",
     "vinyl-source-stream": "^1.1.0"
   }
 }
