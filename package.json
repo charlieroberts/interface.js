@@ -29,7 +29,7 @@
     "babel-preset-react": "^6.11.1",
     "interface.server.monitor": "^0.0.1",
     "pepjs": "^0.4.1",
-    "victor": "^1.1.0",
+    "victor": "^1.1.0"
   },
   "devDependencies": {
     "babel-preset-es2015": "^6.9.0",
