@@ -1,14 +1,14 @@
 {
   "name": "interface.js",
   "version": "2.0.0",
-  "description": "Library for browser-based interfaces",
+  "description": "Library for browser-based OSC / WebSocket interfaces",
   "main": "index.js",
   "scripts": {
     "test": "npm test"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AlloSphere-Research-Group/interface.js.git"
+    "url": "git+https://github.com/charlieroberts/interface.js.git"
   },
   "keywords": [
     "interface",
@@ -21,9 +21,9 @@
   "author": "Charlie Roberts <charlie@charlie-roberts.com> (http://www.charlie-roberts.com/)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/AlloSphere-Research-Group/interface.js/issues"
+    "url": "https://github.com/charlieroberts/interface.js/issues"
   },
-  "homepage": "https://github.com/AlloSphere-Research-Group/interface.js#readme",
+  "homepage": "https://github.com/charlieroberts/interface.js#readme",
   "dependencies": {
     "babel-preset-es2015": "^6.9.0",
     "babel-preset-react": "^6.11.1",
