@@ -41,13 +41,12 @@ Object.assign(Accelerometer, {
   create: function create() {
     var acc = Object.create(this);
     _widget2.default.create.call(acc);
-    acc.addEvents();
+    //acc.addEvents()
     return acc;
   },
   addEvents: function addEvents() {
     var _this = this;
 
-    alert('adding');
     DeviceMotionEvent.requestPermission().then(function (response) {
       if (response === 'granted') {
         window.addEventListener('devicemotion', _this.update.bind(_this));

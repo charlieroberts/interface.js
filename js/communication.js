@@ -4,8 +4,8 @@ let Communication = {
   Socket : null,
   initialized: false,
 
-  init() {
-    this.Socket = new WebSocket( this.getServerAddress() )
+  init( __port=8080 ) {
+    this.Socket = new WebSocket( this.getServerAddress( __port ) )
     this.Socket.onmessage = this.onmessage
 
     let fullLocation = window.location.toString(),
@@ -19,14 +19,14 @@ let Communication = {
     this.initialized = true
   },
 
-  getServerAddress() {
+  getServerAddress( __port=null ) {
     let expr, socketIPAndPort, socketString, ip, port
 
     expr = /[-a-zA-Z0-9.]+(:(6553[0-5]|655[0-2]\d|65[0-4]\d{2}|6[0-4]\d{3}|[1-5]\d{4}|[1-9]\d{0,3}))/
 
     socketIPAndPort = expr.exec( window.location.toString() )[ 0 ].split( ':' )
     ip = socketIPAndPort[ 0 ]
-    port = parseInt( socketIPAndPort[ 1 ] )
+    port = __port === null ? parseInt( socketIPAndPort[ 1 ] ) : __port
 
     socketString = `ws://${ip}:${port}`
 

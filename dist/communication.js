@@ -17,7 +17,9 @@ var Communication = {
   init: function init() {
     var _this = this;
 
-    this.Socket = new WebSocket(this.getServerAddress());
+    var __port = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 8080;
+
+    this.Socket = new WebSocket(this.getServerAddress(__port));
     this.Socket.onmessage = this.onmessage;
 
     var fullLocation = window.location.toString(),
@@ -31,6 +33,8 @@ var Communication = {
     this.initialized = true;
   },
   getServerAddress: function getServerAddress() {
+    var __port = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+
     var expr = void 0,
         socketIPAndPort = void 0,
         socketString = void 0,
@@ -41,7 +45,7 @@ var Communication = {
 
     socketIPAndPort = expr.exec(window.location.toString())[0].split(':');
     ip = socketIPAndPort[0];
-    port = parseInt(socketIPAndPort[1]);
+    port = __port === null ? parseInt(socketIPAndPort[1]) : __port;
 
     socketString = 'ws://' + ip + ':' + port;
 

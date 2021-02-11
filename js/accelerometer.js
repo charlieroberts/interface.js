@@ -28,18 +28,17 @@ Object.assign( Accelerometer, {
   create() {
     const acc = Object.create( this )
     Widget.create.call( acc )
-    acc.addEvents()
+    //acc.addEvents()
     return acc
   },
 
   addEvents() {
-    alert('adding')
     DeviceMotionEvent.requestPermission()
-    .then( response => {
-      if ( response === 'granted') {
-        window.addEventListener( 'devicemotion',  this.update.bind( this ) )
-      }
-    })
+      .then( response => {
+        if ( response === 'granted' ) {
+          window.addEventListener( 'devicemotion',  this.update.bind( this ) )
+        }
+      })
   },
 
   update( event ) {

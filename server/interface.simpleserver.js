@@ -66,8 +66,6 @@ app
       templateSplit.splice( 8,1,ijsFile ),
       finalFile = templateSplit.join( '\n' )
 
-      console.log( finalFile )
-
       res.writeHead( 200, {
         'Content-Type': 'text/html',
         'Content-Length': finalFile.length
@@ -119,9 +117,11 @@ osc = udp.createSocket( 'udp4', function( _msg, rinfo ) {
     msgArgs.push( arg.value )
   }
   
+  console.log( 'clients', clients )
   if( ! isNumber ) {
     for( let key in clients ) {
       try{
+        console.log( clients[ key ] )
         clients[ key ].send( JSON.stringify({ type:'osc', address:msg.address, typetags: tt, parameters:msgArgs }) )
       } catch (error){}
     }
