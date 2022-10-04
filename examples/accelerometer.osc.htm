@@ -1,0 +1,48 @@
+<!doctype=html >
+<html lang='en'>
+  <head>
+    <title>Keyboard Test</title>
+    <script src="../dist/interface.lib.js"></script>
+  </head>
+  
+  <body>
+    <button id='start'>start acc</button>
+    <h1 id='x'>x:</h1>
+    <h1 id='y'>y:</h1>
+    <h1 id='z'>zxxx:</h1>
+  </body>
+
+  
+  <script>
+    //const panel  = Interface.Panel.create()
+
+    window.onload = function() {
+
+      if ( location.protocol != "https:" ) {
+        location.href = "https:" + window.location.href.substring( window.location.protocol.length );
+      }
+      const acc = Interface.Accelerometer.create({
+        target:'osc',
+        key:'/acc'
+      })
+
+      const x = document.querySelector('#x')
+      const y = document.querySelector('#y')
+      const z = document.querySelector('#z')
+
+      acc.onvaluechange = value => {
+        x.innerText = `x: ${value[0]}`
+        y.innerText = `y: ${value[1]}`
+        z.innerText = `z: ${value[2]}`
+      }
+
+      document.getElementById('start').onclick = function() {
+        window.alert('adding events')
+        acc.addEvents()
+      }
+    }
+    //panel.add( keys, slider ) 
+
+  </script>
+
+</html>
